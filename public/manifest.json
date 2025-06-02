@@ -1,7 +1,8 @@
 {
   "name": "Cennik Vet",
-  "short_name": "Cennik",
-  "start_url": "/",
+  "short_name": "Cennik Vet",
+  "start_url": "/cennik-vet/",
+  "scope": "/cennik-vet/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",

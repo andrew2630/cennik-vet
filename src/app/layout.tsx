@@ -17,8 +17,8 @@ export default function RootLayout({
   return (
     <html lang='pl'>
       <head>
-        <link rel='manifest' href='/manifest.json' />
-        <link rel='apple-touch-icon' href='/icon-192.png' />
+        <link rel='manifest' href='/cennik-vet/manifest.json' />
+        <link rel='apple-touch-icon' href='/cennik-vet/icon-192.png' />
         <meta name='theme-color' content='#4f46e5' />
       </head>
       <body className='min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white font-sans antialiased'>

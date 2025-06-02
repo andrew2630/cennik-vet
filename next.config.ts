@@ -4,6 +4,7 @@ import withPWA from 'next-pwa';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'export',
+  basePath: '/cennik-vet',
   trailingSlash: true,
 };
 
