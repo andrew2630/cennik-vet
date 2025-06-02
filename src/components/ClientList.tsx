@@ -2,18 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { getClients, deleteClient } from '@/utils/clientStorage';
 import { Client } from '@/types';
-
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table';
 
 import {
   Dialog,
@@ -24,13 +14,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,7 +27,6 @@ export default function ClientList({ refresh }: { refresh: number }) {
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<'name' | 'address'>('name'); // domyślnie: name
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const router = useRouter();
 
   useEffect(() => {
     setClients(getClients());
@@ -67,13 +50,11 @@ export default function ClientList({ refresh }: { refresh: number }) {
     .sort((a, b) => {
       const aValue = sortField === 'name' ? a.name.toLowerCase() : (a.address || '').toLowerCase();
       const bValue = sortField === 'name' ? b.name.toLowerCase() : (b.address || '').toLowerCase();
-      return sortOrder === 'asc'
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+      return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
     });
 
   return (
-    <Card className='mt-6'>
+    <Card className='mt-6 bg-transparent'>
       <CardHeader className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
           <CardTitle>Lista klientów</CardTitle>
@@ -86,7 +67,7 @@ export default function ClientList({ refresh }: { refresh: number }) {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <Select value={sortField} onValueChange={val => setSortField(val as any)}>
+          <Select value={sortField} onValueChange={(val: 'name' | 'address') => setSortField(val)}>
             <SelectTrigger className='w-[140px]'>
               <SelectValue placeholder='Sortuj wg' />
             </SelectTrigger>
@@ -96,7 +77,7 @@ export default function ClientList({ refresh }: { refresh: number }) {
             </SelectContent>
           </Select>
 
-          <Select value={sortOrder} onValueChange={val => setSortOrder(val as any)}>
+          <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
             <SelectTrigger className='w-[140px]'>
               <SelectValue placeholder='Kolejność' />
             </SelectTrigger>
@@ -108,65 +89,57 @@ export default function ClientList({ refresh }: { refresh: number }) {
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className='space-y-4'>
         {filtered.length === 0 ? (
           <p className='text-muted-foreground'>Brak klientów do wyświetlenia.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Imię i nazwisko</TableHead>
-                <TableHead>Adres</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead className='text-right'>Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map(client => (
-                <TableRow key={client.id}>
-                  <TableCell>{client.name}</TableCell>
-                  <TableCell>{client.address}</TableCell>
-                  <TableCell>{client.phone}</TableCell>
-                  <TableCell className='text-right space-x-2'>
-                    <Link href={`/clients/edit?id=${client.id}`}>
-                      <Button size='sm' variant='outline'>
-                        <Pencil className='w-4 h-4' />
+          filtered.map(client => (
+            <Card key={client.id} className='p-4 border rounded-xl shadow-sm opacity-90'>
+              {/* Linia 1: Tylko nazwa */}
+              <div className='text-base font-semibold mb-1'>{client.name}</div>
+
+              {/* Linia 2: adres, telefon, przyciski */}
+              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-muted-foreground'>
+                <div className='flex flex-wrap gap-4'>
+                  {client.address && <span>📍 {client.address}</span>}
+                  {client.phone && <span>☎ {client.phone}</span>}
+                </div>
+
+                <div className='flex gap-2 justify-end'>
+                  <Link href={`/clients/edit?id=${client.id}`}>
+                    <Button size='sm' variant='outline'>
+                      <Pencil className='w-4 h-4' />
+                    </Button>
+                  </Link>
+
+                  <Dialog
+                    open={selectedClient?.id === client.id}
+                    onOpenChange={open => !open && setSelectedClient(null)}
+                  >
+                    <DialogTrigger asChild>
+                      <Button type='button' size='sm' variant='destructive' onClick={() => setSelectedClient(client)}>
+                        <Trash className='w-4 h-4' />
                       </Button>
-                    </Link>
-                    <Dialog
-                      open={selectedClient?.id === client.id}
-                      onOpenChange={open => !open && setSelectedClient(null)}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          type='button'
-                          size='sm'
-                          variant='destructive'
-                          onClick={() => setSelectedClient(client)}
-                        >
-                          <Trash className='w-4 h-4' />
+                    </DialogTrigger>
+                    <DialogContent className='sm:max-w-md'>
+                      <DialogTitle>Potwierdź usunięcie</DialogTitle>
+                      <DialogDescription>
+                        Czy na pewno chcesz usunąć <strong>{client.name}</strong>?
+                      </DialogDescription>
+                      <DialogFooter className='mt-4 flex gap-2'>
+                        <Button type='button' variant='outline' onClick={() => setSelectedClient(null)}>
+                          Anuluj
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className='sm:max-w-md'>
-                        <DialogTitle>Potwierdź usunięcie</DialogTitle>
-                        <DialogDescription>
-                          Czy na pewno chcesz usunąć <strong>{client.name}</strong>?
-                        </DialogDescription>
-                        <DialogFooter className='mt-4 flex gap-2'>
-                          <Button type='button' variant='outline' onClick={() => setSelectedClient(null)}>
-                            Anuluj
-                          </Button>
-                          <Button type='button' variant='destructive' onClick={() => handleDelete(client.id)}>
-                            Usuń
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                        <Button type='button' variant='destructive' onClick={() => handleDelete(client.id)}>
+                          Usuń
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            </Card>
+          ))
         )}
       </CardContent>
     </Card>

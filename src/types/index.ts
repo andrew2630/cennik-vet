@@ -16,9 +16,14 @@ export type Unit =
   | 'km'
   | string;
 
+export type Item = {
+  id: string
+  [key: string]: unknown
+}
+
 export type ItemType = 'produkt' | 'usługa';
 
-export interface Product {
+export interface Product extends Item {
   id: string;
   type: ItemType;
   name: string;
@@ -26,7 +31,7 @@ export interface Product {
   pricePerUnit: number;
 }
 
-export interface Client {
+export interface Client extends Item {
   id: string;
   name: string;
   address?: string;
@@ -40,7 +45,7 @@ export interface TransactionItem {
   quantity: number;
 }
 
-export interface Transaction {
+export interface Transaction extends Item {
   id: string;
   clientId: string;
   date: string;

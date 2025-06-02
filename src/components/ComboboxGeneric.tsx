@@ -20,9 +20,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
-import { useMediaQuery } from "@uidotdev/usehooks";
-
-type Item = { [key: string]: any }
+import { useMediaQuery } from "@uidotdev/usehooks"
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { DialogTitle } from '@/components/ui/dialog'
+import { Item } from '@/types'
 
 interface ComboboxGenericProps {
   items: Item[]
@@ -32,6 +33,7 @@ interface ComboboxGenericProps {
   displayKey: string
   filterKeys?: string[]
   className?: string
+  disabled?: boolean
 }
 
 export function ComboboxGeneric({
@@ -42,43 +44,44 @@ export function ComboboxGeneric({
   displayKey,
   filterKeys = [displayKey],
   className,
+  disabled = false,
 }: ComboboxGenericProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const [open, setOpen] = React.useState(false)
+  const [query, setQuery] = React.useState('')
   const selectedItem = items.find(i => i.id === selectedId)
 
-  const filteredItems = (query: string) =>
-    items.filter(item =>
-      filterKeys.some(key =>
-        String(item[key] || '')
-          .toLowerCase()
-          .includes(query.toLowerCase())
-      )
+  const filtered = items.filter(item =>
+    filterKeys.some(key =>
+      String(item[key] || '')
+        .toLowerCase()
+        .includes(query.toLowerCase())
     )
+  )
 
   const List = ({ close }: { close: () => void }) => (
-    <Command
-      shouldFilter={false}
-    >
+    <Command shouldFilter={false}>
       <CommandInput
         placeholder="Szukaj..."
-        onValueChange={(input) => {
-          // filtering will be done inline
-        }}
+        value={query}
+        onValueChange={setQuery}
+        disabled={disabled}
       />
       <CommandList>
         <CommandEmpty>Brak wyników.</CommandEmpty>
         <CommandGroup>
-          {filteredItems('').map(item => (
+          {filtered.map(item => (
             <CommandItem
               key={item.id}
               value={item.id}
               onSelect={() => {
-                onSelect(item.id)
-                close()
+                if (!disabled) {
+                  onSelect(item.id)
+                  close()
+                }
               }}
             >
-              {item[displayKey]}
+              {String(item[displayKey])}
             </CommandItem>
           ))}
         </CommandGroup>
@@ -90,10 +93,14 @@ export function ComboboxGeneric({
 
   if (isDesktop) {
     return (
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open && !disabled} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className={className || 'w-full justify-start'}>
-            {buttonText}
+          <Button
+            variant="outline"
+            className={className || 'w-full justify-start'}
+            disabled={disabled}
+          >
+            {String(buttonText)}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
@@ -104,13 +111,20 @@ export function ComboboxGeneric({
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer open={open && !disabled} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className={className || 'w-full justify-start'}>
-          {buttonText}
+        <Button
+          variant="outline"
+          className={className || 'w-full justify-start'}
+          disabled={disabled}
+        >
+          {String(buttonText)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
+        <VisuallyHidden>
+          <DialogTitle>Wybierz opcję</DialogTitle>
+        </VisuallyHidden>
         <div className="mt-4 border-t">
           <List close={() => setOpen(false)} />
         </div>

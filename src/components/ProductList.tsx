@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +20,6 @@ export default function ProductList({ refresh }: { refresh: number }) {
   const [search, setSearch] = useState('');
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     setProducts(getProducts());
@@ -50,7 +47,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
     });
 
   return (
-    <Card className='mt-6'>
+    <Card className='mt-6 bg-transparent'>
       <CardHeader className='flex flex-col gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
           <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
@@ -67,7 +64,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
         </div>
 
         <div className='flex flex-wrap md:justify-end gap-2'>
-          <Select value={typeFilter} onValueChange={val => setTypeFilter(val as any)}>
+          <Select value={typeFilter} onValueChange={(val: 'all' | ItemType) => setTypeFilter(val)}>
             <SelectTrigger className='w-[125px]'>
               <SelectValue placeholder='Typ' />
             </SelectTrigger>
@@ -78,7 +75,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
             </SelectContent>
           </Select>
 
-          <Select value={unitFilter} onValueChange={val => setUnitFilter(val as any)}>
+          <Select value={unitFilter} onValueChange={(val: 'all' | Unit) => setUnitFilter(val)}>
             <SelectTrigger className='w-[125px]'>
               <SelectValue placeholder='Jednostka' />
             </SelectTrigger>
@@ -92,7 +89,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
             </SelectContent>
           </Select>
 
-          <Select value={sortField} onValueChange={val => setSortField(val as any)}>
+          <Select value={sortField} onValueChange={(val: 'name' | 'price') => setSortField(val)}>
             <SelectTrigger className='w-[125px]'>
               <SelectValue placeholder='Sortuj wg' />
             </SelectTrigger>
@@ -102,7 +99,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
             </SelectContent>
           </Select>
 
-          <Select value={sortOrder} onValueChange={val => setSortOrder(val as any)}>
+          <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
             <SelectTrigger className='w-[125px]'>
               <SelectValue placeholder='Kolejność' />
             </SelectTrigger>
@@ -114,49 +111,51 @@ export default function ProductList({ refresh }: { refresh: number }) {
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className='space-y-4'>
         {filtered.length === 0 ? (
           <p className='text-muted-foreground'>Brak danych do wyświetlenia.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nazwa</TableHead>
-                <TableHead>Typ</TableHead>
-                <TableHead>Jednostka</TableHead>
-                <TableHead className='text-right'>Cena</TableHead>
-                <TableHead className='text-right'>Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map(p => (
-                <TableRow key={p.id}>
-                  <TableCell>{p.name}</TableCell>
-                  <TableCell>{p.type}</TableCell>
-                  <TableCell>{p.unit}</TableCell>
-                  <TableCell className='text-right'>{p.pricePerUnit.toFixed(2)} zł</TableCell>
-                  <TableCell className='text-right space-x-2'>
-                    <Link href={`/products/edit?id=${p.id}`}>
-                      <Button size='sm' variant='outline'>
-                        <Pencil className='w-4 h-4' />
-                      </Button>
-                    </Link>
-                    <Button
-                      size='sm'
-                      variant='destructive'
-                      onClick={() => {
-                        setSelectedProduct(p);
-                        setConfirmId(p.id);
-                      }}
-                    >
-                      <Trash className='w-4 h-4' />
+          filtered.map(p => (
+            <Card key={p.id} className='p-4 border rounded-xl shadow-sm opacity-90'>
+              {/* Linia 1: Nazwa */}
+              <div className='text-base font-semibold text-primary mb-1'>{p.name}</div>
+
+              {/* Linia 2: Szczegóły i akcje */}
+              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-muted-foreground'>
+                <div className='flex flex-wrap gap-4'>
+                  <div>
+                    <span className='font-medium text-foreground'>Typ:</span> {p.type}
+                  </div>
+                  <div>
+                    <span className='font-medium text-foreground'>Jednostka:</span> {p.unit}
+                  </div>
+                  <div>
+                    <span className='font-medium text-foreground'>Cena:</span> {p.pricePerUnit.toFixed(2)} zł
+                  </div>
+                </div>
+
+                <div className='flex gap-2 justify-end'>
+                  <Link href={`/products/edit?id=${p.id}`}>
+                    <Button size='sm' variant='outline'>
+                      <Pencil className='w-4 h-4' />
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </Link>
+                  <Button
+                    size='sm'
+                    variant='destructive'
+                    onClick={() => {
+                      setSelectedProduct(p);
+                      setConfirmId(p.id);
+                    }}
+                  >
+                    <Trash className='w-4 h-4' />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
         )}
+
         {selectedProduct && (
           <Dialog
             open={!!confirmId}

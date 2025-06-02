@@ -13,7 +13,7 @@ export function SparklesCore({
   className?: string;
   particleColor?: string;
 }) {
-  const particlesInit = useCallback(async (engine: any) => {
+  const particlesInit = useCallback(async (engine: import('tsparticles-engine').Engine) => {
     await loadSlim(engine);
   }, []);
 

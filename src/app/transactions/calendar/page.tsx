@@ -5,10 +5,17 @@ import { getTransactions } from '@/utils/transactionStorage';
 import { getClients } from '@/utils/clientStorage';
 import { Transaction, Client } from '@/types';
 import Link from 'next/link';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths } from 'date-fns';
+import { pl } from 'date-fns/locale';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import Theme from '@/components/Theme';
 
 export default function CalendarPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,61 +23,156 @@ export default function CalendarPage() {
     setClients(getClients());
   }, []);
 
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+  const formatDate = (date: Date) => date.toLocaleDateString('sv-SE'); // "YYYY-MM-DD"
 
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
+  const start = startOfMonth(currentDate);
+  const end = endOfMonth(currentDate);
+  const days = eachDayOfInterval({ start, end });
 
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const getClientName = (id: string) => clients.find(c => c.id === id)?.name || 'Nieznany klient';
 
-  const days = Array.from({ length: daysInMonth }, (_, i) => {
-    const date = new Date(currentYear, currentMonth, i + 1);
-    const iso = formatDate(date);
-    const hasTx = transactions.some((t) => t.date.startsWith(iso));
-    return { day: i + 1, iso, hasTx };
-  });
+  const txByDate = transactions.reduce((acc, tx) => {
+    const key = tx.date.split('T')[0];
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(tx);
+    return acc;
+  }, {} as Record<string, Transaction[]>);
 
-  const filteredTx = selectedDate
-    ? transactions.filter((t) => t.date.startsWith(selectedDate))
-    : [];
+  const filteredTx = selectedDate ? txByDate[selectedDate] || [] : [];
 
-  const getClientName = (id: string) => clients.find((c) => c.id === id)?.name || 'Nieznany klient';
+  const weekDays = ['Nd', 'Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb'];
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Kalendarz faktur</h1>
-      <div className="grid grid-cols-7 gap-2 text-center mb-6">
-        {days.map((d) => (
-          <button
-            key={d.iso}
-            className={`p-2 rounded border ${
-              d.hasTx ? 'bg-green-200 font-bold' : 'bg-gray-100'
-            } ${selectedDate === d.iso ? 'ring-2 ring-blue-500' : ''}`}
-            onClick={() => setSelectedDate(d.iso)}
-          >
-            {d.day}
-          </button>
-        ))}
-      </div>
+    <Theme>
+      <div className='max-w-2xl mx-auto'>
+        <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/10 dark:to-slate-900/20 shadow-2xl p-4'>
+          <CardContent className='p-6 space-y-6'>
+            <div className='max-w-4xl mx-auto p-4'>
+              <div className='flex justify-between items-center mb-4'>
+                <Button variant='outline' onClick={() => setCurrentDate(subMonths(currentDate, 1))}>
+                  ←
+                </Button>
+                <h1 className='text-2xl font-bold'>{format(currentDate, 'LLLL yyyy', { locale: pl })}</h1>
+                <Button variant='outline' onClick={() => setCurrentDate(addMonths(currentDate, 1))}>
+                  →
+                </Button>
+              </div>
 
-      {selectedDate && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">
-            Faktury z dnia: {new Date(selectedDate).toLocaleDateString('pl-PL')}
-          </h2>
-          {filteredTx.length === 0 && <p>Brak faktur.</p>}
-          <ul>
-            {filteredTx.map((tx) => (
-              <li key={tx.id} className="border p-2 rounded flex justify-between">
-                <span>{getClientName(tx.clientId)}</span>
-                <span>{tx.totalPrice.toFixed(2)} zł</span>
-                <Link href={`/invoice/${tx.id}`} className="text-blue-600 underline text-sm">Szczegóły</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+              <div className='grid grid-cols-7 gap-2 text-center font-semibold text-muted-foreground mb-2'>
+                {weekDays.map(day => (
+                  <div key={day}>{day}</div>
+                ))}
+              </div>
+
+              <div className='grid grid-cols-7 gap-2'>
+                {Array(getDay(start))
+                  .fill(null)
+                  .map((_, i) => (
+                    <div key={`empty-${i}`} />
+                  ))}
+
+                {days.map(d => {
+                  const iso = formatDate(d);
+                  const txList = txByDate[iso] || [];
+                  const isSelected = selectedDate === iso;
+
+                  return (
+                    <button
+                      key={iso}
+                      className={`rounded-xl p-3 text-sm flex flex-col items-center justify-center transition-all border
+                        ${isSelected ? 'ring-2 ring-blue-500 dark:ring-blue-300 shadow-md' : ''}
+                        ${
+                          txList.length > 0
+                            ? 'bg-green-100 dark:bg-green-800/40 border-green-400 dark:border-green-600 text-green-900 dark:text-green-100'
+                            : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100'
+                        }
+                        hover:scale-105`}
+                      onClick={() => setSelectedDate(iso)}
+                    >
+                      <span className='font-bold'>{d.getDate()}</span>
+                      {txList.length > 0 && (
+                        <span className='text-xs mt-1 bg-green-600 text-white dark:bg-green-500 px-2 py-0.5 rounded-full'>
+                          {txList.length}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedDate && (
+                <div className='mt-6 space-y-4'>
+                  <h2 className='text-lg font-semibold'>
+                    Rozliczenia z dnia: {format(new Date(selectedDate), 'dd.MM.yyyy')}
+                  </h2>
+
+                  {filteredTx.map(tx => (
+                    <Card key={tx.id} className='p-4 border rounded-xl shadow-sm opacity-90'>
+                      {/* Wiersz 1: Data, Klient, Kwota */}
+                      <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2'>
+                        <div className='text-sm text-muted-foreground'>
+                          <strong>Data:</strong>{' '}
+                          {new Date(tx.date).toLocaleDateString('pl-PL', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </div>
+
+                        <div className='text-sm'>
+                          <strong>Klient:</strong> <span className='font-medium'>{getClientName(tx.clientId)}</span>
+                          {clients.find(c => c.id === tx.clientId)?.address && (
+                            <span className='text-muted-foreground'>
+                              {' '}
+                              • {clients.find(c => c.id === tx.clientId)?.address}
+                            </span>
+                          )}
+                          {clients.find(c => c.id === tx.clientId)?.phone && (
+                            <span className='text-muted-foreground'>
+                              {' '}
+                              • tel. {clients.find(c => c.id === tx.clientId)?.phone}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className='text-sm font-medium'>
+                          <strong>Kwota:</strong>{' '}
+                          <span className='text-sm font-bold text-green-700 dark:text-green-400'>
+                            {tx.totalPrice.toFixed(2)} zł
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Wiersz 2: Status + Akcja */}
+                      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                        <div className='text-sm flex items-center gap-2'>
+                          <strong>Status:</strong>
+                          <Badge
+                            variant={tx.status === 'finalised' ? 'default' : 'secondary'}
+                            className={`text-white ${tx.status === 'finalised' ? 'bg-emerald-600' : 'bg-gray-500'}`}
+                          >
+                            {tx.status === 'finalised' ? '✔ Zrealizowana' : '📝 Robocza'}
+                          </Badge>
+                        </div>
+
+                        <div className='flex gap-2'>
+                          <Link href={`/transactions/view?id=${tx.id}&from=calendar`}>
+                            <Button size='sm' variant='outline'>
+                              Szczegóły
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </Theme>
   );
 }

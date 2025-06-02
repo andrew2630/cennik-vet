@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ReceiptText } from 'lucide-react';
@@ -11,15 +11,18 @@ import { Transaction } from '@/types';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import Theme from '@/components/Theme';
 
-export default function EditTransactionPage() {
+function EditTransactionContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get('id');
+  const from = searchParams.get('from');
+  const backUrl = from === 'calendar' ? '/transactions/calendar' : '/transactions';
 
-  const [transaction, setTransaction] = useState<Transaction | undefined>(undefined);
+  const [transaction, setTransaction] = React.useState<Transaction | undefined>(undefined);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!id) return;
     const all = getTransactions();
     const found = all.find(tx => tx.id === id);
@@ -32,7 +35,7 @@ export default function EditTransactionPage() {
 
   return (
     <div className='max-w-2xl mx-auto'>
-      <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/20 dark:to-slate-900/20 shadow-2xl'>
+      <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/10 dark:to-slate-900/20 shadow-2xl'>
         <CardContent className='space-y-6'>
           <div className='max-w-2xl mx-auto p-4'>
             <div className='flex items-center justify-between mb-6'>
@@ -40,7 +43,7 @@ export default function EditTransactionPage() {
                 <ReceiptText className='w-8 h-8 text-amber-600 dark:text-amber-300' />
                 Edycja rozliczenia
               </h1>
-              <Link href='/transactions'>
+              <Link href={backUrl}>
                 <Button variant='ghost' className='flex items-center gap-2 text-sm'>
                   <ArrowLeft className='w-4 h-4' />
                   Wróć
@@ -50,13 +53,23 @@ export default function EditTransactionPage() {
             {transaction && (
               <TransactionForm
                 editingTransaction={transaction}
-                onSaved={() => router.push('/transactions')}
-                onCancel={() => router.push('/transactions')}
+                onSaved={() => router.push(backUrl)}
+                onCancel={() => router.push(backUrl)}
               />
             )}
           </div>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function EditTransactionPage() {
+  return (
+    <Theme>
+      <Suspense>
+        <EditTransactionContent />
+      </Suspense>
+    </Theme>
   );
 }

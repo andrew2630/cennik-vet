@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { cnjoin } from '@/lib/utils';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';

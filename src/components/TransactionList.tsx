@@ -1,13 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Transaction, Client } from '@/types';
 import { getTransactions, deleteTransaction } from '@/utils/transactionStorage';
 import { getClients } from '@/utils/clientStorage';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import {
   Dialog,
   DialogTrigger,
@@ -29,7 +27,6 @@ export default function TransactionList({ refresh }: { refresh: number }) {
   const [sortField, setSortField] = useState<'date' | 'client'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     setTransactions(getTransactions());
@@ -56,7 +53,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
   };
 
   return (
-    <Card className='mt-6'>
+    <Card className='mt-6 bg-transparent'>
       <CardHeader className='flex flex-col gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4'>
           <CardTitle className='py-2'>Ostatnie transakcje</CardTitle>
@@ -70,7 +67,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
             onChange={e => setSearch(e.target.value)}
           />
 
-          <Select value={sortField} onValueChange={val => setSortField(val as any)}>
+          <Select value={sortField} onValueChange={(val: 'date' | 'client') => setSortField(val)}>
             <SelectTrigger className='w-[120px]'>
               <SelectValue placeholder='Sortuj wg' />
             </SelectTrigger>
@@ -80,7 +77,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
             </SelectContent>
           </Select>
 
-          <Select value={sortOrder} onValueChange={val => setSortOrder(val as any)}>
+          <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
             <SelectTrigger className='w-[120px]'>
               <SelectValue placeholder='Kolejność' />
             </SelectTrigger>
@@ -92,24 +89,19 @@ export default function TransactionList({ refresh }: { refresh: number }) {
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className='space-y-4'>
         {filtered.length === 0 ? (
-          <p className='text-muted-foreground'>Brak faktur do wyświetlenia.</p>
+          <p className='text-muted-foreground'>Brak rozliczeń do wyświetlenia.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Klient</TableHead>
-                <TableHead className='text-right'>Kwota</TableHead>
-                <TableHead className='text-right'>Status</TableHead>
-                <TableHead className='text-right'>Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map(tx => (
-                <TableRow key={tx.id}>
-                  <TableCell>
+          filtered.map(tx => {
+            const client = clients.find(c => c.id === tx.clientId);
+
+            return (
+              <Card key={tx.id} className='p-4 border rounded-xl shadow-sm opacity-90'>
+                {/* Wiersz 1: Data, Klient, Kwota */}
+                <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2'>
+                  <div className='text-sm text-muted-foreground'>
+                    <strong>Data:</strong>{' '}
                     {new Date(tx.date).toLocaleDateString('pl-PL', {
                       day: '2-digit',
                       month: '2-digit',
@@ -117,54 +109,70 @@ export default function TransactionList({ refresh }: { refresh: number }) {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
-                  </TableCell>
-                  <TableCell>{getClientName(tx.clientId)}</TableCell>
-                  <TableCell className='text-right'>{tx.totalPrice.toFixed(2)} zł</TableCell>
-                  <TableCell className='text-right'>
-                    <Badge variant={tx.status === 'finalised' ? 'default' : 'secondary'}>
-                      {tx.status === 'finalised' ? 'Zrealizowana' : 'Robocza'}
+                  </div>
+
+                  <div className='text-sm'>
+                    <strong>Klient:</strong> <span className='font-medium'>{client?.name || 'Nieznany klient'}</span>
+                    {client?.address && <span className='text-muted-foreground'> • {client.address}</span>}
+                    {client?.phone && <span className='text-muted-foreground'> • tel. {client.phone}</span>}
+                  </div>
+
+                  <div className='text-sm font-medium'>
+                    <strong>Kwota:</strong> <span className='text-sm font-bold text-green-700 dark:text-green-400'>{tx.totalPrice.toFixed(2)} zł</span>
+                  </div>
+                </div>
+
+                {/* Wiersz 2: Status + Akcje */}
+                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                  <div className='text-sm flex items-center gap-2'>
+                    <strong>Status:</strong>
+                    <Badge
+                      variant={tx.status === 'finalised' ? 'default' : 'secondary'}
+                      className={`text-white ${tx.status === 'finalised' ? 'bg-emerald-600' : 'bg-gray-500'}`}
+                    >
+                      {tx.status === 'finalised' ? '✔ Zrealizowana' : '📝 Robocza'}
                     </Badge>
-                  </TableCell>
-                  <TableCell className='text-right space-x-2'>
+                  </div>
+
+                  <div className='flex gap-2'>
                     <Link href={`/transactions/view?id=${tx.id}`}>
                       <Button size='sm' variant='outline'>
                         <FileText className='w-4 h-4' />
                       </Button>
                     </Link>
-                    <>
-                      <Link href={`/transactions/edit?id=${tx.id}`}>
-                        <Button size='sm' variant='outline'>
-                          <Pencil className='w-4 h-4' />
+                    <Link href={`/transactions/edit?id=${tx.id}`}>
+                      <Button size='sm' variant='outline'>
+                        <Pencil className='w-4 h-4' />
+                      </Button>
+                    </Link>
+
+                    <Dialog open={selectedTx?.id === tx.id} onOpenChange={open => !open && setSelectedTx(null)}>
+                      <DialogTrigger asChild>
+                        <Button size='sm' variant='destructive' onClick={() => setSelectedTx(tx)}>
+                          <Trash className='w-4 h-4' />
                         </Button>
-                      </Link>
-                      <Dialog open={selectedTx?.id === tx.id} onOpenChange={open => !open && setSelectedTx(null)}>
-                        <DialogTrigger asChild>
-                          <Button size='sm' variant='destructive' onClick={() => setSelectedTx(tx)}>
-                            <Trash className='w-4 h-4' />
+                      </DialogTrigger>
+                      <DialogContent className='sm:max-w-md'>
+                        <DialogTitle>Potwierdź usunięcie</DialogTitle>
+                        <DialogDescription>
+                          Czy na pewno chcesz usunąć rozliczenie dla <strong>{client?.name}</strong> z dnia{' '}
+                          {new Date(tx.date).toLocaleDateString('pl-PL')}?
+                        </DialogDescription>
+                        <DialogFooter className='mt-4 flex gap-2'>
+                          <Button type='button' variant='outline' onClick={() => setSelectedTx(null)}>
+                            Anuluj
                           </Button>
-                        </DialogTrigger>
-                        <DialogContent className='sm:max-w-md'>
-                          <DialogTitle>Potwierdź usunięcie</DialogTitle>
-                          <DialogDescription>
-                            Czy na pewno chcesz usunąć rozliczenie dla <strong>{getClientName(tx.clientId)}</strong> z dnia{' '}
-                            {new Date(tx.date).toLocaleDateString('pl-PL')}?
-                          </DialogDescription>
-                          <DialogFooter className='mt-4 flex gap-2'>
-                            <Button type='button' variant='outline' onClick={() => setSelectedTx(null)}>
-                              Anuluj
-                            </Button>
-                            <Button type='button' variant='destructive' onClick={() => handleDelete(tx.id)}>
-                              Usuń
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                          <Button type='button' variant='destructive' onClick={() => handleDelete(tx.id)}>
+                            Usuń
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+              </Card>
+            );
+          })
         )}
       </CardContent>
     </Card>

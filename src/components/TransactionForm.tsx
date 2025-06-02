@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { getClients } from '@/utils/clientStorage';
 import { getProducts } from '@/utils/productStorage';
-import { saveTransaction, updateTransaction } from '@/utils/transactionStorage';
+import { updateTransaction } from '@/utils/transactionStorage';
 import { Client, Product, TransactionItem, Transaction, TransactionStatus } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,10 +17,12 @@ export default function TransactionForm({
   editingTransaction,
   onSaved,
   onCancel,
+  readOnly = false,
 }: {
   editingTransaction?: Transaction;
   onSaved?: () => void;
   onCancel?: () => void;
+  readOnly?: boolean;
 }) {
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,7 +32,6 @@ export default function TransactionForm({
   const [additionalFee, setAdditionalFee] = useState(0);
   const [status, setStatus] = useState<TransactionStatus>('draft');
   const [id, setId] = useState(uuidv4());
-  const router = useRouter();
 
   useEffect(() => {
     const loadedClients = getClients();
@@ -40,13 +40,13 @@ export default function TransactionForm({
     setProducts(loadedProducts);
 
     const isNew = !editingTransaction?.id;
-    if (isNew) {
-      const dojazd = loadedProducts.find(p => p.name.toLowerCase() === 'dojazd' && p.unit === 'km');
-      if (dojazd) {
-        setItems([{ productId: dojazd.id, quantity: 0 }]);
+    if (isNew && !readOnly) {
+      const travel = loadedProducts.find(p => p.name.toLowerCase() === 'dojazd' && p.unit === 'km');
+      if (travel) {
+        setItems([{ productId: travel.id, quantity: 0 }]);
       }
     }
-  }, []);
+  }, [editingTransaction?.id, readOnly]);
 
   useEffect(() => {
     if (editingTransaction) {
@@ -76,8 +76,8 @@ export default function TransactionForm({
   }, 600);
 
   useEffect(() => {
-    if (status === 'draft') debouncedSave();
-  }, [clientId, items, discount, additionalFee]);
+    if (status === 'draft' && !readOnly) debouncedSave();
+  }, [clientId, items, discount, additionalFee, debouncedSave, readOnly, status]);
 
   const calculateTotal = () => {
     const subtotal = items.reduce((acc, item) => {
@@ -87,7 +87,11 @@ export default function TransactionForm({
     return Math.max(0, Math.round((subtotal - discount + additionalFee) * 100) / 100);
   };
 
-  const handleItemChange = (index: number, field: keyof TransactionItem, value: any) => {
+  const handleItemChange = (
+    index: number,
+    field: keyof TransactionItem,
+    value: string | number
+  ) => {
     const updated = [...items];
     const item = { ...updated[index] };
     if (field === 'quantity') {
@@ -155,10 +159,11 @@ export default function TransactionForm({
           displayKey='name'
           filterKeys={['name', 'address', 'phone']}
           placeholder='Wyszukaj klienta...'
+          disabled={readOnly}
         />
         {clientDetails && (
           <div className='text-sm text-muted-foreground mt-2'>
-            {clientDetails.name}, {clientDetails.address}, tel. {clientDetails.phone}
+            {clientDetails.address}, tel. {clientDetails.phone}
           </div>
         )}
       </div>
@@ -171,18 +176,30 @@ export default function TransactionForm({
             const itemTotal = product ? product.pricePerUnit * item.quantity : 0;
             return (
               <div key={index} className='border p-4 rounded space-y-2'>
-                <div className='flex justify-between items-center'>
-                  <ComboboxGeneric
-                    items={products}
-                    selectedId={item.productId}
-                    onSelect={val => handleItemChange(index, 'productId', val)}
-                    displayKey='name'
-                    filterKeys={['name']}
-                    placeholder='Wyszukaj produkt...'
-                  />
-                  <Button type='button' variant='ghost' onClick={() => handleRemoveItem(index)} className='ml-2'>
-                    <Trash className='w-4 h-4' />
-                  </Button>
+                <div className='flex gap-2 items-center'>
+                  <div className='text-muted-foreground w-5 text-right'>{index + 1}.</div>
+                  <div className='flex-1'>
+                    <ComboboxGeneric
+                      items={products}
+                      selectedId={item.productId}
+                      onSelect={val => !readOnly && handleItemChange(index, 'productId', val)}
+                      displayKey='name'
+                      filterKeys={['name']}
+                      placeholder='Wyszukaj produkt...'
+                      className='w-full'
+                      disabled={readOnly}
+                    />
+                  </div>
+                  {!readOnly && (
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      onClick={() => handleRemoveItem(index)}
+                      className='flex-shrink-0'
+                    >
+                      <Trash className='w-4 h-4' />
+                    </Button>
+                  )}
                 </div>
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
                   <div className='flex items-center'>
@@ -192,12 +209,13 @@ export default function TransactionForm({
                       min='0'
                       step='0.1'
                       value={item.quantity}
-                      onChange={e => handleItemChange(index, 'quantity', e.target.value)}
+                      onChange={e => !readOnly && handleItemChange(index, 'quantity', e.target.value)}
                       className='w-24'
+                      disabled={readOnly}
                     />
                     <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
                   </div>
-                  <div>
+                  <div className='py-2'>
                     Cena: {product ? `${product.pricePerUnit} zł/${product.unit}` : '—'} | Suma: {itemTotal.toFixed(2)}{' '}
                     zł
                   </div>
@@ -205,9 +223,11 @@ export default function TransactionForm({
               </div>
             );
           })}
-          <Button type='button' variant='outline' onClick={handleAddItem}>
-            + Dodaj produkt
-          </Button>
+          {!readOnly && (
+            <Button type='button' variant='outline' onClick={handleAddItem}>
+              + Dodaj produkt
+            </Button>
+          )}
         </div>
       </div>
 
@@ -218,8 +238,9 @@ export default function TransactionForm({
             type='number'
             step='0.01'
             value={discount}
-            onChange={e => setDiscount(parseFloat(e.target.value))}
+            onChange={e => !readOnly && setDiscount(parseFloat(e.target.value))}
             placeholder='np. 10'
+            disabled={readOnly}
           />
           <span>zł</span>
         </div>
@@ -232,8 +253,9 @@ export default function TransactionForm({
             type='number'
             step='0.01'
             value={additionalFee}
-            onChange={e => setAdditionalFee(parseFloat(e.target.value))}
+            onChange={e => !readOnly && setAdditionalFee(parseFloat(e.target.value))}
             placeholder='np. 20'
+            disabled={readOnly}
           />
           <span>zł</span>
         </div>
@@ -241,11 +263,12 @@ export default function TransactionForm({
 
       <div className='text-xl font-semibold'>Suma: {calculateTotal()} zł</div>
 
-      {status === 'draft' ? (
+      {!readOnly && status === 'draft' ? (
         <Button type='button' onClick={handleFinalise} className='bg-green-600 hover:bg-green-700 text-white'>
           Zrealizuj
         </Button>
-      ) : (
+      ) : 
+      !readOnly && status !== 'draft' && (
         <div className='flex gap-2'>
           <Button type='submit'>Zapisz</Button>
           <Button type='button' variant='outline' onClick={onCancel}>

@@ -12,15 +12,15 @@ export function getTransactions(): Transaction[] {
 export function saveTransaction(tx: Transaction): Transaction {
   const all = getTransactions();
 
-  const existingIndex = all.findIndex((t) => t.id === tx.id);
   const transactionToSave: Transaction = {
     ...tx,
     id: tx.id || uuid(),
     date: tx.date || new Date().toISOString(),
   };
 
-  if (existingIndex >= 0) {
-    all[existingIndex] = transactionToSave;
+  const index = all.findIndex((t) => t.id === transactionToSave.id);
+  if (index !== -1) {
+    all[index] = transactionToSave;
   } else {
     all.push(transactionToSave);
   }
@@ -29,9 +29,8 @@ export function saveTransaction(tx: Transaction): Transaction {
   return transactionToSave;
 }
 
-export function updateTransaction(updated: Transaction): void {
-  const all = getTransactions().map((t) => (t.id === updated.id ? updated : t));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+export function updateTransaction(tx: Transaction): void {
+  saveTransaction(tx);
 }
 
 export function deleteTransaction(id: string): void {
