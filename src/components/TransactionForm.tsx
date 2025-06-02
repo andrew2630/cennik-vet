@@ -1,16 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
 import { getClients } from '@/utils/clientStorage';
 import { getProducts } from '@/utils/productStorage';
-import { getSettings } from '@/utils/settingsStorage';
 import { saveTransaction, updateTransaction } from '@/utils/transactionStorage';
-import { Client, Product, TransactionItem, Transaction } from '@/types';
-import { useRouter } from 'next/navigation';
+import { Client, Product, TransactionItem, Transaction, TransactionStatus } from '@/types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { useDebouncedCallback } from 'use-debounce';
+import { ComboboxGeneric } from '@/components/ComboboxGeneric';
+import { Trash } from 'lucide-react';
 
 export default function TransactionForm({
   editingTransaction,
   onSaved,
+  onCancel,
 }: {
   editingTransaction?: Transaction;
   onSaved?: () => void;
@@ -20,174 +27,232 @@ export default function TransactionForm({
   const [products, setProducts] = useState<Product[]>([]);
   const [clientId, setClientId] = useState('');
   const [items, setItems] = useState<TransactionItem[]>([]);
-  const [distanceKm, setDistanceKm] = useState(0);
-  const [isNight, setIsNight] = useState(false);
-  const [isWeekend, setIsWeekend] = useState(false);
-  const [adjustment, setAdjustment] = useState(0);
-  const [total, setTotal] = useState(0);
-  const settings = getSettings();
+  const [discount, setDiscount] = useState(0);
+  const [additionalFee, setAdditionalFee] = useState(0);
+  const [status, setStatus] = useState<TransactionStatus>('draft');
+  const [id, setId] = useState(uuidv4());
   const router = useRouter();
 
   useEffect(() => {
-    setClients(getClients());
-    setProducts(getProducts());
+    const loadedClients = getClients();
+    const loadedProducts = getProducts();
+    setClients(loadedClients);
+    setProducts(loadedProducts);
+
+    const isNew = !editingTransaction?.id;
+    if (isNew) {
+      const dojazd = loadedProducts.find(p => p.name.toLowerCase() === 'dojazd' && p.unit === 'km');
+      if (dojazd) {
+        setItems([{ productId: dojazd.id, quantity: 0 }]);
+      }
+    }
   }, []);
-
-  useEffect(() => {
-    const sum = items.reduce((acc, item) => {
-      const product = products.find(p => p.id === item.productId);
-      return acc + (product ? product.pricePerUnit * item.quantity : 0);
-    }, 0);
-
-    const distanceCost = distanceKm * settings.pricePerKm;
-    let result = sum + distanceCost;
-
-    if (isNight) result += (result * settings.nightSurcharge) / 100;
-    if (isWeekend) result += (result * settings.weekendSurcharge) / 100;
-
-    result += adjustment;
-    setTotal(Math.max(0, Math.round(result * 100) / 100)); // zaokrąglenie do 0.01
-  }, [
-    items,
-    distanceKm,
-    isNight,
-    isWeekend,
-    adjustment,
-    products,
-    settings.pricePerKm,
-    settings.nightSurcharge,
-    settings.weekendSurcharge,
-  ]);
 
   useEffect(() => {
     if (editingTransaction) {
       setClientId(editingTransaction.clientId);
       setItems(editingTransaction.items);
-      setDistanceKm(editingTransaction.distanceKm);
-      setIsNight(editingTransaction.isNight);
-      setIsWeekend(editingTransaction.isWeekend);
-      setAdjustment(editingTransaction.manualAdjustment ?? 0);
+      setDiscount(editingTransaction.discount || 0);
+      setAdditionalFee(editingTransaction.additionalFee || 0);
+      setStatus(editingTransaction.status);
+      setId(editingTransaction.id);
     }
   }, [editingTransaction]);
+
+  const debouncedSave = useDebouncedCallback(() => {
+    if (status !== 'draft') return;
+    const total = calculateTotal();
+    const tx: Transaction = {
+      id,
+      clientId,
+      items,
+      discount,
+      additionalFee,
+      totalPrice: total,
+      date: new Date().toISOString(),
+      status,
+    };
+    updateTransaction(tx);
+  }, 600);
+
+  useEffect(() => {
+    if (status === 'draft') debouncedSave();
+  }, [clientId, items, discount, additionalFee]);
+
+  const calculateTotal = () => {
+    const subtotal = items.reduce((acc, item) => {
+      const product = products.find(p => p.id === item.productId);
+      return acc + (product ? product.pricePerUnit * item.quantity : 0);
+    }, 0);
+    return Math.max(0, Math.round((subtotal - discount + additionalFee) * 100) / 100);
+  };
+
+  const handleItemChange = (index: number, field: keyof TransactionItem, value: any) => {
+    const updated = [...items];
+    const item = { ...updated[index] };
+    if (field === 'quantity') {
+      item.quantity = Number(value);
+    } else if (field === 'productId') {
+      item.productId = value as string;
+    }
+    updated[index] = item;
+    setItems(updated);
+  };
 
   const handleAddItem = () => {
     setItems([...items, { productId: '', quantity: 1 }]);
   };
 
-  const handleItemChange = (index: number, field: 'productId' | 'quantity', value: string | number) => {
-    const updated = [...items];
-    if (field === 'quantity') {
-      updated[index].quantity = Number(value);
-    } else {
-      updated[index].productId = value as string;
-    }
-    setItems(updated);
+  const handleRemoveItem = (index: number) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const handleFinalise = () => {
+    const total = calculateTotal();
+    const tx: Transaction = {
+      id,
+      clientId,
+      items,
+      discount,
+      additionalFee,
+      totalPrice: total,
+      date: new Date().toISOString(),
+      status: 'finalised',
+    };
+    updateTransaction(tx);
+    onSaved?.();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientId || items.length === 0) return;
-
+    const total = calculateTotal();
     const tx: Transaction = {
-      id: editingTransaction?.id || '',
+      id,
       clientId,
       items,
-      distanceKm,
-      isNight,
-      isWeekend,
-      manualAdjustment: adjustment,
+      discount,
+      additionalFee,
       totalPrice: total,
       date: editingTransaction?.date || new Date().toISOString(),
+      status,
     };
-
-    if (editingTransaction) {
-      updateTransaction(tx);
-    } else {
-      saveTransaction(tx);
-    }
-
-    if (onSaved) onSaved();
-    else router.push('/transactions');
+    updateTransaction(tx);
+    onSaved?.();
   };
+
+  const clientDetails = clients.find(c => c.id === clientId);
 
   return (
     <form onSubmit={handleSubmit} className='space-y-4 max-w-xl mx-auto'>
-      <h1 className='text-2xl font-bold'>Nowa faktura</h1>
+      <h1 className='text-2xl font-bold'>Rozliczenie</h1>
 
-      <select value={clientId} onChange={e => setClientId(e.target.value)} className='w-full border p-2 rounded'>
-        <option value=''>-- Wybierz klienta --</option>
-        {clients.map(c => (
-          <option key={c.id} value={c.id}>
-            {c.name}
-          </option>
-        ))}
-      </select>
-
-      <div className='space-y-2'>
-        {items.map((item, index) => (
-          <div key={index} className='flex gap-2'>
-            <select
-              value={item.productId}
-              onChange={e => handleItemChange(index, 'productId', e.target.value)}
-              className='flex-1 border p-2 rounded'
-            >
-              <option value=''>-- Produkt --</option>
-              {products.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.pricePerUnit} zł/{p.unit})
-                </option>
-              ))}
-            </select>
-            <input
-              type='number'
-              value={item.quantity}
-              onChange={e => handleItemChange(index, 'quantity', e.target.value)}
-              className='w-24 border p-2 rounded'
-              min={0}
-              step='0.1'
-            />
+      <div>
+        <Label className='py-2'>Klient</Label>
+        <ComboboxGeneric
+          items={clients}
+          selectedId={clientId}
+          onSelect={setClientId}
+          displayKey='name'
+          filterKeys={['name', 'address', 'phone']}
+          placeholder='Wyszukaj klienta...'
+        />
+        {clientDetails && (
+          <div className='text-sm text-muted-foreground mt-2'>
+            {clientDetails.name}, {clientDetails.address}, tel. {clientDetails.phone}
           </div>
-        ))}
-        <button type='button' onClick={handleAddItem} className='text-blue-600 underline'>
-          + Dodaj produkt
-        </button>
+        )}
       </div>
 
-      <input
-        type='number'
-        step='1'
-        min='0'
-        value={distanceKm}
-        onChange={e => setDistanceKm(parseFloat(e.target.value))}
-        className='w-full border p-2 rounded'
-        placeholder='Dystans w km'
-      />
-
-      <div className='flex gap-4 items-center'>
-        <label>
-          <input type='checkbox' checked={isNight} onChange={e => setIsNight(e.target.checked)} /> Noc
-        </label>
-        <label>
-          <input type='checkbox' checked={isWeekend} onChange={e => setIsWeekend(e.target.checked)} /> Weekend
-        </label>
+      <div>
+        <Label className='py-2'>Pozycje</Label>
+        <div className='space-y-4'>
+          {items.map((item, index) => {
+            const product = products.find(p => p.id === item.productId);
+            const itemTotal = product ? product.pricePerUnit * item.quantity : 0;
+            return (
+              <div key={index} className='border p-4 rounded space-y-2'>
+                <div className='flex justify-between items-center'>
+                  <ComboboxGeneric
+                    items={products}
+                    selectedId={item.productId}
+                    onSelect={val => handleItemChange(index, 'productId', val)}
+                    displayKey='name'
+                    filterKeys={['name']}
+                    placeholder='Wyszukaj produkt...'
+                  />
+                  <Button type='button' variant='ghost' onClick={() => handleRemoveItem(index)} className='ml-2'>
+                    <Trash className='w-4 h-4' />
+                  </Button>
+                </div>
+                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+                  <div className='flex items-center'>
+                    <Label className='py-2 mr-2'>Ilość:</Label>
+                    <Input
+                      type='number'
+                      min='0'
+                      step='0.1'
+                      value={item.quantity}
+                      onChange={e => handleItemChange(index, 'quantity', e.target.value)}
+                      className='w-24'
+                    />
+                    <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
+                  </div>
+                  <div>
+                    Cena: {product ? `${product.pricePerUnit} zł/${product.unit}` : '—'} | Suma: {itemTotal.toFixed(2)}{' '}
+                    zł
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          <Button type='button' variant='outline' onClick={handleAddItem}>
+            + Dodaj produkt
+          </Button>
+        </div>
       </div>
 
-      <input
-        type='number'
-        step='0.01'
-        value={adjustment}
-        onChange={e => setAdjustment(parseFloat(e.target.value))}
-        className='w-full border p-2 rounded'
-        placeholder='Rabat / Dopłata (np. -20 lub 30)'
-      />
-
-      <div className='text-xl font-semibold'>
-        Suma: {total} {settings.currency}
+      <div>
+        <Label className='py-2'>Rabat</Label>
+        <div className='flex items-center gap-2'>
+          <Input
+            type='number'
+            step='0.01'
+            value={discount}
+            onChange={e => setDiscount(parseFloat(e.target.value))}
+            placeholder='np. 10'
+          />
+          <span>zł</span>
+        </div>
       </div>
 
-      <button type='submit' className='bg-purple-600 text-white px-4 py-2 rounded'>
-        Zapisz transakcję
-      </button>
+      <div>
+        <Label className='py-2'>Opłata dodatkowa</Label>
+        <div className='flex items-center gap-2'>
+          <Input
+            type='number'
+            step='0.01'
+            value={additionalFee}
+            onChange={e => setAdditionalFee(parseFloat(e.target.value))}
+            placeholder='np. 20'
+          />
+          <span>zł</span>
+        </div>
+      </div>
+
+      <div className='text-xl font-semibold'>Suma: {calculateTotal()} zł</div>
+
+      {status === 'draft' ? (
+        <Button type='button' onClick={handleFinalise} className='bg-green-600 hover:bg-green-700 text-white'>
+          Zrealizuj
+        </Button>
+      ) : (
+        <div className='flex gap-2'>
+          <Button type='submit'>Zapisz</Button>
+          <Button type='button' variant='outline' onClick={onCancel}>
+            Anuluj
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

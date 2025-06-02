@@ -7,6 +7,9 @@ export function exportAllDataToJSON() {
     transactions: JSON.parse(localStorage.getItem('vet_transactions') || '[]'),
     settings: JSON.parse(localStorage.getItem('vet_settings') || '{}'),
   };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  saveAs(blob, `cennik-vet-backup-${new Date().toISOString().slice(0, 10)}.json`);
+
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const filename = `cennik-vet-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  saveAs(blob, filename);
 }

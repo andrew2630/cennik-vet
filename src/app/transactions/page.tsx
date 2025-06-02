@@ -1,56 +1,37 @@
 'use client';
 
-import TransactionList from '@/components/TransactionList';
-import TransactionForm from '@/components/TransactionForm';
 import { useState } from 'react';
+import Link from 'next/link';
+import { PlusCircle, FileText, ReceiptText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import TransactionList from '@/components/TransactionList';
 import { Transaction } from '@/types';
 
 export default function TransactionsPage() {
-  const [editingTx, setEditingTx] = useState<Transaction | undefined>(undefined);
   const [refresh, setRefresh] = useState(0);
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {editingTx ? (
-        <>
-          <h1 className="text-xl font-bold mb-2">
-            {editingTx.id ? 'Edycja faktury' : 'Nowa faktura'}
-          </h1>
-          <TransactionForm
-            editingTransaction={editingTx}
-            onSaved={() => {
-              setEditingTx(undefined);
-              setRefresh((r) => r + 1);
-            }}
-            onCancel={() => setEditingTx(undefined)}
-          />
-        </>
-      ) : (
-        <>
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-xl font-bold">Lista faktur</h1>
-            <button
-              onClick={() =>
-                setEditingTx({
-                  id: '',
-                  clientId: '',
-                  date: new Date().toISOString(),
-                  items: [],
-                  distanceKm: 0,
-                  isNight: false,
-                  isWeekend: false,
-                  manualAdjustment: 0,
-                  totalPrice: 0,
-                })
-              }
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              + Dodaj nową
-            </button>
+    <div className='max-w-2xl mx-auto'>
+      <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/20 dark:to-slate-900/20 shadow-2xl p-4'>
+        <CardContent className='p-6 space-y-6'>
+          <div className='flex items-center justify-between mb-6'>
+            <h1 className='text-3xl font-bold flex items-center gap-3'>
+              <ReceiptText className='w-8 h-8 text-green-600 dark:text-green-300' />
+              Rozliczenia
+            </h1>
+
+            <Link href='/transactions/new'>
+              <Button variant='default' className='flex items-center gap-2'>
+                <PlusCircle className='w-4 h-4' />
+                Dodaj rozliczenie
+              </Button>
+            </Link>
           </div>
-          <TransactionList onEdit={(tx) => setEditingTx(tx)} key={refresh} />
-        </>
-      )}
+
+          <TransactionList refresh={refresh} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,7 +1,26 @@
-export type Unit = 'szt' | 'ml' | 'g' | 'dawka' | string;
+export type Unit =
+  | 'szt'
+  | 'ml'
+  | 'g'
+  | 'kg'
+  | 'opakowanie'
+  | 'dawka'
+  | 'tabletka'
+  | 'pipeta'
+  | 'ampułka'
+  | 'saszetka'
+  | 'blister'
+  | 'tuba'
+  | 'tubostrz.'
+  | 'puszka'
+  | 'km'
+  | string;
+
+export type ItemType = 'produkt' | 'usługa';
 
 export interface Product {
   id: string;
+  type: ItemType;
   name: string;
   unit: Unit;
   pricePerUnit: number;
@@ -14,6 +33,8 @@ export interface Client {
   phone?: string;
 }
 
+export type TransactionStatus = 'draft' | 'finalised';
+
 export interface TransactionItem {
   productId: string;
   quantity: number;
@@ -24,27 +45,17 @@ export interface Transaction {
   clientId: string;
   date: string;
   items: TransactionItem[];
-  distanceKm: number;
-  isNight: boolean;
-  isWeekend: boolean;
-  manualAdjustment?: number; // dodatnia lub ujemna kwota
+  discount?: number;
+  additionalFee?: number;
   totalPrice: number;
+  status: TransactionStatus;
+}
+
+export interface ThemeSettings {
+  theme: 'light' | 'dark' | 'system';
 }
 
 export interface Settings {
-  pricePerKm: number;
-  weekendSurcharge: number; // procent
-  nightSurcharge: number;   // procent
   currency: string;
-  theme: 'system' | 'dark' | 'light';
+  theme: ThemeSettings['theme'];
 }
-
-export type PageProps<T extends Record<string, string> = Record<string, string>> = {
-  params: T;
-  searchParams?: Record<string, string | string[] | undefined>;
-};
-
-export type LayoutProps<T extends Record<string, string> = Record<string, string>> = {
-  children: React.ReactNode;
-  params: T;
-};

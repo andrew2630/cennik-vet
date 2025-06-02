@@ -1,70 +1,82 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { saveClient, updateClient } from '@/utils/clientStorage';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getClients, saveClient } from '@/utils/clientStorage';
 import { Client } from '@/types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
 
-export default function ClientForm({
-  onSave,
-  editingClient,
-}: {
-  onSave: () => void;
-  editingClient?: Client;
-}) {
+export default function ClientForm({ onAdd }: { onAdd: () => void }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const clientId = searchParams.get('id');
+
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
 
   useEffect(() => {
-    if (editingClient) {
-      setName(editingClient.name);
-      setAddress(editingClient.address || '');
-      setPhone(editingClient.phone || '');
+    if (clientId) {
+      const client = getClients().find(p => p.id === clientId);
+      if (client) {
+        setName(client.name || '');
+        setAddress(client.address || '');
+        setPhone(client.phone || '');
+      }
     }
-  }, [editingClient]);
+  }, [clientId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name) return;
+    if (!name.trim()) return;
 
-    if (editingClient) {
-      updateClient({ ...editingClient, name, address, phone });
-    } else {
-      saveClient({ name, address, phone });
-    }
+    saveClient({
+      id: clientId || crypto.randomUUID(),
+      name: name || '',
+      address: address || '',
+      phone: phone || '',
+    });
 
-    setName('');
-    setAddress('');
-    setPhone('');
-    onSave();
+    onAdd();
+    router.push('/clients');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-      <input
-        type="text"
-        placeholder="Imię lub nazwa"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full border p-2 rounded"
-      />
-      <input
-        type="text"
-        placeholder="Adres"
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        className="w-full border p-2 rounded"
-      />
-      <input
-        type="tel"
-        placeholder="Telefon"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        className="w-full border p-2 rounded"
-      />
-      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-        {editingClient ? 'Zapisz zmiany' : 'Dodaj klienta'}
-      </button>
+    <form onSubmit={handleSubmit} className='space-y-4'>
+      <div>
+        <Label htmlFor='name' className='py-2'>Imię i nazwisko lub nazwa</Label>
+        <Input id='name' value={name} onChange={e => setName(e.target.value)} placeholder='np. Jan Kowalski' required />
+      </div>
+
+      <div>
+        <Label htmlFor='address' className='py-2'>Adres</Label>
+        <Input
+          id='address'
+          value={address}
+          onChange={e => setAddress(e.target.value)}
+          placeholder='np. ul. Kwiatowa 15, Wrocław'
+        />
+      </div>
+
+      <div>
+        <Label htmlFor='phone' className='py-2'>Telefon</Label>
+        <Input
+          id='phone'
+          type='tel'
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          placeholder='np. 123-456-789'
+        />
+      </div>
+
+      <div className='w-full md:w-auto'>
+        <Button type='submit' className='w-full md:w-auto'>
+          Zapisz
+        </Button>
+      </div>
     </form>
   );
 }
