@@ -60,9 +60,9 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
     saveProduct({
       id: productId || crypto.randomUUID(),
       name,
-      unit: finalUnit,
+      unit: finalUnit || 'szt',
       pricePerUnit: parseFloat(price),
-      type,
+      type: type || 'produkt',
     });
 
     onAdd();

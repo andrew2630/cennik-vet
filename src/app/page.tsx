@@ -2,14 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import {
+  Users,
+  ReceiptText,
+  CalendarDays,
+  Package,
+  Settings as SettingsIcon,
+} from 'lucide-react';
+
+import Theme from '@/components/Theme';
 import { Card, CardContent } from '@/components/ui/card';
 import { getClients } from '@/utils/clientStorage';
 import { getTransactions } from '@/utils/transactionStorage';
-import type { Client, Transaction, Product } from '@/types';
 import { getProducts } from '@/utils/productStorage';
-import { motion } from 'framer-motion';
-import { Users, ReceiptText, CalendarDays, Package, Settings as SettingsIcon } from 'lucide-react';
-import Theme from '@/components/Theme';
+import type { Client, Transaction, Product } from '@/types';
 
 export default function HomePage() {
   const [, setClients] = useState<Client[]>([]);
@@ -24,55 +31,61 @@ export default function HomePage() {
 
   return (
     <Theme>
-      <div className='relative'>
+      <div className="relative z-0 py-8 px-4">
         <motion.div
           layout
-          className='relative grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 p-6 z-10'
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: 'easeOut' }}
+          className="relative grid gap-8 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 max-w-5xl mx-auto"
         >
           {[
             {
               title: 'Klienci',
               href: '/clients',
-              icon: <Users className='w-8 h-8 text-indigo-600 dark:text-indigo-300' />,
+              icon: <Users className="w-8 h-8 text-indigo-500 dark:text-indigo-300" />,
+              gradient: 'from-indigo-500/15 to-indigo-700/15',
             },
             {
               title: 'Rozliczenia',
               href: '/transactions',
-              icon: <ReceiptText className='w-8 h-8 text-green-600 dark:text-green-300' />,
+              icon: <ReceiptText className="w-8 h-8 text-green-600 dark:text-green-400" />,
+              gradient: 'from-green-500/15 to-green-700/15',
             },
             {
               title: 'Kalendarz',
               href: '/transactions/calendar',
-              icon: <CalendarDays className='w-8 h-8 text-blue-600 dark:text-blue-300' />,
+              icon: <CalendarDays className="w-8 h-8 text-blue-500 dark:text-blue-300" />,
+              gradient: 'from-blue-500/15 to-blue-700/15',
             },
             {
               title: 'Usługi i Produkty',
               href: '/products',
-              icon: <Package className='w-8 h-8 text-yellow-600 dark:text-yellow-300' />,
+              icon: <Package className="w-8 h-8 text-yellow-500 dark:text-yellow-300" />,
+              gradient: 'from-yellow-500/15 to-yellow-700/15',
             },
             {
               title: 'Ustawienia',
               href: '/settings',
-              icon: <SettingsIcon className='w-8 h-8 text-gray-600 dark:text-gray-300' />,
+              icon: <SettingsIcon className="w-8 h-8 text-gray-600 dark:text-gray-300" />,
+              gradient: 'from-gray-500/15 to-gray-700/15',
             },
           ].map((item, i) => (
             <motion.div
               layout
               key={i}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.97 }}
-              className='transition-all'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="transition-all"
             >
-              <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-300/30 via-sky-200/20 to-slate-200/20 dark:bg-gradient-to-tr dark:from-indigo-500/30 dark:via-sky-500/10 dark:to-slate-900/20 shadow-2xl hover:shadow-3xl'>
+              <Card
+                className={`rounded-3xl border border-white/10 backdrop-blur-xs bg-gradient-to-tr ${item.gradient} hover:shadow-xl shadow-md`}
+              >
                 <Link href={item.href}>
-                  <CardContent className='p-6'>
-                    <h2 className='text-2xl font-bold flex items-center gap-3 drop-shadow tracking-tight'>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 text-foreground">
                       {item.icon}
-                      {item.title}
-                    </h2>
+                      <h2 className="text-2xl font-semibold tracking-tight dark:drop-shadow">
+                        {item.title}
+                      </h2>
+                    </div>
                   </CardContent>
                 </Link>
               </Card>

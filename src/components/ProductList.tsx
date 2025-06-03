@@ -47,7 +47,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
     });
 
   return (
-    <Card className='mt-6 bg-transparent'>
+    <Card className='mt-6 bg-transparent backdrop-blur-xs'>
       <CardHeader className='flex flex-col gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
           <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
@@ -116,7 +116,10 @@ export default function ProductList({ refresh }: { refresh: number }) {
           <p className='text-muted-foreground'>Brak danych do wyświetlenia.</p>
         ) : (
           filtered.map(p => (
-            <Card key={p.id} className='p-4 border rounded-xl shadow-sm opacity-90'>
+            <Card
+              key={p.id}
+              className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm'
+            >
               {/* Linia 1: Nazwa */}
               <div className='text-base font-semibold text-primary mb-1'>{p.name}</div>
 

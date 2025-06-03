@@ -3,6 +3,7 @@
 import { getSettings } from '@/utils/settingsStorage';
 import { useEffect } from 'react';
 import type { ThemeSettings } from '@/types';
+import PageWrapper from './PageWrapper';
 
 export default function Theme({
   children,
@@ -24,5 +25,5 @@ export default function Theme({
     }
   };
 
-  return <>{children}</>;
+  return <PageWrapper>{children}</PageWrapper>;
 }

@@ -53,7 +53,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
   };
 
   return (
-    <Card className='mt-6 bg-transparent'>
+    <Card className='mt-6 bg-transparent backdrop-blur-xs'>
       <CardHeader className='flex flex-col gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4'>
           <CardTitle className='py-2'>Ostatnie transakcje</CardTitle>
@@ -97,7 +97,10 @@ export default function TransactionList({ refresh }: { refresh: number }) {
             const client = clients.find(c => c.id === tx.clientId);
 
             return (
-              <Card key={tx.id} className='p-4 border rounded-xl shadow-sm opacity-90'>
+              <Card
+                key={tx.id}
+                className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm'
+              >
                 {/* Wiersz 1: Data, Klient, Kwota */}
                 <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2'>
                   <div className='text-sm text-muted-foreground'>
@@ -118,7 +121,10 @@ export default function TransactionList({ refresh }: { refresh: number }) {
                   </div>
 
                   <div className='text-sm font-medium'>
-                    <strong>Kwota:</strong> <span className='text-sm font-bold text-green-700 dark:text-green-400'>{tx.totalPrice.toFixed(2)} zł</span>
+                    <strong>Kwota:</strong>{' '}
+                    <span className='text-sm font-bold text-green-700 dark:text-green-400'>
+                      {tx.totalPrice.toFixed(2)} zł
+                    </span>
                   </div>
                 </div>
 

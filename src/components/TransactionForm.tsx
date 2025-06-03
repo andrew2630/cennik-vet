@@ -87,11 +87,7 @@ export default function TransactionForm({
     return Math.max(0, Math.round((subtotal - discount + additionalFee) * 100) / 100);
   };
 
-  const handleItemChange = (
-    index: number,
-    field: keyof TransactionItem,
-    value: string | number
-  ) => {
+  const handleItemChange = (index: number, field: keyof TransactionItem, value: string | number) => {
     const updated = [...items];
     const item = { ...updated[index] };
     if (field === 'quantity') {
@@ -147,7 +143,10 @@ export default function TransactionForm({
   const clientDetails = clients.find(c => c.id === clientId);
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-4 max-w-xl mx-auto'>
+    <form
+      onSubmit={handleSubmit}
+      className='space-y-6 max-w-2xl mx-auto bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-xl px-6 py-8 border border-gray-200 dark:border-white/10'
+    >
       <h1 className='text-2xl font-bold'>Rozliczenie</h1>
 
       <div>
@@ -159,11 +158,13 @@ export default function TransactionForm({
           displayKey='name'
           filterKeys={['name', 'address', 'phone']}
           placeholder='Wyszukaj klienta...'
+          className={`w-full ${readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''}`}
           disabled={readOnly}
         />
         {clientDetails && (
           <div className='text-sm text-muted-foreground mt-2'>
-            {clientDetails.address}, tel. {clientDetails.phone}
+            {clientDetails.address}
+            {clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}
           </div>
         )}
       </div>
@@ -175,20 +176,29 @@ export default function TransactionForm({
             const product = products.find(p => p.id === item.productId);
             const itemTotal = product ? product.pricePerUnit * item.quantity : 0;
             return (
-              <div key={index} className='border p-4 rounded space-y-2'>
+              <div
+                key={index}
+                className='border border-gray-200 dark:border-white/10 rounded-xl p-4 bg-white/80 dark:bg-white/5 backdrop-blur-sm shadow-sm space-y-3 transition hover:shadow-md'
+              >
                 <div className='flex gap-2 items-center'>
                   <div className='text-muted-foreground w-5 text-right'>{index + 1}.</div>
                   <div className='flex-1'>
-                    <ComboboxGeneric
-                      items={products}
-                      selectedId={item.productId}
-                      onSelect={val => !readOnly && handleItemChange(index, 'productId', val)}
-                      displayKey='name'
-                      filterKeys={['name']}
-                      placeholder='Wyszukaj produkt...'
-                      className='w-full'
-                      disabled={readOnly}
-                    />
+                    {readOnly ? (
+                      <div className='text-md text-foreground font-medium'>{product?.name ?? '–'}</div>
+                    ) : (
+                      <ComboboxGeneric
+                        items={products}
+                        selectedId={item.productId}
+                        onSelect={val => !readOnly && handleItemChange(index, 'productId', val)}
+                        displayKey='name'
+                        filterKeys={['name']}
+                        placeholder='Wyszukaj produkt...'
+                        className={`w-full ${
+                          readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
+                        }`}
+                        disabled={readOnly}
+                      />
+                    )}
                   </div>
                   {!readOnly && (
                     <Button
@@ -204,15 +214,19 @@ export default function TransactionForm({
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
                   <div className='flex items-center'>
                     <Label className='py-2 mr-2'>Ilość:</Label>
-                    <Input
-                      type='number'
-                      min='0'
-                      step='0.1'
-                      value={item.quantity}
-                      onChange={e => !readOnly && handleItemChange(index, 'quantity', e.target.value)}
-                      className='w-24'
-                      disabled={readOnly}
-                    />
+                    {readOnly ? (
+                      <div className='text-md'>{item.quantity}</div>
+                    ) : (
+                      <Input
+                        type='number'
+                        min='0'
+                        step='0.1'
+                        value={item.quantity}
+                        onChange={e => !readOnly && handleItemChange(index, 'quantity', e.target.value)}
+                        className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''} w-24`}
+                        disabled={readOnly}
+                      />
+                    )}
                     <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
                   </div>
                   <div className='py-2'>
@@ -224,7 +238,12 @@ export default function TransactionForm({
             );
           })}
           {!readOnly && (
-            <Button type='button' variant='outline' onClick={handleAddItem}>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={handleAddItem}
+              className='mt-2 hover:bg-gray-100 dark:hover:bg-white/10 transition'
+            >
               + Dodaj produkt
             </Button>
           )}
@@ -240,6 +259,7 @@ export default function TransactionForm({
             value={discount}
             onChange={e => !readOnly && setDiscount(parseFloat(e.target.value))}
             placeholder='np. 10'
+            className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
             disabled={readOnly}
           />
           <span>zł</span>
@@ -255,26 +275,35 @@ export default function TransactionForm({
             value={additionalFee}
             onChange={e => !readOnly && setAdditionalFee(parseFloat(e.target.value))}
             placeholder='np. 20'
+            className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
             disabled={readOnly}
           />
           <span>zł</span>
         </div>
       </div>
 
-      <div className='text-xl font-semibold'>Suma: {calculateTotal()} zł</div>
+      <div className='text-xl font-semibold text-right text-green-700 dark:text-green-300'>
+        Suma: {calculateTotal()} zł
+      </div>
 
       {!readOnly && status === 'draft' ? (
-        <Button type='button' onClick={handleFinalise} className='bg-green-600 hover:bg-green-700 text-white'>
+        <Button
+          type='button'
+          onClick={handleFinalise}
+          className='bg-gradient-to-r from-emerald-700 to-lime-600 text-white shadow-md hover:opacity-90 transition'
+        >
           Zrealizuj
         </Button>
-      ) : 
-      !readOnly && status !== 'draft' && (
-        <div className='flex gap-2'>
-          <Button type='submit'>Zapisz</Button>
-          <Button type='button' variant='outline' onClick={onCancel}>
-            Anuluj
-          </Button>
-        </div>
+      ) : (
+        !readOnly &&
+        status !== 'draft' && (
+          <div className='flex gap-2'>
+            <Button type='submit'>Zapisz</Button>
+            <Button type='button' variant='outline' onClick={onCancel}>
+              Anuluj
+            </Button>
+          </div>
+        )
       )}
     </form>
   );

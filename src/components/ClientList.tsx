@@ -54,7 +54,7 @@ export default function ClientList({ refresh }: { refresh: number }) {
     });
 
   return (
-    <Card className='mt-6 bg-transparent'>
+    <Card className='mt-6 bg-transparent backdrop-blur-xs'>
       <CardHeader className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
           <CardTitle>Lista klientów</CardTitle>
@@ -94,7 +94,10 @@ export default function ClientList({ refresh }: { refresh: number }) {
           <p className='text-muted-foreground'>Brak klientów do wyświetlenia.</p>
         ) : (
           filtered.map(client => (
-            <Card key={client.id} className='p-4 border rounded-xl shadow-sm opacity-90'>
+            <Card
+              key={client.id}
+              className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm'
+            >
               {/* Linia 1: Tylko nazwa */}
               <div className='text-base font-semibold mb-1'>{client.name}</div>
 
