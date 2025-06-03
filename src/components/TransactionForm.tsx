@@ -32,6 +32,18 @@ export default function TransactionForm({
   const [additionalFee, setAdditionalFee] = useState(0);
   const [status, setStatus] = useState<TransactionStatus>('draft');
   const [id, setId] = useState(uuidv4());
+  const [localDiscount, setLocalDiscount] = useState(discount.toString());
+  const [localFee, setLocalFee] = useState(additionalFee.toString());
+  const [localQuantities, setLocalQuantities] = useState<string[]>([]);
+
+  useEffect(() => {
+    setLocalQuantities(items.map(i => i.quantity.toString()));
+  }, [items]);
+
+  useEffect(() => {
+    setLocalDiscount(discount.toString());
+    setLocalFee(additionalFee.toString());
+  }, [discount, additionalFee]);
 
   useEffect(() => {
     const loadedClients = getClients();
@@ -59,9 +71,27 @@ export default function TransactionForm({
     }
   }, [editingTransaction]);
 
+  const shouldSkipSave = () => {
+    const isNew = !editingTransaction?.id;
+    const singleItem = items.length === 1 ? items[0] : null;
+    const isOnlyEmptyTravel =
+      singleItem &&
+      (() => {
+        const product = products.find(p => p.id === singleItem.productId);
+        return product?.name?.toLowerCase() === 'dojazd' && product?.unit === 'km' && singleItem.quantity === 0;
+      })();
+
+    const isEmpty = !clientId && isOnlyEmptyTravel && discount === 0 && additionalFee === 0 && calculateTotal() === 0;
+
+    return isNew && isEmpty;
+  };
+
   const debouncedSave = useDebouncedCallback(() => {
     if (status !== 'draft') return;
+
     const total = calculateTotal();
+    if (shouldSkipSave()) return;
+
     const tx: Transaction = {
       id,
       clientId,
@@ -72,7 +102,9 @@ export default function TransactionForm({
       date: new Date().toISOString(),
       status,
     };
-    updateTransaction(tx);
+
+    const resultId = updateTransaction(tx).id;
+    if (!id) setId(resultId);
   }, 600);
 
   useEffect(() => {
@@ -126,6 +158,8 @@ export default function TransactionForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const total = calculateTotal();
+    if (shouldSkipSave()) return;
+
     const tx: Transaction = {
       id,
       clientId,
@@ -218,11 +252,22 @@ export default function TransactionForm({
                       <div className='text-md'>{item.quantity}</div>
                     ) : (
                       <Input
-                        type='number'
-                        min='0'
-                        step='0.1'
-                        value={item.quantity}
-                        onChange={e => !readOnly && handleItemChange(index, 'quantity', e.target.value)}
+                        type='text'
+                        inputMode='decimal'
+                        pattern='[0-9]*[.,]?[0-9]*'
+                        value={localQuantities[index] ?? ''}
+                        onChange={e => {
+                          const input = e.target.value.replace(',', '.');
+                          setLocalQuantities(prev => {
+                            const copy = [...prev];
+                            copy[index] = input;
+                            return copy;
+                          });
+                        }}
+                        onBlur={() => {
+                          const parsed = parseFloat(localQuantities[index].replace(',', '.'));
+                          handleItemChange(index, 'quantity', isNaN(parsed) ? 0 : parsed);
+                        }}
                         className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''} w-24`}
                         disabled={readOnly}
                       />
@@ -254,14 +299,25 @@ export default function TransactionForm({
         <Label className='py-2'>Rabat</Label>
         <div className='flex items-center gap-2'>
           <Input
-            type='number'
-            step='0.01'
-            value={discount}
-            onChange={e => !readOnly && setDiscount(parseFloat(e.target.value))}
+            type='text'
+            inputMode='decimal'
+            pattern='[0-9]*[.,]?[0-9]*'
+            value={localDiscount}
+            onChange={e => {
+              const input = e.target.value.replace(',', '.');
+              setLocalDiscount(input);
+            }}
+            onBlur={() => {
+              const parsed = parseFloat(localDiscount);
+              const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
+              setDiscount(rounded);
+              setLocalDiscount(rounded.toString());
+            }}
             placeholder='np. 10'
             className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
             disabled={readOnly}
           />
+
           <span>zł</span>
         </div>
       </div>
@@ -270,20 +326,31 @@ export default function TransactionForm({
         <Label className='py-2'>Opłata dodatkowa</Label>
         <div className='flex items-center gap-2'>
           <Input
-            type='number'
-            step='0.01'
-            value={additionalFee}
-            onChange={e => !readOnly && setAdditionalFee(parseFloat(e.target.value))}
+            type='text'
+            inputMode='decimal'
+            pattern='[0-9]*[.,]?[0-9]*'
+            value={localFee}
+            onChange={e => {
+              const input = e.target.value.replace(',', '.');
+              setLocalFee(input);
+            }}
+            onBlur={() => {
+              const parsed = parseFloat(localFee);
+              const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
+              setAdditionalFee(rounded);
+              setLocalFee(rounded.toString());
+            }}
             placeholder='np. 20'
             className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
             disabled={readOnly}
           />
+
           <span>zł</span>
         </div>
       </div>
 
       <div className='text-xl font-semibold text-right text-green-700 dark:text-green-300'>
-        Suma: {calculateTotal()} zł
+        Suma: {calculateTotal().toFixed(2)} zł
       </div>
 
       {!readOnly && status === 'draft' ? (

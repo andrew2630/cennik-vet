@@ -29,8 +29,8 @@ export function saveTransaction(tx: Transaction): Transaction {
   return transactionToSave;
 }
 
-export function updateTransaction(tx: Transaction): void {
-  saveTransaction(tx);
+export function updateTransaction(tx: Transaction): Transaction {
+  return saveTransaction(tx);
 }
 
 export function deleteTransaction(id: string): void {

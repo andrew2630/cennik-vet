@@ -53,7 +53,8 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !price || (isCustomUnit && !customUnit)) return;
+    const parsedPrice = parseFloat(price.replace(',', '.'));
+    if (!name || !price || isNaN(parsedPrice) || (isCustomUnit && !customUnit)) return;
 
     const finalUnit = isCustomUnit ? customUnit : unit;
 
@@ -61,7 +62,7 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
       id: productId || crypto.randomUUID(),
       name,
       unit: finalUnit || 'szt',
-      pricePerUnit: parseFloat(price),
+      pricePerUnit: Math.round(parsedPrice * 100) / 100,
       type: type || 'produkt',
     });
 
@@ -134,10 +135,22 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
         <div className='flex flex-col w-full md:w-1/5'>
           <Label className='mb-1'>Cena</Label>
           <Input
-            type='number'
-            step='1.00'
+            type='text'
+            inputMode='decimal'
+            pattern='[0-9]*[.,]?[0-9]*'
             value={price}
-            onChange={e => setPrice(e.target.value)}
+            onChange={e => {
+              const value = e.target.value.replace(',', '.');
+              setPrice(value);
+            }}
+            onBlur={() => {
+              const parsed = parseFloat(price.replace(',', '.'));
+              if (!isNaN(parsed)) {
+                setPrice((Math.round(parsed * 100) / 100).toString());
+              } else {
+                setPrice('');
+              }
+            }}
             placeholder='np. 49.99'
           />
         </div>
