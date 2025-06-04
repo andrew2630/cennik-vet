@@ -35,6 +35,7 @@ export default function TransactionForm({
   const [localDiscount, setLocalDiscount] = useState(discount.toString());
   const [localFee, setLocalFee] = useState(additionalFee.toString());
   const [localQuantities, setLocalQuantities] = useState<string[]>([]);
+  const [description, setDescription] = useState('');
 
   useEffect(() => {
     setLocalQuantities(items.map(i => i.quantity.toString()));
@@ -68,6 +69,7 @@ export default function TransactionForm({
       setAdditionalFee(editingTransaction.additionalFee || 0);
       setStatus(editingTransaction.status);
       setId(editingTransaction.id);
+      setDescription(editingTransaction.description || '');
     }
   }, [editingTransaction]);
 
@@ -101,6 +103,7 @@ export default function TransactionForm({
       totalPrice: total,
       date: new Date().toISOString(),
       status,
+      description,
     };
 
     const resultId = updateTransaction(tx).id;
@@ -150,6 +153,7 @@ export default function TransactionForm({
       totalPrice: total,
       date: new Date().toISOString(),
       status: 'finalised',
+      description,
     };
     updateTransaction(tx);
     onSaved?.();
@@ -169,6 +173,7 @@ export default function TransactionForm({
       totalPrice: total,
       date: editingTransaction?.date || new Date().toISOString(),
       status,
+      description,
     };
     updateTransaction(tx);
     onSaved?.();
@@ -351,6 +356,22 @@ export default function TransactionForm({
 
       <div className='text-xl font-semibold text-right text-green-700 dark:text-green-300'>
         Suma: {calculateTotal().toFixed(2)} zł
+      </div>
+
+      <div>
+        <Label htmlFor='description' className='py-2'>
+          Opis
+        </Label>
+        <textarea
+          id='description'
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          placeholder='Tutaj możesz wpisać dodatkowe uwagi, komentarze lub inne informacje...'
+          disabled={readOnly}
+          className={`w-full min-h-[100px] resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-90 ${
+            readOnly ? 'text-foreground opacity-100 border-none' : ''
+          }`}
+        />
       </div>
 
       {!readOnly && status === 'draft' ? (

@@ -163,6 +163,19 @@ function TransactionViewContent() {
       margin: { left: 10, right: 10 },
     });
 
+    // @ts-expect-error: lastAutoTable is added by autoTable at runtime
+    let finalY = doc.lastAutoTable.finalY + 10;
+
+    if (transaction.description?.trim()) {
+      doc.setFontSize(12);
+      doc.text(text('Opis'), 10, finalY);
+      finalY += 6;
+
+      const lines = doc.splitTextToSize(text(transaction.description), 190); // 190mm is safe width with margin
+      doc.setFontSize(10);
+      doc.text(lines, 10, finalY);
+    }
+
     doc.save(filename);
   };
 

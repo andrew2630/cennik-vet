@@ -54,6 +54,7 @@ export interface Transaction extends Item {
   additionalFee?: number;
   totalPrice: number;
   status: TransactionStatus;
+  description?: string;
 }
 
 export interface ThemeSettings {
