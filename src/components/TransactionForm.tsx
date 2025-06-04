@@ -279,6 +279,11 @@ export default function TransactionForm({
                     )}
                     <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
                   </div>
+                  {product?.name.toLowerCase() === 'dojazd' && product?.unit === 'km' && !readOnly && (
+                    <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold p-3'>
+                      ⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)
+                    </div>
+                  )}
                   <div className='py-2'>
                     Cena: {product ? `${product.pricePerUnit} zł/${product.unit}` : '—'} | Suma: {itemTotal.toFixed(2)}{' '}
                     zł
