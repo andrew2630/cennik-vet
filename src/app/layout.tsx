@@ -3,6 +3,7 @@ import './globals.css';
 import { SparklesCore } from '@/components/ui/sparkles';
 import HomeButton from '@/components/HomeButton';
 import { Toaster } from 'sonner';
+import BuyMeCoffee from '@/components/BuyMeCoffee';
 
 export const metadata: Metadata = {
   title: 'Cennik Vet',
@@ -28,6 +29,7 @@ export default function RootLayout({
         </main>
         <Toaster richColors position='top-right' />
         <HomeButton />
+        <BuyMeCoffee />
       </body>
     </html>
   );
