@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getClients, deleteClient } from '@/utils/clientStorage';
 import { Client } from '@/types';
-
+import { useRouter } from 'next/navigation';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Pencil, Trash, MapPin, Phone } from 'lucide-react';
 import {
   Dialog,
   DialogTrigger,
@@ -14,19 +19,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Pencil, Trash } from 'lucide-react';
-
 export default function ClientList({ refresh }: { refresh: number }) {
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [search, setSearch] = useState('');
-  const [sortField, setSortField] = useState<'name' | 'address'>('name'); // domyślnie: name
+  const [sortField, setSortField] = useState<'name' | 'address'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const router = useRouter();
 
   useEffect(() => {
     setClients(getClients());
@@ -96,21 +95,37 @@ export default function ClientList({ refresh }: { refresh: number }) {
           filtered.map(client => (
             <Card
               key={client.id}
-              className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm'
+              onClick={() => router.push(`/clients/edit?id=${client.id}`)}
+              className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm cursor-pointer hover:scale-[1.01]'
             >
-              {/* Linia 1: Tylko nazwa */}
-              <div className='text-base font-semibold mb-1'>{client.name}</div>
+              <div className='text-base font-semibold'>{client.name}</div>
 
-              {/* Linia 2: adres, telefon, przyciski */}
               <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-muted-foreground'>
-                <div className='flex flex-wrap gap-4'>
-                  {client.address && <span>📍 {client.address}</span>}
-                  {client.phone && <span>☎ {client.phone}</span>}
+                <div className='flex flex-wrap gap-4 items-center text-sm text-muted-foreground'>
+                  {client.address && (
+                    <span className='flex items-center gap-1'>
+                      <MapPin className='w-4 h-4' />
+                      {client.address}
+                    </span>
+                  )}
+                  {client.phone && (
+                    <span className='flex items-center gap-1'>
+                      <Phone className='w-4 h-4' />
+                      {client.phone}
+                    </span>
+                  )}
                 </div>
 
                 <div className='flex gap-2 justify-end'>
                   <Link href={`/clients/edit?id=${client.id}`}>
-                    <Button size='sm' variant='outline'>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={e => {
+                        e.stopPropagation();
+                        router.push(`/clients/edit?id=${client.id}`);
+                      }}
+                    >
                       <Pencil className='w-4 h-4' />
                     </Button>
                   </Link>
@@ -120,7 +135,15 @@ export default function ClientList({ refresh }: { refresh: number }) {
                     onOpenChange={open => !open && setSelectedClient(null)}
                   >
                     <DialogTrigger asChild>
-                      <Button type='button' size='sm' variant='destructive' onClick={() => setSelectedClient(client)}>
+                      <Button
+                        type='button'
+                        size='sm'
+                        variant='destructive'
+                        onClick={e => {
+                          e.stopPropagation();
+                          setSelectedClient(client);
+                        }}
+                      >
                         <Trash className='w-4 h-4' />
                       </Button>
                     </DialogTrigger>

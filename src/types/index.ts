@@ -16,12 +16,13 @@ export type Unit =
   | 'km'
   | string;
 
+export type ItemType = 'produkt' | 'usługa';
+
 export type Item = {
   id: string
   [key: string]: unknown
+  type?: ItemType
 }
-
-export type ItemType = 'produkt' | 'usługa';
 
 export interface Product extends Item {
   id: string;
@@ -43,6 +44,7 @@ export type TransactionStatus = 'draft' | 'finalised';
 export interface TransactionItem {
   productId: string;
   quantity: number;
+  priceAtTransaction?: number;
 }
 
 export interface Transaction extends Item {

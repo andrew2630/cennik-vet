@@ -12,6 +12,14 @@ declare module 'next-pwa' {
     swSrc?: string;
     swDest?: string;
     runtimeCaching?: unknown[];
+    fallbacks?: {
+      image?: string;
+      document?: string;
+      font?: string;
+      audio?: string;
+      video?: string;
+      worker?: string;
+    };
   }
 
   export default function withPWA(

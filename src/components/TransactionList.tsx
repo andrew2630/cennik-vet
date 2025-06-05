@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
 
 export default function TransactionList({ refresh }: { refresh: number }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -27,6 +28,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
   const [sortField, setSortField] = useState<'date' | 'client'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setTransactions(getTransactions());
@@ -95,88 +97,101 @@ export default function TransactionList({ refresh }: { refresh: number }) {
         ) : (
           filtered.map(tx => {
             const client = clients.find(c => c.id === tx.clientId);
+            const targetHref =
+              tx.status === 'finalised' ? `/transactions/view?id=${tx.id}` : `/transactions/edit?id=${tx.id}`;
 
             return (
-              <Card
-                key={tx.id}
-                className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm'
-              >
-                {/* Wiersz 1: Data, Klient, Kwota */}
-                <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2'>
-                  <div className='text-sm text-muted-foreground'>
-                    <strong>Data:</strong>{' '}
-                    {new Date(tx.date).toLocaleDateString('pl-PL', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+              <Link key={tx.id} href={targetHref} passHref>
+                <Card
+                  onClick={e => {
+                    if ((e.target as HTMLElement).closest('button')) return;
+
+                    router.push(targetHref);
+                  }}
+                  className='p-5 gap-4 mb-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm cursor-pointer hover:scale-[1.01]'
+                >
+                  <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2'>
+                    <div className='text-sm text-muted-foreground'>
+                      <strong>Data:</strong>{' '}
+                      {new Date(tx.date).toLocaleDateString('pl-PL', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </div>
+
+                    <div className='text-sm'>
+                      <strong>Klient:</strong> <span className='font-medium'>{client?.name || 'Nieznany klient'}</span>
+                      {client?.address && <span className='text-muted-foreground'> • {client.address}</span>}
+                      {client?.phone && <span className='text-muted-foreground'> • tel. {client.phone}</span>}
+                    </div>
+
+                    <div className='text-sm font-medium'>
+                      <strong>Kwota:</strong>{' '}
+                      <span className='text-sm font-bold text-green-700 dark:text-green-400'>
+                        {tx.totalPrice.toFixed(2)} zł
+                      </span>
+                    </div>
                   </div>
 
-                  <div className='text-sm'>
-                    <strong>Klient:</strong> <span className='font-medium'>{client?.name || 'Nieznany klient'}</span>
-                    {client?.address && <span className='text-muted-foreground'> • {client.address}</span>}
-                    {client?.phone && <span className='text-muted-foreground'> • tel. {client.phone}</span>}
-                  </div>
+                  <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                    <div className='text-sm flex items-center gap-2'>
+                      <strong>Status:</strong>
+                      <Badge
+                        variant={tx.status === 'finalised' ? 'default' : 'secondary'}
+                        className={`text-white ${tx.status === 'finalised' ? 'bg-emerald-600' : 'bg-gray-500'}`}
+                      >
+                        {tx.status === 'finalised' ? '✔ Zrealizowana' : '📝 Robocza'}
+                      </Badge>
+                    </div>
 
-                  <div className='text-sm font-medium'>
-                    <strong>Kwota:</strong>{' '}
-                    <span className='text-sm font-bold text-green-700 dark:text-green-400'>
-                      {tx.totalPrice.toFixed(2)} zł
-                    </span>
-                  </div>
-                </div>
-
-                {/* Wiersz 2: Status + Akcje */}
-                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-                  <div className='text-sm flex items-center gap-2'>
-                    <strong>Status:</strong>
-                    <Badge
-                      variant={tx.status === 'finalised' ? 'default' : 'secondary'}
-                      className={`text-white ${tx.status === 'finalised' ? 'bg-emerald-600' : 'bg-gray-500'}`}
-                    >
-                      {tx.status === 'finalised' ? '✔ Zrealizowana' : '📝 Robocza'}
-                    </Badge>
-                  </div>
-
-                  <div className='flex gap-2'>
-                    <Link href={`/transactions/view?id=${tx.id}`}>
-                      <Button size='sm' variant='outline'>
-                        <FileText className='w-4 h-4' />
-                      </Button>
-                    </Link>
-                    <Link href={`/transactions/edit?id=${tx.id}`}>
-                      <Button size='sm' variant='outline'>
-                        <Pencil className='w-4 h-4' />
-                      </Button>
-                    </Link>
-
-                    <Dialog open={selectedTx?.id === tx.id} onOpenChange={open => !open && setSelectedTx(null)}>
-                      <DialogTrigger asChild>
-                        <Button size='sm' variant='destructive' onClick={() => setSelectedTx(tx)}>
-                          <Trash className='w-4 h-4' />
+                    <div className='flex gap-2' onClick={e => e.stopPropagation()}>
+                      <Link href={`/transactions/view?id=${tx.id}`}>
+                        <Button size='sm' variant='outline' onClick={e => e.stopPropagation()}>
+                          <FileText className='w-4 h-4' />
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className='sm:max-w-md'>
-                        <DialogTitle>Potwierdź usunięcie</DialogTitle>
-                        <DialogDescription>
-                          Czy na pewno chcesz usunąć rozliczenie dla <strong>{client?.name}</strong> z dnia{' '}
-                          {new Date(tx.date).toLocaleDateString('pl-PL')}?
-                        </DialogDescription>
-                        <DialogFooter className='mt-4 flex gap-2'>
-                          <Button type='button' variant='outline' onClick={() => setSelectedTx(null)}>
-                            Anuluj
+                      </Link>
+                      <Link href={`/transactions/edit?id=${tx.id}`}>
+                        <Button size='sm' variant='outline' onClick={e => e.stopPropagation()}>
+                          <Pencil className='w-4 h-4' />
+                        </Button>
+                      </Link>
+
+                      <Dialog open={selectedTx?.id === tx.id} onOpenChange={open => !open && setSelectedTx(null)}>
+                        <DialogTrigger asChild>
+                          <Button
+                            size='sm'
+                            variant='destructive'
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSelectedTx(tx);
+                            }}
+                          >
+                            <Trash className='w-4 h-4' />
                           </Button>
-                          <Button type='button' variant='destructive' onClick={() => handleDelete(tx.id)}>
-                            Usuń
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                        </DialogTrigger>
+                        <DialogContent className='sm:max-w-md'>
+                          <DialogTitle>Potwierdź usunięcie</DialogTitle>
+                          <DialogDescription>
+                            Czy na pewno chcesz usunąć rozliczenie dla <strong>{client?.name}</strong> z dnia{' '}
+                            {new Date(tx.date).toLocaleDateString('pl-PL')}?
+                          </DialogDescription>
+                          <DialogFooter className='mt-4 flex gap-2'>
+                            <Button type='button' variant='outline' onClick={() => setSelectedTx(null)}>
+                              Anuluj
+                            </Button>
+                            <Button type='button' variant='destructive' onClick={() => handleDelete(tx.id)}>
+                              Usuń
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </Link>
             );
           })
         )}

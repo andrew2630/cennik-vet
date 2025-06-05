@@ -117,8 +117,10 @@ export default function TransactionForm({
   const calculateTotal = () => {
     const subtotal = items.reduce((acc, item) => {
       const product = products.find(p => p.id === item.productId);
-      return acc + (product ? product.pricePerUnit * item.quantity : 0);
+      const price = item.priceAtTransaction ?? product?.pricePerUnit ?? 0;
+      return acc + price * item.quantity;
     }, 0);
+
     return Math.max(0, Math.round((subtotal - discount + additionalFee) * 100) / 100);
   };
 
@@ -143,18 +145,26 @@ export default function TransactionForm({
   };
 
   const handleFinalise = () => {
-    const total = calculateTotal();
+    const snapshotItems = items.map(item => {
+      const product = products.find(p => p.id === item.productId);
+      return {
+        ...item,
+        priceAtTransaction: product?.pricePerUnit ?? 0,
+      };
+    });
+
     const tx: Transaction = {
       id,
       clientId,
-      items,
+      items: snapshotItems,
       discount,
       additionalFee,
-      totalPrice: total,
+      totalPrice: calculateTotal(),
       date: new Date().toISOString(),
       status: 'finalised',
       description,
     };
+
     updateTransaction(tx);
     onSaved?.();
   };
@@ -197,11 +207,17 @@ export default function TransactionForm({
           displayKey='name'
           filterKeys={['name', 'address', 'phone']}
           placeholder='Wyszukaj klienta...'
-          className={`w-full ${readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''}`}
+          className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
+            readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
+          }`}
           disabled={readOnly}
         />
         {clientDetails && (
-          <div className='text-sm text-muted-foreground mt-2'>
+          <div
+            className='text-sm text-muted-foreground mt-2 overflow-hidden text-ellipsis whitespace-nowrap'
+            title={`${clientDetails.address}${clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}`}
+            style={{ direction: 'ltr', textAlign: 'left' }}
+          >
             {clientDetails.address}
             {clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}
           </div>
@@ -221,9 +237,15 @@ export default function TransactionForm({
               >
                 <div className='flex gap-2 items-center'>
                   <div className='text-muted-foreground w-5 text-right'>{index + 1}.</div>
-                  <div className='flex-1'>
+                  <div className='flex-1 min-w-0'>
                     {readOnly ? (
-                      <div className='text-md text-foreground font-medium'>{product?.name ?? '–'}</div>
+                      <div
+                        className='text-md text-foreground font-medium overflow-hidden text-ellipsis whitespace-nowrap'
+                        title={product?.name}
+                        style={{ direction: 'ltr', textAlign: 'left' }}
+                      >
+                        {product?.name ?? '–'}
+                      </div>
                     ) : (
                       <ComboboxGeneric
                         items={products}
@@ -232,13 +254,14 @@ export default function TransactionForm({
                         displayKey='name'
                         filterKeys={['name']}
                         placeholder='Wyszukaj produkt...'
-                        className={`w-full ${
+                        className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
                           readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
                         }`}
                         disabled={readOnly}
                       />
                     )}
                   </div>
+
                   {!readOnly && (
                     <Button
                       type='button'
@@ -251,7 +274,7 @@ export default function TransactionForm({
                   )}
                 </div>
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-                  <div className='flex items-center'>
+                  <div className='flex items-center pr-3'>
                     <Label className='py-2 mr-2'>Ilość:</Label>
                     {readOnly ? (
                       <div className='text-md'>{item.quantity}</div>
@@ -278,17 +301,42 @@ export default function TransactionForm({
                       />
                     )}
                     <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
+                    {(products.find(p => p.id === item.productId)?.type || 'produkt') === 'usługa' && (
+                      <span className='ml-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded'>
+                        Usługa
+                      </span>
+                    )}
+                    {(products.find(p => p.id === item.productId)?.type || 'produkt') === 'produkt' && (
+                      <span className='ml-2 text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900 px-2 py-0.5 rounded'>
+                        Produkt
+                      </span>
+                    )}
                   </div>
                   {product?.name.toLowerCase() === 'dojazd' && product?.unit === 'km' && !readOnly && (
-                    <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold p-3'>
+                    <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold'>
                       ⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)
                     </div>
                   )}
-                  <div className='py-2'>
-                    Cena: {product ? `${product.pricePerUnit} zł/${product.unit}` : '—'} | Suma: {itemTotal.toFixed(2)}{' '}
-                    zł
+                  <div className='flex flex-row sm:flex-row gap-6 text-sm sm:text-base pt-3'>
+                    <div className='text-gray-700 dark:text-gray-200 text-sm'>
+                      <span className='font-semibold'>Cena:</span>{' '}
+                      {item.priceAtTransaction != null
+                        ? `${item.priceAtTransaction.toFixed(2)} zł/${product?.unit ?? ''}`
+                        : product
+                        ? `${product.pricePerUnit.toFixed(2)} zł/${product.unit}`
+                        : '—'}
+                    </div>
+                    <div className='text-gray-700 dark:text-gray-200'>
+                      <span className='font-semibold'>Suma:</span>{' '}
+                      <span className='text-green-700 dark:text-green-400 font-bold'>{itemTotal.toFixed(2)} zł</span>
+                    </div>
                   </div>
                 </div>
+                {item.priceAtTransaction != null && product && item.priceAtTransaction !== product.pricePerUnit && (
+                  <div className='text-sm text-yellow-600 dark:text-yellow-400'>
+                    ⚠️ Cena produktu uległa zmianie (obecnie: {product.pricePerUnit.toFixed(2)} zł)
+                  </div>
+                )}
               </div>
             );
           })}

@@ -1,7 +1,12 @@
-'use client';
-
 import * as React from 'react';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -27,31 +32,50 @@ export function ComboboxGeneric({
   onSelect,
   placeholder = 'Wybierz...',
   displayKey,
-  className,
+  className = '',
   disabled = false,
 }: ComboboxGenericProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [open, setOpen] = React.useState(false);
-  const selectedItem = items.find(i => i.id === selectedId);
+  const selectedItem = items.find((i) => i.id === selectedId);
+
+  const renderBadge = (type: string | undefined) => {
+    if (type === 'produkt')
+      return (
+        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 rounded">
+          Produkt
+        </span>
+      );
+    if (type === 'usługa')
+      return (
+        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 rounded">
+          Usługa
+        </span>
+      );
+    return null;
+  };
 
   const List = ({ close }: { close: () => void }) => (
     <Command>
-      <CommandInput placeholder='Szukaj...' disabled={disabled} />
+      <CommandInput placeholder="Szukaj..." disabled={disabled} />
       <CommandList>
         <CommandEmpty>Brak wyników.</CommandEmpty>
         <CommandGroup>
-          {items.map(item => (
+          {items.map((item) => (
             <CommandItem
               key={item.id}
-              value={String(item[displayKey])} // ważne: to jest używane do filtrowania
+              value={String(item[displayKey])}
               onSelect={() => {
                 if (!disabled) {
                   onSelect(item.id);
                   close();
                 }
               }}
+              title={String(item[displayKey])}
+              className="truncate flex items-center justify-between"
             >
-              {String(item[displayKey])}
+              <span className="truncate">{String(item[displayKey])}</span>
+              {renderBadge(item.type)}
             </CommandItem>
           ))}
         </CommandGroup>
@@ -59,17 +83,28 @@ export function ComboboxGeneric({
     </Command>
   );
 
-  const buttonText = selectedItem ? selectedItem[displayKey] : placeholder;
+  const buttonText = selectedItem ? String(selectedItem[displayKey]) : placeholder;
+
+  const buttonContent = (
+    <span
+      className="truncate overflow-hidden whitespace-nowrap text-left w-full"
+      title={buttonText}
+    >
+      {buttonText}
+    </span>
+  );
+
+  const buttonClass = `w-full justify-start min-w-0 ${className}`.trim();
 
   if (isDesktop) {
     return (
       <Popover open={open && !disabled} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant='outline' className={className || 'w-full justify-start'} disabled={disabled}>
-            {String(buttonText)}
+          <Button variant="outline" className={buttonClass} disabled={disabled}>
+            {buttonContent}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-full p-0' align='start'>
+        <PopoverContent className="w-full p-0" align="start">
           <List close={() => setOpen(false)} />
         </PopoverContent>
       </Popover>
@@ -79,15 +114,15 @@ export function ComboboxGeneric({
   return (
     <Drawer open={open && !disabled} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant='outline' className={className || 'w-full justify-start'} disabled={disabled}>
-          {String(buttonText)}
+        <Button variant="outline" className={buttonClass} disabled={disabled}>
+          {buttonContent}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <VisuallyHidden>
           <DialogTitle>Wybierz opcję</DialogTitle>
         </VisuallyHidden>
-        <div className='mt-4 border-t'>
+        <div className="mt-4 border-t">
           <List close={() => setOpen(false)} />
         </div>
       </DrawerContent>

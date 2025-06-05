@@ -4,19 +4,20 @@ import { useEffect, useState } from 'react';
 import { getTransactions } from '@/utils/transactionStorage';
 import { getClients } from '@/utils/clientStorage';
 import { Transaction, Client } from '@/types';
-import Link from 'next/link';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Theme from '@/components/Theme';
+import { useRouter } from 'next/navigation';
 
 export default function CalendarPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setTransactions(getTransactions());
@@ -109,10 +110,16 @@ export default function CalendarPage() {
                   {filteredTx.map(tx => (
                     <Card
                       key={tx.id}
-                      className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm'
+                      onClick={() =>
+                        router.push(
+                          tx.status === 'finalised'
+                            ? `/transactions/view?id=${tx.id}&from=calendar`
+                            : `/transactions/edit?id=${tx.id}&from=calendar`
+                        )
+                      }
+                      className='p-5 gap-4 mb-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm cursor-pointer hover:scale-[1.01]'
                     >
-                      {/* Wiersz 1: Data, Klient, Kwota */}
-                      <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2'>
+                      <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2'>
                         <div className='text-sm text-muted-foreground'>
                           <strong>Data:</strong>{' '}
                           {new Date(tx.date).toLocaleDateString('pl-PL', {
@@ -148,7 +155,6 @@ export default function CalendarPage() {
                         </div>
                       </div>
 
-                      {/* Wiersz 2: Status + Akcja */}
                       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                         <div className='text-sm flex items-center gap-2'>
                           <strong>Status:</strong>
@@ -158,14 +164,6 @@ export default function CalendarPage() {
                           >
                             {tx.status === 'finalised' ? '✔ Zrealizowana' : '📝 Robocza'}
                           </Badge>
-                        </div>
-
-                        <div className='flex gap-2'>
-                          <Link href={`/transactions/view?id=${tx.id}&from=calendar`}>
-                            <Button size='sm' variant='outline'>
-                              Szczegóły
-                            </Button>
-                          </Link>
                         </div>
                       </div>
                     </Card>
