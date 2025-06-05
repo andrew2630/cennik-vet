@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { getClients, deleteClient } from '@/utils/clientStorage';
 import { Client } from '@/types';
 import { useRouter } from 'next/navigation';
@@ -95,7 +94,12 @@ export default function ClientList({ refresh }: { refresh: number }) {
           filtered.map(client => (
             <Card
               key={client.id}
-              onClick={() => router.push(`/clients/edit?id=${client.id}`)}
+              onClick={e => {
+                const isButton = (e.target as HTMLElement).closest('button');
+                if (!isButton) {
+                  router.push(`/clients/edit?id=${client.id}`);
+                }
+              }}
               className='p-5 rounded-2xl bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm cursor-pointer hover:scale-[1.01]'
             >
               <div className='text-base font-semibold'>{client.name}</div>
@@ -117,18 +121,16 @@ export default function ClientList({ refresh }: { refresh: number }) {
                 </div>
 
                 <div className='flex gap-2 justify-end'>
-                  <Link href={`/clients/edit?id=${client.id}`}>
-                    <Button
-                      size='sm'
-                      variant='outline'
-                      onClick={e => {
-                        e.stopPropagation();
-                        router.push(`/clients/edit?id=${client.id}`);
-                      }}
-                    >
-                      <Pencil className='w-4 h-4' />
-                    </Button>
-                  </Link>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    onClick={e => {
+                      e.stopPropagation();
+                      router.push(`/clients/edit?id=${client.id}`);
+                    }}
+                  >
+                    <Pencil className='w-4 h-4' />
+                  </Button>
 
                   <Dialog
                     open={selectedClient?.id === client.id}
