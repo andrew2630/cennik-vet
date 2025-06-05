@@ -307,7 +307,7 @@ export default function TransactionForm({
                       </span>
                     )}
                     {(products.find(p => p.id === item.productId)?.type || 'produkt') === 'produkt' && (
-                      <span className='ml-2 text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900 px-2 py-0.5 rounded'>
+                      <span className='ml-2 text-xs font-semibold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900 px-2 py-0.5 rounded'>
                         Produkt
                       </span>
                     )}

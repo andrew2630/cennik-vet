@@ -42,7 +42,7 @@ export function ComboboxGeneric({
   const renderBadge = (type: string | undefined) => {
     if (type === 'produkt')
       return (
-        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 rounded">
+        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-lime-100 text-lime-800 dark:bg-lime-800 dark:text-lime-100 rounded">
           Produkt
         </span>
       );
