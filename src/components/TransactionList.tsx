@@ -143,7 +143,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
                         variant={tx.status === 'finalised' ? 'default' : 'secondary'}
                         className={`text-white ${tx.status === 'finalised' ? 'bg-emerald-600' : 'bg-gray-500'}`}
                       >
-                        {tx.status === 'finalised' ? '✔ Zrealizowana' : '📝 Robocza'}
+                        {tx.status === 'finalised' ? '✔ Zrealizowano' : '📝 W trakcie'}
                       </Badge>
                     </div>
 
