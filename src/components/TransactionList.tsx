@@ -63,12 +63,13 @@ export default function TransactionList({ refresh }: { refresh: number }) {
 
         <div className='flex flex-col sm:flex-row gap-2 w-full md:w-auto'>
           <Input
-            className='min-w-[200px] sm:min-w-[250px]'
+            className='min-w-[200px] sm:min-w-[300px]'
             placeholder='Szukaj po nazwie klienta lub dacie...'
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
 
+          <div className='flex flex-row gap-2 md:items-center'>
           <Select value={sortField} onValueChange={(val: 'date' | 'client') => setSortField(val)}>
             <SelectTrigger className='w-[120px]'>
               <SelectValue placeholder='Sortuj wg' />
@@ -88,6 +89,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
               <SelectItem value='desc'>Malejąco</SelectItem>
             </SelectContent>
           </Select>
+          </div>
         </div>
       </CardHeader>
 

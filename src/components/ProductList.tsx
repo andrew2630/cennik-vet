@@ -65,7 +65,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
 
         <div className='flex flex-wrap md:justify-end gap-2'>
           <Select value={typeFilter} onValueChange={(val: 'all' | ItemType) => setTypeFilter(val)}>
-            <SelectTrigger className='w-[125px]'>
+            <SelectTrigger className='w-[110px]'>
               <SelectValue placeholder='Typ' />
             </SelectTrigger>
             <SelectContent>
@@ -76,7 +76,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
           </Select>
 
           <Select value={unitFilter} onValueChange={(val: 'all' | Unit) => setUnitFilter(val)}>
-            <SelectTrigger className='w-[125px]'>
+            <SelectTrigger className='w-[110px]'>
               <SelectValue placeholder='Jednostka' />
             </SelectTrigger>
             <SelectContent>
@@ -90,7 +90,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
           </Select>
 
           <Select value={sortField} onValueChange={(val: 'name' | 'price') => setSortField(val)}>
-            <SelectTrigger className='w-[125px]'>
+            <SelectTrigger className='w-[110px]'>
               <SelectValue placeholder='Sortuj wg' />
             </SelectTrigger>
             <SelectContent>
@@ -100,7 +100,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
           </Select>
 
           <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
-            <SelectTrigger className='w-[125px]'>
+            <SelectTrigger className='w-[110px]'>
               <SelectValue placeholder='Kolejność' />
             </SelectTrigger>
             <SelectContent>
