@@ -16,17 +16,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='pl'>
+    <html lang='pl' suppressHydrationWarning>
       <head>
+        {/* Prevent theme flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme');
+                  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (theme === 'dark' || (!theme && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (_) {}
+              })();
+            `,
+          }}
+        />
         <link rel='manifest' href='/cennik-vet/manifest.json' />
         <link rel='apple-touch-icon' href='/cennik-vet/icon-192.png' />
         <meta name='theme-color' content='#0A0A0A' />
       </head>
       <body className='min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white font-sans antialiased'>
         <SparklesCore className='absolute inset-0 h-full w-full z-0' particleColor='#86efac' />
-        <main className='relative z-10 p-4'>
-          {children}
-        </main>
+        <main className='relative z-10 p-4'>{children}</main>
         <Toaster richColors position='top-right' />
         <HomeButton />
         <BuyMeCoffee />

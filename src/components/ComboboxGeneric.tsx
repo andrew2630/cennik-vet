@@ -14,6 +14,7 @@ import { useMediaQuery } from '@uidotdev/usehooks';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { DialogTitle } from '@/components/ui/dialog';
 import { Item } from '@/types';
+import { useTranslations } from 'next-intl';
 
 interface ComboboxGenericProps {
   items: Item[];
@@ -35,21 +36,22 @@ export function ComboboxGeneric({
   className = '',
   disabled = false,
 }: ComboboxGenericProps) {
+  const itemTypeT = useTranslations('itemType');
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [open, setOpen] = React.useState(false);
   const selectedItem = items.find((i) => i.id === selectedId);
 
   const renderBadge = (type: string | undefined) => {
-    if (type === 'produkt')
+    if (type === 'product')
       return (
         <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-lime-100 text-lime-800 dark:bg-lime-800 dark:text-lime-100 rounded">
-          Produkt
+          {itemTypeT('product')}
         </span>
       );
-    if (type === 'usługa')
+    if (type === 'service')
       return (
         <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 rounded">
-          Usługa
+          {itemTypeT('service')}
         </span>
       );
     return null;

@@ -1,28 +1,31 @@
 export type Unit =
-  | 'szt'
+  | 'pcs'
   | 'ml'
   | 'g'
   | 'kg'
-  | 'opakowanie'
-  | 'dawka'
-  | 'tabletka'
-  | 'pipeta'
-  | 'ampułka'
-  | 'saszetka'
+  | 'pack'
+  | 'dose'
+  | 'tablet'
+  | 'dropper'
+  | 'ampoule'
+  | 'sachet'
   | 'blister'
-  | 'tuba'
-  | 'tubostrz.'
-  | 'puszka'
+  | 'tube'
+  | 'tubosyringe'
+  | 'can'
   | 'km'
   | string;
 
-export type ItemType = 'produkt' | 'usługa';
+export type ItemType = 'product' | 'service';
 
 export type Item = {
-  id: string
-  [key: string]: unknown
-  type?: ItemType
-}
+  id: string;
+  [key: string]: unknown;
+  type?: ItemType;
+};
+
+export type Currency = 'zł' | '€' | '$' | '£' | '¥';
+
 
 export interface Product extends Item {
   id: string;
@@ -62,8 +65,29 @@ export interface Transaction extends Item {
 export interface ThemeSettings {
   theme: 'light' | 'dark' | 'system';
 }
-
 export interface Settings {
-  currency: string;
+  currency: Currency;
   theme: ThemeSettings['theme'];
+  language: 'pl' | 'en';
+}
+
+export interface ExportLabels {
+  header: string;
+  clientLabel: string;
+  addressLabel: string;
+  phoneLabel: string;
+  notFound: string;
+  travel: string;
+  items: string;
+  products: string;
+  services: string;
+  quantity: string;
+  unit: string;
+  priceUnit: string;
+  value: string;
+  subtotal: string;
+  discount: string;
+  fee: string;
+  total: string;
+  description: string;
 }

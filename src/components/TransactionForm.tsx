@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useDebouncedCallback } from 'use-debounce';
 import { ComboboxGeneric } from '@/components/ComboboxGeneric';
 import { Trash } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function TransactionForm({
   editingTransaction,
@@ -24,6 +25,7 @@ export default function TransactionForm({
   onCancel?: () => void;
   readOnly?: boolean;
 }) {
+  const itemTypeT = useTranslations('itemType');
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [clientId, setClientId] = useState('');
@@ -54,12 +56,14 @@ export default function TransactionForm({
 
     const isNew = !editingTransaction?.id;
     if (isNew && !readOnly) {
-      const travel = loadedProducts.find(p => p.name.toLowerCase() === 'dojazd' && p.unit === 'km');
+      const travel = loadedProducts.find(
+        p => p.name.toLowerCase() === itemTypeT('travel').toLowerCase() && p.unit === 'km'
+      );
       if (travel) {
         setItems([{ productId: travel.id, quantity: 0 }]);
       }
     }
-  }, [editingTransaction?.id, readOnly]);
+  }, [editingTransaction?.id, readOnly, itemTypeT]);
 
   useEffect(() => {
     if (editingTransaction) {
@@ -80,7 +84,11 @@ export default function TransactionForm({
       singleItem &&
       (() => {
         const product = products.find(p => p.id === singleItem.productId);
-        return product?.name?.toLowerCase() === 'dojazd' && product?.unit === 'km' && singleItem.quantity === 0;
+        return (
+          product?.name?.toLowerCase() === itemTypeT('travel').toLowerCase() &&
+          product?.unit === 'km' &&
+          singleItem.quantity === 0
+        );
       })();
 
     const isEmpty = !clientId && isOnlyEmptyTravel && discount === 0 && additionalFee === 0 && calculateTotal() === 0;
@@ -301,22 +309,24 @@ export default function TransactionForm({
                       />
                     )}
                     <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
-                    {(products.find(p => p.id === item.productId)?.type || 'produkt') === 'usługa' && (
+                    {(products.find(p => p.id === item.productId)?.type || 'product') === 'service' && (
                       <span className='ml-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded'>
-                        Usługa
+                        {itemTypeT('service')}
                       </span>
                     )}
-                    {(products.find(p => p.id === item.productId)?.type || 'produkt') === 'produkt' && (
+                    {(products.find(p => p.id === item.productId)?.type || 'product') === 'product' && (
                       <span className='ml-2 text-xs font-semibold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900 px-2 py-0.5 rounded'>
-                        Produkt
+                        {itemTypeT('product')}
                       </span>
                     )}
                   </div>
-                  {product?.name.toLowerCase() === 'dojazd' && product?.unit === 'km' && !readOnly && (
-                    <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold'>
-                      ⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)
-                    </div>
-                  )}
+                  {product?.name.toLowerCase() === itemTypeT('travel').toLowerCase() &&
+                    product?.unit === 'km' &&
+                    !readOnly && (
+                      <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold'>
+                        ⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)
+                      </div>
+                    )}
                   <div className='flex flex-row sm:flex-row gap-6 text-sm sm:text-base pt-3'>
                     <div className='text-gray-700 dark:text-gray-200 text-sm'>
                       <span className='font-semibold'>Cena:</span>{' '}

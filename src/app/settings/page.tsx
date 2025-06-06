@@ -5,8 +5,7 @@ import { getSettings, saveSettings } from '@/utils/settingsStorage';
 import { exportAllDataToJSON } from '@/utils/exportStorage';
 import ImportButton from '@/components/ImportButton';
 import { applyTheme, getStoredTheme, Theme } from '@/utils/theme';
-import { Settings as SettingsType } from '@/types';
-
+import { Settings as SettingsType, Currency } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -18,6 +17,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<SettingsType>({
     currency: 'zł',
     theme: 'system',
+    language: 'pl',
   });
 
   useEffect(() => {
@@ -61,6 +61,35 @@ export default function SettingsPage() {
                     <SelectItem value='system'>Systemowy</SelectItem>
                     <SelectItem value='light'>Jasny</SelectItem>
                     <SelectItem value='dark'>Ciemny</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className='space-y-1'>
+                <Label>Język</Label>
+                <Select value={settings.language} onValueChange={val => handleChange('language', val as 'pl' | 'en')}>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Wybierz język' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='pl'>Polski</SelectItem>
+                    <SelectItem value='en'>English</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className='space-y-1'>
+                <Label>Waluta</Label>
+                <Select value={settings.currency} onValueChange={val => handleChange('currency', val as Currency)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Wybierz walutę' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='zł'>Polski Złoty</SelectItem>
+                    <SelectItem value='€'>Euro</SelectItem>
+                    <SelectItem value='$'>Dolar Amerykański</SelectItem>
+                    <SelectItem value='£'>Funt Szterling</SelectItem>
+                    <SelectItem value='¥'>Jen Japoński</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

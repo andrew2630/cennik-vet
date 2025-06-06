@@ -1,4 +1,3 @@
-// utils/theme.ts
 export type Theme = 'light' | 'dark' | 'system';
 
 export function applyTheme(theme: Theme) {

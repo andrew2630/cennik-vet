@@ -11,14 +11,37 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Theme from '@/components/Theme';
 import { handleExport } from '@/utils/pdfExport';
+import { useTranslations } from 'next-intl';
 
 function TransactionViewContent() {
+  const t = useTranslations('pdfLabels');
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const from = searchParams.get('from');
   const backUrl = from === 'calendar' ? '/transactions/calendar' : '/transactions';
   const router = useRouter();
+
+  const exportLabels = {
+    header: t('header'),
+    clientLabel: t('clientLabel'),
+    addressLabel: t('addressLabel'),
+    phoneLabel: t('phoneLabel'),
+    notFound: t('notFound'),
+    travel: t('travel'),
+    items: t('items'),
+    products: t('products'),
+    services: t('services'),
+    quantity: t('quantity'),
+    unit: t('unit'),
+    priceUnit: t('priceUnit'),
+    value: t('value'),
+    subtotal: t('subtotal'),
+    discount: t('discount'),
+    fee: t('fee'),
+    total: t('total'),
+    description: t('description'),
+  };
 
   useEffect(() => {
     if (!id) {
@@ -61,7 +84,7 @@ function TransactionViewContent() {
             <TransactionForm editingTransaction={transaction} readOnly />
             <Button
               variant='outline'
-              onClick={() => handleExport(transaction)}
+              onClick={() => handleExport(transaction, exportLabels)}
               className='flex items-center gap-2 text-sm p-4 mt-4'
             >
               <Download className='w-4 h-4' />

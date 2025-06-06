@@ -5,6 +5,7 @@ const STORAGE_KEY = 'vet_settings';
 const defaultSettings: Settings = {
   currency: 'zł',
   theme: 'system',
+  language: 'pl',
 };
 
 export function getSettings(): Settings {

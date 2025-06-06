@@ -1,7 +1,18 @@
+'use client';
+
 import { toast } from 'sonner';
 
-export function importAllDataFromJSON(file: File, onFinish: () => void) {
+export function importAllDataFromJSON(
+  file: File,
+  onFinish: () => void,
+  translations: {
+    success: string;
+    error: string;
+    errorLog: string;
+  }
+) {
   const reader = new FileReader();
+
   reader.onload = () => {
     try {
       const parsed = JSON.parse(reader.result as string);
@@ -19,11 +30,11 @@ export function importAllDataFromJSON(file: File, onFinish: () => void) {
         localStorage.setItem('vet_settings', JSON.stringify(parsed.settings));
       }
 
-      toast.success('✅ Dane zostały zaimportowane poprawnie.');
+      toast.success(translations.success);
       onFinish();
     } catch (error) {
-      console.error('Błąd importu JSON:', error);
-      toast.error('❌ Nieprawidłowy plik JSON.');
+      console.error(translations.errorLog, error);
+      toast.error(translations.error);
     }
   };
 
