@@ -14,6 +14,7 @@ import { ComboboxGeneric } from '@/components/ComboboxGeneric';
 import { Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ClientModal from '@/components/ClientModal';
+import { getSettings } from '@/utils/settingsStorage';
 
 export default function TransactionForm({
   editingTransaction,
@@ -26,6 +27,7 @@ export default function TransactionForm({
   onCancel?: () => void;
   readOnly?: boolean;
 }) {
+  const t = useTranslations('transactionForm');
   const itemTypeT = useTranslations('itemType');
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -40,6 +42,7 @@ export default function TransactionForm({
   const [localQuantities, setLocalQuantities] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   const [isClientModalOpen, setClientModalOpen] = useState(false);
+  const { currency } = getSettings();
 
   useEffect(() => {
     setLocalQuantities(items.map(i => i.quantity.toString()));
@@ -207,10 +210,10 @@ export default function TransactionForm({
         onSubmit={handleSubmit}
         className='space-y-6 max-w-2xl mx-auto bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-xl px-6 py-8 border border-gray-200 dark:border-white/10'
       >
-        <h1 className='text-2xl font-bold'>Rozliczenie</h1>
+        <h1 className='text-2xl font-bold'>{t('title')}</h1>
 
         <div>
-          <Label className='py-2'>Klient</Label>
+          <Label className='py-2'>{t('client')}</Label>
           <div className='flex items-start gap-2'>
             <div className='flex-1'>
               <ComboboxGeneric
@@ -219,7 +222,7 @@ export default function TransactionForm({
                 onSelect={val => setClientId(val)}
                 displayKey='name'
                 filterKeys={['name', 'address', 'phone']}
-                placeholder='Wyszukaj klienta...'
+                placeholder={t('searchClient')}
                 className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
                   readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
                 }`}
@@ -235,7 +238,7 @@ export default function TransactionForm({
                 onClick={() => setClientModalOpen(true)}
                 className='text-sm whitespace-nowrap'
               >
-                + Nowy klient
+                {t('newClient')}
               </Button>
             )}
           </div>
@@ -243,11 +246,11 @@ export default function TransactionForm({
           {clientDetails && (
             <div
               className='text-sm text-muted-foreground mt-2 overflow-hidden text-ellipsis whitespace-nowrap'
-              title={`${clientDetails.address}${clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}`}
+              title={`${clientDetails.address}${clientDetails.phone ? `, ${t('phone')} ${clientDetails.phone}` : ''}`}
               style={{ direction: 'ltr', textAlign: 'left' }}
             >
               {clientDetails.address}
-              {clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}
+              {clientDetails.phone ? `, ${t('phone')} ${clientDetails.phone}` : ''}
             </div>
           )}
         </div>
@@ -281,7 +284,7 @@ export default function TransactionForm({
                           onSelect={val => !readOnly && handleItemChange(index, 'productId', val)}
                           displayKey='name'
                           filterKeys={['name']}
-                          placeholder='Wyszukaj produkt...'
+                          placeholder={t('searchProduct')}
                           className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
                             readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
                           }`}
@@ -303,7 +306,7 @@ export default function TransactionForm({
                   </div>
                   <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
                     <div className='flex items-center pr-3'>
-                      <Label className='py-2 mr-2'>Ilość:</Label>
+                      <Label className='py-2 mr-2'>{t('quantity')}</Label>
                       {readOnly ? (
                         <div className='text-md'>{item.quantity}</div>
                       ) : (
@@ -344,27 +347,29 @@ export default function TransactionForm({
                       product?.unit === 'km' &&
                       !readOnly && (
                         <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold'>
-                          ⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)
+                          {t('travelNote')}
                         </div>
                       )}
                     <div className='flex flex-row sm:flex-row gap-6 text-sm sm:text-base pt-3'>
                       <div className='text-gray-700 dark:text-gray-200 text-sm'>
-                        <span className='font-semibold'>Cena:</span>{' '}
+                        <span className='font-semibold'>{t('price')}</span>{' '}
                         {item.priceAtTransaction != null
-                          ? `${item.priceAtTransaction.toFixed(2)} zł/${product?.unit ?? ''}`
+                          ? `${item.priceAtTransaction.toFixed(2)} ${currency}/${product?.unit ?? ''}`
                           : product
-                          ? `${product.pricePerUnit.toFixed(2)} zł/${product.unit}`
+                          ? `${product.pricePerUnit.toFixed(2)} ${currency}/${product.unit}`
                           : '—'}
                       </div>
                       <div className='text-gray-700 dark:text-gray-200'>
-                        <span className='font-semibold'>Suma:</span>{' '}
-                        <span className='text-green-700 dark:text-green-400 font-bold'>{itemTotal.toFixed(2)} zł</span>
+                        <span className='font-semibold'>{t('total')}</span>{' '}
+                        <span className='text-green-700 dark:text-green-400 font-bold'>
+                          {itemTotal.toFixed(2)} {currency}
+                        </span>
                       </div>
                     </div>
                   </div>
                   {item.priceAtTransaction != null && product && item.priceAtTransaction !== product.pricePerUnit && (
                     <div className='text-sm text-yellow-600 dark:text-yellow-400'>
-                      ⚠️ Cena produktu uległa zmianie (obecnie: {product.pricePerUnit.toFixed(2)} zł)
+                      {t('priceChanged', { price: product.pricePerUnit.toFixed(2), currency })}
                     </div>
                   )}
                 </div>
@@ -377,14 +382,14 @@ export default function TransactionForm({
                 onClick={handleAddItem}
                 className='mt-2 hover:bg-gray-100 dark:hover:bg-white/10 transition'
               >
-                + Dodaj produkt
+                {t('addProduct')}
               </Button>
             )}
           </div>
         </div>
 
         <div>
-          <Label className='py-2'>Rabat</Label>
+          <Label className='py-2'>{t('discount')}</Label>
           <div className='flex items-center gap-2'>
             <Input
               type='text'
@@ -406,12 +411,12 @@ export default function TransactionForm({
               disabled={readOnly}
             />
 
-            <span>zł</span>
+            <span>{currency}</span>
           </div>
         </div>
 
         <div>
-          <Label className='py-2'>Opłata dodatkowa</Label>
+          <Label className='py-2'>{t('additionalFee')}</Label>
           <div className='flex items-center gap-2'>
             <Input
               type='text'
@@ -433,23 +438,23 @@ export default function TransactionForm({
               disabled={readOnly}
             />
 
-            <span>zł</span>
+            <span>{currency}</span>
           </div>
         </div>
 
         <div className='text-xl font-semibold text-right text-green-700 dark:text-green-300'>
-          Suma: {calculateTotal().toFixed(2)} zł
+          {t('totalAmount', { amount: calculateTotal().toFixed(2), currency })}
         </div>
 
         <div>
           <Label htmlFor='description' className='py-2'>
-            Opis
+            {t('note')}
           </Label>
           <textarea
             id='description'
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder='Tutaj możesz wpisać dodatkowe uwagi, komentarze lub inne informacje...'
+            placeholder={t('notePlaceholder')}
             disabled={readOnly}
             className={`w-full min-h-[100px] resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-90 ${
               readOnly ? 'text-foreground opacity-100 border-none' : ''
@@ -463,15 +468,15 @@ export default function TransactionForm({
             onClick={handleFinalise}
             className='bg-gradient-to-r from-emerald-700 to-lime-600 text-white shadow-md hover:opacity-90 transition'
           >
-            Zrealizuj
+            {t('finalise')}
           </Button>
         ) : (
           !readOnly &&
           status !== 'draft' && (
             <div className='flex gap-2'>
-              <Button type='submit'>Zapisz</Button>
+              <Button type='submit'>{t('save')}</Button>
               <Button type='button' variant='outline' onClick={onCancel}>
-                Anuluj
+                {t('cancel')}
               </Button>
             </div>
           )

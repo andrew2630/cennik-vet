@@ -47,6 +47,13 @@
     "total": "SUMA KOŃCOWA",
     "description": "Opis"
   },
+  "combobox": {
+    "select": "Wybierz...",
+    "search": "Szukaj...",
+    "noResults": "Brak wyników.",
+    "addNew": "+ Dodaj nowego klienta",
+    "selectTitle": "Wybierz opcję"
+  },
   "dashboard": {
     "title": "Cennik Vet",
     "subtitle": "Aplikacja offline do rozliczeń weterynaryjnych",
@@ -172,6 +179,82 @@
     "draft": "📝 W trakcie",
     "deleteTitle": "Potwierdź usunięcie",
     "deleteMessage": "Czy na pewno chcesz usunąć rozliczenie dla {client} z dnia {date}?",
+    "cancel": "Anuluj",
+    "delete": "Usuń"
+  },
+  "transactionForm": {
+    "title": "Rozliczenie",
+    "client": "Klient",
+    "newClient": "+ Nowy klient",
+    "searchClient": "Wyszukaj klienta...",
+    "phone": "tel.",
+    "positions": "Pozycje",
+    "searchProduct": "Wyszukaj produkt...",
+    "quantity": "Ilość:",
+    "price": "Cena:",
+    "total": "Suma:",
+    "discount": "Rabat",
+    "additionalFee": "Opłata dodatkowa",
+    "totalAmount": "Suma: {amount} {currency}",
+    "note": "Opis",
+    "notePlaceholder": "Tutaj możesz wpisać dodatkowe uwagi, komentarze lub inne informacje...",
+    "addProduct": "+ Dodaj produkt",
+    "finalise": "Zrealizuj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "travelNote": "⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)",
+    "priceChanged": "⚠️ Cena produktu uległa zmianie (obecnie: {price} {currency})"
+  },
+  "clientModal": {
+    "title": "Dodaj klienta"
+  },
+  "clientList": {
+    "title": "Lista klientów",
+    "searchPlaceholder": "Szukaj klienta (imię, adres, telefon)...",
+    "sortBy": "Sortuj wg",
+    "sortOptions": {
+      "name": "Nazwa",
+      "address": "Adres"
+    },
+    "order": "Kolejność",
+    "orderOptions": {
+      "asc": "Rosnąco",
+      "desc": "Malejąco"
+    },
+    "empty": "Brak klientów do wyświetlenia.",
+    "confirmDelete": "Potwierdź usunięcie",
+    "deleteQuestion": "Czy na pewno chcesz usunąć",
+    "cancel": "Anuluj",
+    "delete": "Usuń"
+  },
+  "clientForm": {
+    "name": "Imię i nazwisko lub nazwa",
+    "namePlaceholder": "np. Jan Kowalski",
+    "address": "Adres",
+    "addressPlaceholder": "np. ul. Kwiatowa 15, Wrocław",
+    "phone": "Telefon",
+    "phonePlaceholder": "np. 123-456-789",
+    "save": "Zapisz"
+  },
+  "productList": {
+    "title": "Cennik",
+    "searchPlaceholder": "Szukaj produktu (nazwa, jednostka)...",
+    "type": "Typ",
+    "unit": "Jednostka",
+    "sortBy": "Sortuj wg",
+    "order": "Kolejność",
+    "all": "Wszystko",
+    "allUnits": "Wszystkie",
+    "product": "Produkt",
+    "asc": "Rosnąco",
+    "desc": "Malejąco",
+    "service": "Usługa",
+    "name": "Nazwa",
+    "price": "Cena",
+    "noData": "Brak danych do wyświetlenia.",
+    "confirmDeleteTitle": "Potwierdź usunięcie",
+    "confirmDeleteDesc": "Czy na pewno chcesz usunąć",
+    "boldName": "{name}",
     "cancel": "Anuluj",
     "delete": "Usuń"
   },

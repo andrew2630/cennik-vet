@@ -26,17 +26,18 @@ export function ComboboxGeneric({
   items,
   selectedId,
   onSelect,
-  placeholder = 'Wybierz...',
+  placeholder = 'Select...',
   displayKey,
   className = '',
   disabled = false,
-  addNewOption,
   onAddNew
 }: ComboboxGenericProps) {
+  const t = useTranslations('combobox');
   const itemTypeT = useTranslations('itemType');
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [open, setOpen] = React.useState(false);
   const selectedItem = items.find(i => i.id === selectedId);
+  placeholder = t('select');
 
   const renderBadge = (type: string | undefined) => {
     if (type === 'product')
@@ -56,9 +57,9 @@ export function ComboboxGeneric({
 
   const List = ({ close }: { close: () => void }) => (
     <Command>
-      <CommandInput placeholder='Szukaj...' disabled={disabled} />
+      <CommandInput placeholder={t('search')} disabled={disabled} />
       <CommandList>
-        <CommandEmpty>Brak wyników.</CommandEmpty>
+        <CommandEmpty>{t('noResults')}</CommandEmpty>
         <CommandGroup>
           {items.map(item => (
             <CommandItem
@@ -86,7 +87,7 @@ export function ComboboxGeneric({
               }}
               className='text-indigo-600 dark:text-indigo-400 font-semibold'
             >
-              + Dodaj nowego klienta
+              {t('addNew')}
             </CommandItem>
           )}
         </CommandGroup>
@@ -128,7 +129,7 @@ export function ComboboxGeneric({
       </DrawerTrigger>
       <DrawerContent>
         <VisuallyHidden>
-          <DialogTitle>Wybierz opcję</DialogTitle>
+          <DialogTitle>{t('selectTitle')}</DialogTitle>
         </VisuallyHidden>
         <div className='mt-4 border-t'>
           <List close={() => setOpen(false)} />

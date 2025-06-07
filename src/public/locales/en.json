@@ -47,6 +47,13 @@
     "total": "TOTAL",
     "description": "Description"
   },
+  "combobox": {
+    "select": "Select...",
+    "search": "Search...",
+    "noResults": "No results found.",
+    "addNew": "+ Add new client",
+    "selectTitle": "Select an option"
+  },
   "dashboard": {
     "title": "Vet Price List",
     "subtitle": "Offline app for veterinary billing",
@@ -172,6 +179,82 @@
     "draft": "📝 In Progress",
     "deleteTitle": "Confirm Deletion",
     "deleteMessage": "Are you sure you want to delete the transaction for {client} on {date}?",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "transactionForm": {
+    "title": "Transaction",
+    "client": "Client",
+    "newClient": "+ New client",
+    "searchClient": "Search client...",
+    "phone": "phone no.",
+    "positions": "Items",
+    "searchProduct": "Search product...",
+    "quantity": "Quantity:",
+    "price": "Price:",
+    "total": "Total:",
+    "discount": "Discount",
+    "additionalFee": "Additional Fee",
+    "totalAmount": "Total: {amount} zł",
+    "note": "Note",
+    "notePlaceholder": "Here you can add additional comments or details...",
+    "addProduct": "+ Add product",
+    "finalise": "Finalise",
+    "save": "Save",
+    "cancel": "Cancel",
+    "travelNote": "⚠️ Enter round-trip kilometers (both ways)",
+    "priceChanged": "⚠️ Product price has changed (currently: {price} zł)"
+  },
+  "clientModal": {
+    "title": "Add client"
+  },
+  "clientList": {
+    "title": "Client List",
+    "searchPlaceholder": "Search client (name, address, phone)...",
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "name": "Name",
+      "address": "Address"
+    },
+    "order": "Order",
+    "orderOptions": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "empty": "No clients to display.",
+    "confirmDelete": "Confirm deletion",
+    "deleteQuestion": "Are you sure you want to delete",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "clientForm": {
+    "name": "Full name or company name",
+    "namePlaceholder": "e.g. John Doe",
+    "address": "Address",
+    "addressPlaceholder": "e.g. 15 Kwiatowa St, Wrocław",
+    "phone": "Phone",
+    "phonePlaceholder": "e.g. 123-456-789",
+    "save": "Save"
+  },
+  "productList": {
+    "title": "Price List",
+    "searchPlaceholder": "Search product (name, unit)...",
+    "type": "Type",
+    "unit": "Unit",
+    "sortBy": "Sort by",
+    "order": "Order",
+    "all": "All",
+    "allUnits": "All units",
+    "product": "Product",
+    "asc": "Ascending",
+    "desc": "Descending",
+    "service": "Service",
+    "name": "Name",
+    "price": "Price",
+    "noData": "No data to display.",
+    "confirmDeleteTitle": "Confirm Deletion",
+    "confirmDeleteDesc": "Are you sure you want to delete",
+    "boldName": "{name}",
     "cancel": "Cancel",
     "delete": "Delete"
   },

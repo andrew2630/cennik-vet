@@ -10,8 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Pencil, Trash } from 'lucide-react';
 import { getProducts, deleteProduct } from '@/utils/productStorage';
 import { Product, ItemType, Unit } from '@/types';
+import { useTranslations } from 'next-intl';
 
 export default function ProductList({ refresh }: { refresh: number }) {
+  const t = useTranslations('productList');
+  const itemTypeT = useTranslations('itemType');
+  const unitT = useTranslations('unit');
   const [products, setProducts] = useState<Product[]>([]);
   const [typeFilter, setTypeFilter] = useState<'all' | ItemType>('all');
   const [unitFilter, setUnitFilter] = useState<'all' | Unit>('all');
@@ -51,12 +55,12 @@ export default function ProductList({ refresh }: { refresh: number }) {
       <CardHeader className='flex flex-col gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
           <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
-            <CardTitle className='py-2'>Cennik</CardTitle>
+            <CardTitle className='py-2'>{t('title')}</CardTitle>
           </div>
           <div className='flex flex-col sm:flex-row gap-2 w-full md:w-auto'>
             <Input
               className='w-full min-w-[200px] sm:min-w-[300px]'
-              placeholder='Szukaj produktu (nazwa, jednostka)...'
+              placeholder={t('searchPlaceholder')}
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -66,21 +70,21 @@ export default function ProductList({ refresh }: { refresh: number }) {
         <div className='flex flex-wrap md:justify-end gap-2'>
           <Select value={typeFilter} onValueChange={(val: 'all' | ItemType) => setTypeFilter(val)}>
             <SelectTrigger className='w-[110px]'>
-              <SelectValue placeholder='Typ' />
+              <SelectValue placeholder={t('type')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all'>Wszystko</SelectItem>
-              <SelectItem value='produkt'>Produkty</SelectItem>
-              <SelectItem value='usługa'>Usługi</SelectItem>
+              <SelectItem value='all'>{t('all')}</SelectItem>
+              <SelectItem value='product'>{t('product')}</SelectItem>
+              <SelectItem value='service'>{t('service')}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={unitFilter} onValueChange={(val: 'all' | Unit) => setUnitFilter(val)}>
             <SelectTrigger className='w-[110px]'>
-              <SelectValue placeholder='Jednostka' />
+              <SelectValue placeholder={t('unit')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all'>Wszystkie</SelectItem>
+              <SelectItem value='all'>{t('allUnits')}</SelectItem>
               {units.map(u => (
                 <SelectItem key={u} value={u}>
                   {u}
@@ -91,21 +95,21 @@ export default function ProductList({ refresh }: { refresh: number }) {
 
           <Select value={sortField} onValueChange={(val: 'name' | 'price') => setSortField(val)}>
             <SelectTrigger className='w-[110px]'>
-              <SelectValue placeholder='Sortuj wg' />
+              <SelectValue placeholder={t('sortBy')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='name'>Nazwa</SelectItem>
-              <SelectItem value='price'>Cena</SelectItem>
+              <SelectItem value='name'>{t('name')}</SelectItem>
+              <SelectItem value='price'>{t('price')}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
             <SelectTrigger className='w-[110px]'>
-              <SelectValue placeholder='Kolejność' />
+              <SelectValue placeholder={t('order')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='asc'>Rosnąco</SelectItem>
-              <SelectItem value='desc'>Malejąco</SelectItem>
+              <SelectItem value='asc'>{t('asc')}</SelectItem>
+              <SelectItem value='desc'>{t('desc')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -113,7 +117,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
 
       <CardContent className='space-y-4'>
         {filtered.length === 0 ? (
-          <p className='text-muted-foreground'>Brak danych do wyświetlenia.</p>
+          <p className='text-muted-foreground'>{t('noData')}</p>
         ) : (
           filtered.map(p => (
             <Card
@@ -127,13 +131,13 @@ export default function ProductList({ refresh }: { refresh: number }) {
               <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-muted-foreground'>
                 <div className='flex flex-wrap gap-4'>
                   <div>
-                    <span className='font-medium text-foreground'>Typ:</span> {p.type}
+                    <span className='font-medium text-foreground'>{t('type')}:</span> {itemTypeT(p.type)}
                   </div>
                   <div>
-                    <span className='font-medium text-foreground'>Jednostka:</span> {p.unit}
+                    <span className='font-medium text-foreground'>{t('unit')}:</span> {unitT(p.unit)}
                   </div>
                   <div>
-                    <span className='font-medium text-foreground'>Cena:</span> {p.pricePerUnit.toFixed(2)} zł
+                    <span className='font-medium text-foreground'>{t('price')}:</span> {p.pricePerUnit.toFixed(2)} zł
                   </div>
                 </div>
 
@@ -170,9 +174,9 @@ export default function ProductList({ refresh }: { refresh: number }) {
             }}
           >
             <DialogContent className='sm:max-w-md' forceMount>
-              <DialogTitle>Potwierdź usunięcie</DialogTitle>
+              <DialogTitle>{t('confirmDeleteTitle')}</DialogTitle>
               <DialogDescription>
-                Czy na pewno chcesz usunąć <strong>{selectedProduct.name}</strong>?
+                {t('confirmDeleteDesc')} <strong>{t('boldName', { name: selectedProduct.name })}</strong>?
               </DialogDescription>
               <DialogFooter className='mt-4 flex gap-2'>
                 <Button
@@ -183,7 +187,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
                     setSelectedProduct(null);
                   }}
                 >
-                  Anuluj
+                  {t('cancel')}
                 </Button>
                 <Button
                   type='button'
@@ -194,7 +198,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
                     setSelectedProduct(null);
                   }}
                 >
-                  Usuń
+                  {t('delete')}
                 </Button>
               </DialogFooter>
             </DialogContent>

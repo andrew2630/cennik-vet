@@ -17,8 +17,10 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { useTranslations } from 'next-intl';
 
 export default function ClientList({ refresh }: { refresh: number }) {
+  const t = useTranslations('clientList');
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [search, setSearch] = useState('');
@@ -55,33 +57,33 @@ export default function ClientList({ refresh }: { refresh: number }) {
     <Card className='mt-6 bg-transparent backdrop-blur-xs'>
       <CardHeader className='flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:gap-4 w-full'>
-          <CardTitle>Lista klientów</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
         </div>
 
         <div className='flex flex-col sm:flex-row gap-2 w-full md:w-auto'>
           <Input
             className='min-w-[50px] sm:min-w-[80px]'
-            placeholder='Szukaj klienta (imię, adres, telefon)...'
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
           <Select value={sortField} onValueChange={(val: 'name' | 'address') => setSortField(val)}>
             <SelectTrigger className='w-[140px]'>
-              <SelectValue placeholder='Sortuj wg' />
+              <SelectValue placeholder={t('sortBy')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='name'>Nazwa</SelectItem>
-              <SelectItem value='address'>Adres</SelectItem>
+              <SelectItem value='name'>{t('sortOptions.name')}</SelectItem>
+              <SelectItem value='address'>{t('sortOptions.address')}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
             <SelectTrigger className='w-[140px]'>
-              <SelectValue placeholder='Kolejność' />
+              <SelectValue placeholder={t('order')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='asc'>Rosnąco</SelectItem>
-              <SelectItem value='desc'>Malejąco</SelectItem>
+              <SelectItem value='asc'>{t('orderOptions.asc')}</SelectItem>
+              <SelectItem value='desc'>{t('orderOptions.desc')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -89,7 +91,7 @@ export default function ClientList({ refresh }: { refresh: number }) {
 
       <CardContent className='space-y-4'>
         {filtered.length === 0 ? (
-          <p className='text-muted-foreground'>Brak klientów do wyświetlenia.</p>
+          <p className='text-muted-foreground'>{t('empty')}</p>
         ) : (
           filtered.map(client => (
             <Card
@@ -150,16 +152,16 @@ export default function ClientList({ refresh }: { refresh: number }) {
                       </Button>
                     </DialogTrigger>
                     <DialogContent className='sm:max-w-md'>
-                      <DialogTitle>Potwierdź usunięcie</DialogTitle>
+                      <DialogTitle>{t('confirmDelete')}</DialogTitle>
                       <DialogDescription>
-                        Czy na pewno chcesz usunąć <strong>{client.name}</strong>?
+                        {t('deleteQuestion')} <strong>{client.name}</strong>?
                       </DialogDescription>
                       <DialogFooter className='mt-4 flex gap-2'>
                         <Button type='button' variant='outline' onClick={() => setSelectedClient(null)}>
-                          Anuluj
+                          {t('cancel')}
                         </Button>
                         <Button type='button' variant='destructive' onClick={() => handleDelete(client.id)}>
-                          Usuń
+                          {t('delete')}
                         </Button>
                       </DialogFooter>
                     </DialogContent>

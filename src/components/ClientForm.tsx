@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { getClients, saveClient } from '@/utils/clientStorage';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function ClientForm({ onAdd }: { onAdd: () => void }) {
+  const t = useTranslations('clientForm');
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -51,45 +52,45 @@ export default function ClientForm({ onAdd }: { onAdd: () => void }) {
       <form onSubmit={handleSubmit} className='space-y-4'>
         <div>
           <Label htmlFor='name' className='py-2'>
-            Imię i nazwisko lub nazwa
+            {t('name')}
           </Label>
           <Input
             id='name'
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder='np. Jan Kowalski'
+            placeholder={t('namePlaceholder')}
             required
           />
         </div>
 
         <div>
           <Label htmlFor='address' className='py-2'>
-            Adres
+            {t('address')}
           </Label>
           <Input
             id='address'
             value={address}
             onChange={e => setAddress(e.target.value)}
-            placeholder='np. ul. Kwiatowa 15, Wrocław'
+            placeholder={t('addressPlaceholder')}
           />
         </div>
 
         <div>
           <Label htmlFor='phone' className='py-2'>
-            Telefon
+            {t('phone')}
           </Label>
           <Input
             id='phone'
             type='tel'
             value={phone}
             onChange={e => setPhone(e.target.value)}
-            placeholder='np. 123-456-789'
+            placeholder={t('phonePlaceholder')}
           />
         </div>
 
         <div className='w-full md:w-auto'>
           <Button type='submit' className='w-full md:w-auto'>
-            Zapisz
+            {t('save')}
           </Button>
         </div>
       </form>
