@@ -1,0 +1,193 @@
+{
+  "unit": {
+    "pcs": "szt",
+    "ml": "ml",
+    "g": "g",
+    "kg": "kg",
+    "pack": "opakowanie",
+    "dose": "dawka",
+    "tablet": "tabletka",
+    "dropper": "pipeta",
+    "ampoule": "ampułka",
+    "sachet": "saszetka",
+    "blister": "blister",
+    "tube": "tuba",
+    "tubosyringe": "tubostrz.",
+    "can": "puszka",
+    "km": "km"
+  },
+  "itemType": {
+    "product": "Produkt",
+    "service": "Usługa",
+    "travel": "Dojazd"
+  },
+  "import": {
+    "success": "✅ Dane zostały zaimportowane poprawnie.",
+    "error": "❌ Nieprawidłowy plik JSON.",
+    "errorLog": "Błąd importu JSON:",
+    "buttonLabel": "Importuj dane"
+  },
+  "pdfLabels": {
+    "header": "Rozliczenie",
+    "clientLabel": "Klient",
+    "addressLabel": "Adres",
+    "phoneLabel": "Telefon",
+    "notFound": "Klient nie został odnaleziony w bazie.",
+    "travel": "Dojazd",
+    "products": "Produkty",
+    "services": "Usługi",
+    "items": "Pozycje",
+    "quantity": "Ilość",
+    "unit": "Jednostka",
+    "priceUnit": "Cena jedn.",
+    "value": "Wartość",
+    "subtotal": "Suma",
+    "discount": "Rabat",
+    "fee": "Dopłata",
+    "total": "SUMA KOŃCOWA",
+    "description": "Opis"
+  },
+  "dashboard": {
+    "title": "Cennik Vet",
+    "subtitle": "Aplikacja offline do rozliczeń weterynaryjnych",
+    "buttons": {
+      "products": "Konfiguruj produkty",
+      "addClient": "Dodaj klienta",
+      "settings": "Ustawienia",
+      "newTransaction": "Nowe rozliczenie"
+    },
+    "summary": {
+      "travel": "Dojazd",
+      "transactions": "Rozliczenia",
+      "clients": "Klienci",
+      "totalValue": "Łączna wartość",
+      "avgPerTransaction": "Śr. na rozliczenie"
+    },
+    "charts": {
+      "valueVsDistance": "Wartość dzienna / Dystans",
+      "dailyClients": "Liczba klientów dziennie",
+      "calendar": "Podgląd kalendarza"
+    },
+    "range": {
+      "select": "Wybierz zakres",
+      "month": "Ten miesiąc",
+      "7days": "Ostatnie 7 dni",
+      "30days": "Ostatnie 30 dni",
+      "year": "Ostatni rok",
+      "custom": "Własny zakres"
+    }
+  },
+  "transactions": {
+    "title": "Rozliczenia",
+    "addButton": "Dodaj",
+    "loading": "Wczytywanie..."
+  },
+  "transactionNew": {
+    "title": "Nowe rozliczenie",
+    "back": "Wróć"
+  },
+  "transactionEdit": {
+    "title": "Edycja rozliczenia",
+    "back": "Wróć"
+  },
+  "transactionView": {
+    "title": "Przegląd rozliczenia",
+    "back": "Wróć",
+    "export": "Eksportuj do PDF"
+  },
+  "calendar": {
+    "month": "{month} {year}",
+    "transactionsFor": "Rozliczenia z dnia: {date}",
+    "date": "Data",
+    "client": "Klient",
+    "amount": "Kwota",
+    "status": "Status",
+    "statusFinalised": "✔ Zrealizowano",
+    "statusDraft": "📝 W trakcie",
+    "unknownClient": "Nieznany klient",
+    "prevMonth": "←",
+    "nextMonth": "→",
+    "weekDays": ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "Sb"]
+  },
+  "clientsPage": {
+    "title": "Klienci",
+    "add": "Dodaj"
+  },
+  "clientNew": {
+    "title": "Dodaj nowego klienta",
+    "back": "Wróć"
+  },
+  "clientEdit": {
+    "title": "Edytuj klienta",
+    "back": "Wróć"
+  },
+  "products": {
+    "title": "Usługi i produkty",
+    "add": "Dodaj"
+  },
+  "productNew": {
+    "title": "Nowy produkt",
+    "back": "Wróć"
+  },
+  "productEdit": {
+    "title": "Edytuj produkt",
+    "back": "Wróć"
+  },
+  "settings": {
+    "title": "Ustawienia aplikacji",
+    "theme": "Motyw",
+    "themeSystem": "Systemowy",
+    "themeLight": "Jasny",
+    "themeDark": "Ciemny",
+    "language": "Język",
+    "languagePl": "Polski",
+    "languageEn": "English",
+    "currency": "Waluta",
+    "currencyPln": "Polski Złoty",
+    "currencyEur": "Euro",
+    "currencyUsd": "Dolar Amerykański",
+    "currencyGbp": "Funt Szterling",
+    "currencyJpy": "Jen Japoński",
+    "distance": "Jednostka dystansu",
+    "distanceKm": "Kilometr",
+    "distanceMi": "Mila",
+    "export": "Eksportuj dane"
+  },
+  "transactionsList": {
+    "unknownClient": "Nieznany klient",
+    "title": "Ostatnie transakcje",
+    "searchPlaceholder": "Szukaj po nazwie klienta lub dacie...",
+    "sortBy": "Sortuj wg",
+    "order": "Kolejność",
+    "date": "Data",
+    "client": "Klient",
+    "asc": "Rosnąco",
+    "desc": "Malejąco",
+    "none": "Brak rozliczeń do wyświetlenia.",
+    "clientLabel": "Klient",
+    "phone": "tel.",
+    "amount": "Kwota",
+    "status": "Status",
+    "finalised": "✔ Zrealizowano",
+    "draft": "📝 W trakcie",
+    "deleteTitle": "Potwierdź usunięcie",
+    "deleteMessage": "Czy na pewno chcesz usunąć rozliczenie dla {client} z dnia {date}?",
+    "cancel": "Anuluj",
+    "delete": "Usuń"
+  },
+  "ProductForm": {
+    "name": "Nazwa",
+    "type": "Typ",
+    "unit": "Jednostka",
+    "price": "Cena",
+    "chooseType": "Wybierz typ",
+    "chooseUnit": "Wybierz",
+    "customUnit": "Inna...",
+    "enterUnit": "Wpisz jednostkę",
+    "save": "Zapisz",
+    "product": "Produkt",
+    "service": "Usługa",
+    "examplePrice": "np. 49.99",
+    "exampleName": "np. Szczepienie"
+  }
+}

@@ -26,6 +26,9 @@ export type Item = {
 
 export type Currency = 'zł' | '€' | '$' | '£' | '¥';
 
+export type Language = 'pl' | 'en';
+
+export type TravelUnit = 'km' | 'mi';
 
 export interface Product extends Item {
   id: string;
@@ -68,7 +71,8 @@ export interface ThemeSettings {
 export interface Settings {
   currency: Currency;
   theme: ThemeSettings['theme'];
-  language: 'pl' | 'en';
+  language: Language;
+  distanceUnit: TravelUnit;
 }
 
 export interface ExportLabels {

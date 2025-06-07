@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { getClients, saveClient } from '@/utils/clientStorage';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { Suspense } from 'react';
 export default function ClientForm({ onAdd }: { onAdd: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const clientId = searchParams.get('id');
 
   const [name, setName] = useState('');
@@ -40,7 +41,9 @@ export default function ClientForm({ onAdd }: { onAdd: () => void }) {
     });
 
     onAdd();
-    router.push('/clients');
+    if (pathname.startsWith('/clients')) {
+      router.push('/clients');
+    }
   };
 
   return (

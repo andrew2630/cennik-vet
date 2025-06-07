@@ -1,12 +1,5 @@
 import * as React from 'react';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -25,6 +18,8 @@ interface ComboboxGenericProps {
   filterKeys?: string[];
   className?: string;
   disabled?: boolean;
+  addNewOption?: boolean;
+  onAddNew?: () => void;
 }
 
 export function ComboboxGeneric({
@@ -35,22 +30,24 @@ export function ComboboxGeneric({
   displayKey,
   className = '',
   disabled = false,
+  addNewOption,
+  onAddNew
 }: ComboboxGenericProps) {
   const itemTypeT = useTranslations('itemType');
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [open, setOpen] = React.useState(false);
-  const selectedItem = items.find((i) => i.id === selectedId);
+  const selectedItem = items.find(i => i.id === selectedId);
 
   const renderBadge = (type: string | undefined) => {
     if (type === 'product')
       return (
-        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-lime-100 text-lime-800 dark:bg-lime-800 dark:text-lime-100 rounded">
+        <span className='ml-2 px-2 py-0.5 text-xs font-medium bg-lime-100 text-lime-800 dark:bg-lime-800 dark:text-lime-100 rounded'>
           {itemTypeT('product')}
         </span>
       );
     if (type === 'service')
       return (
-        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 rounded">
+        <span className='ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 rounded'>
           {itemTypeT('service')}
         </span>
       );
@@ -59,11 +56,11 @@ export function ComboboxGeneric({
 
   const List = ({ close }: { close: () => void }) => (
     <Command>
-      <CommandInput placeholder="Szukaj..." disabled={disabled} />
+      <CommandInput placeholder='Szukaj...' disabled={disabled} />
       <CommandList>
         <CommandEmpty>Brak wyników.</CommandEmpty>
         <CommandGroup>
-          {items.map((item) => (
+          {items.map(item => (
             <CommandItem
               key={item.id}
               value={String(item[displayKey])}
@@ -74,12 +71,24 @@ export function ComboboxGeneric({
                 }
               }}
               title={String(item[displayKey])}
-              className="truncate flex items-center justify-between"
+              className='truncate flex items-center justify-between'
             >
-              <span className="truncate">{String(item[displayKey])}</span>
+              <span className='truncate'>{String(item[displayKey])}</span>
               {renderBadge(item.type)}
             </CommandItem>
           ))}
+          {onAddNew && (
+            <CommandItem
+              key='__add_new'
+              onSelect={() => {
+                onAddNew();
+                close();
+              }}
+              className='text-indigo-600 dark:text-indigo-400 font-semibold'
+            >
+              + Dodaj nowego klienta
+            </CommandItem>
+          )}
         </CommandGroup>
       </CommandList>
     </Command>
@@ -88,10 +97,7 @@ export function ComboboxGeneric({
   const buttonText = selectedItem ? String(selectedItem[displayKey]) : placeholder;
 
   const buttonContent = (
-    <span
-      className="truncate overflow-hidden whitespace-nowrap text-left w-full"
-      title={buttonText}
-    >
+    <span className='truncate overflow-hidden whitespace-nowrap text-left w-full' title={buttonText}>
       {buttonText}
     </span>
   );
@@ -102,11 +108,11 @@ export function ComboboxGeneric({
     return (
       <Popover open={open && !disabled} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className={buttonClass} disabled={disabled}>
+          <Button variant='outline' className={buttonClass} disabled={disabled}>
             {buttonContent}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className='w-full p-0' align='start'>
           <List close={() => setOpen(false)} />
         </PopoverContent>
       </Popover>
@@ -116,7 +122,7 @@ export function ComboboxGeneric({
   return (
     <Drawer open={open && !disabled} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className={buttonClass} disabled={disabled}>
+        <Button variant='outline' className={buttonClass} disabled={disabled}>
           {buttonContent}
         </Button>
       </DrawerTrigger>
@@ -124,7 +130,7 @@ export function ComboboxGeneric({
         <VisuallyHidden>
           <DialogTitle>Wybierz opcję</DialogTitle>
         </VisuallyHidden>
-        <div className="mt-4 border-t">
+        <div className='mt-4 border-t'>
           <List close={() => setOpen(false)} />
         </div>
       </DrawerContent>

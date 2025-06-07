@@ -1,0 +1,193 @@
+{
+  "unit": {
+    "pcs": "pcs",
+    "ml": "ml",
+    "g": "g",
+    "kg": "kg",
+    "pack": "pack",
+    "dose": "dose",
+    "tablet": "tablet",
+    "dropper": "dropper",
+    "ampoule": "ampoule",
+    "sachet": "sachet",
+    "blister": "blister",
+    "tube": "tube",
+    "tubosyringe": "tubosyringe",
+    "can": "can",
+    "km": "km"
+  },
+  "itemType": {
+    "product": "Product",
+    "service": "Service",
+    "travel": "Travel"
+  },
+  "import": {
+    "success": "✅ Data was imported successfully.",
+    "error": "❌ Invalid JSON file.",
+    "errorLog": "JSON import error:",
+    "buttonLabel": "Import data"
+  },
+  "pdfLabels": {
+    "header": "Settlement",
+    "clientLabel": "Client",
+    "addressLabel": "Address",
+    "phoneLabel": "Phone",
+    "notFound": "Client not found in the database.",
+    "travel": "Travel",
+    "products": "Products",
+    "services": "Services",
+    "items": "Items",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "priceUnit": "Price per unit",
+    "value": "Value",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "fee": "Fee",
+    "total": "TOTAL",
+    "description": "Description"
+  },
+  "dashboard": {
+    "title": "Vet Price List",
+    "subtitle": "Offline app for veterinary billing",
+    "buttons": {
+      "products": "Configure Products",
+      "addClient": "Add Client",
+      "settings": "Settings",
+      "newTransaction": "New Transaction"
+    },
+    "summary": {
+      "travel": "Travel",
+      "transactions": "Transactions",
+      "clients": "Clients",
+      "totalValue": "Total Value",
+      "avgPerTransaction": "Avg per Transaction"
+    },
+    "charts": {
+      "valueVsDistance": "Daily Value / Distance Traveled",
+      "dailyClients": "Daily Clients Count",
+      "calendar": "Calendar Overview"
+    },
+    "range": {
+      "select": "Select Range",
+      "month": "This Month",
+      "7days": "Last 7 Days",
+      "30days": "Last 30 Days",
+      "year": "Last Year",
+      "custom": "Custom Range"
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "addButton": "Add",
+    "loading": "Loading..."
+  },
+  "transactionNew": {
+    "title": "New Transaction",
+    "back": "Back"
+  },
+  "transactionEdit": {
+    "title": "Edit Transaction",
+    "back": "Back"
+  },
+  "transactionView": {
+    "title": "Transaction Overview",
+    "back": "Back",
+    "export": "Export to PDF"
+  },
+  "calendar": {
+    "month": "{month} {year}",
+    "transactionsFor": "Transactions on: {date}",
+    "date": "Date",
+    "client": "Client",
+    "amount": "Amount",
+    "status": "Status",
+    "statusFinalised": "✔ Completed",
+    "statusDraft": "📝 In Progress",
+    "unknownClient": "Unknown client",
+    "prevMonth": "←",
+    "nextMonth": "→",
+    "weekDays": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+  },
+  "clientsPage": {
+    "title": "Clients",
+    "add": "Add"
+  },
+  "clientNew": {
+    "title": "Add New Client",
+    "back": "Back"
+  },
+  "clientEdit": {
+    "title": "Edit Client",
+    "back": "Back"
+  },
+  "products": {
+    "title": "Services & Products",
+    "add": "Add"
+  },
+  "productNew": {
+    "title": "New Product",
+    "back": "Back"
+  },
+  "productEdit": {
+    "title": "Edit Product",
+    "back": "Back"
+  },
+  "settings": {
+    "title": "App Settings",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "languagePl": "Polish",
+    "languageEn": "English",
+    "currency": "Currency",
+    "currencyPln": "Polish Zloty",
+    "currencyEur": "Euro",
+    "currencyUsd": "US Dollar",
+    "currencyGbp": "British Pound",
+    "currencyJpy": "Japanese Yen",
+    "distance": "Distance Unit",
+    "distanceKm": "Kilometer",
+    "distanceMi": "Mile",
+    "export": "Export Data"
+  },
+  "transactionsList": {
+    "unknownClient": "Unknown client",
+    "title": "Recent Transactions",
+    "searchPlaceholder": "Search by client name or date...",
+    "sortBy": "Sort by",
+    "order": "Order",
+    "date": "Date",
+    "client": "Client",
+    "asc": "Ascending",
+    "desc": "Descending",
+    "none": "No transactions to display.",
+    "clientLabel": "Client",
+    "phone": "phone no.",
+    "amount": "Amount",
+    "status": "Status",
+    "finalised": "✔ Finalised",
+    "draft": "📝 In Progress",
+    "deleteTitle": "Confirm Deletion",
+    "deleteMessage": "Are you sure you want to delete the transaction for {client} on {date}?",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "ProductForm": {
+    "name": "Name",
+    "type": "Type",
+    "unit": "Unit",
+    "price": "Price",
+    "chooseType": "Choose type",
+    "chooseUnit": "Choose",
+    "customUnit": "Custom...",
+    "enterUnit": "Enter unit",
+    "save": "Save",
+    "product": "Product",
+    "service": "Service",
+    "examplePrice": "e.g. 49.99",
+    "exampleName": "e.g. Vaccination"
+  }
+}

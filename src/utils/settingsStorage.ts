@@ -6,6 +6,7 @@ const defaultSettings: Settings = {
   currency: 'zł',
   theme: 'system',
   language: 'pl',
+  distanceUnit: 'km',
 };
 
 export function getSettings(): Settings {

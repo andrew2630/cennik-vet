@@ -19,8 +19,10 @@ import { Button } from '@/components/ui/button';
 import { Pencil, Trash, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function TransactionList({ refresh }: { refresh: number }) {
+  const t = useTranslations('transactionsList');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState('');
@@ -34,7 +36,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
     setClients(getClients());
   }, [refresh]);
 
-  const getClientName = (id: string) => clients.find(c => c.id === id)?.name || 'Nieznany klient';
+  const getClientName = (id: string) => clients.find(c => c.id === id)?.name || t('unknownClient');
 
   const filtered = transactions
     .filter(tx => {
@@ -57,13 +59,13 @@ export default function TransactionList({ refresh }: { refresh: number }) {
     <Card className='mt-6 bg-transparent backdrop-blur-xs'>
       <CardHeader className='flex flex-col gap-4'>
         <div className='flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4'>
-          <CardTitle className='py-2'>Ostatnie transakcje</CardTitle>
+          <CardTitle className='py-2'>{t('title')}</CardTitle>
         </div>
 
         <div className='flex flex-col sm:flex-row gap-2 w-full md:w-auto'>
           <Input
             className='min-w-[200px] sm:min-w-[300px]'
-            placeholder='Szukaj po nazwie klienta lub dacie...'
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -71,21 +73,21 @@ export default function TransactionList({ refresh }: { refresh: number }) {
           <div className='flex flex-row gap-2 md:items-center'>
             <Select value={sortField} onValueChange={(val: 'date' | 'client') => setSortField(val)}>
               <SelectTrigger className='w-[120px]'>
-                <SelectValue placeholder='Sortuj wg' />
+                <SelectValue placeholder={t('sortBy')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='date'>Data</SelectItem>
-                <SelectItem value='client'>Klient</SelectItem>
+                <SelectItem value='date'>{t('date')}</SelectItem>
+                <SelectItem value='client'>{t('client')}</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
               <SelectTrigger className='w-[120px]'>
-                <SelectValue placeholder='Kolejność' />
+                <SelectValue placeholder={t('order')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='asc'>Rosnąco</SelectItem>
-                <SelectItem value='desc'>Malejąco</SelectItem>
+                <SelectItem value='asc'>{t('asc')}</SelectItem>
+                <SelectItem value='desc'>{t('desc')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -94,7 +96,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
 
       <CardContent className='space-y-4'>
         {filtered.length === 0 ? (
-          <p className='text-muted-foreground'>Brak rozliczeń do wyświetlenia.</p>
+          <p className='text-muted-foreground'>{t('none')}</p>
         ) : (
           filtered.map(tx => {
             const client = clients.find(c => c.id === tx.clientId);
@@ -114,7 +116,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
               >
                 <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-2'>
                   <div className='text-sm text-muted-foreground'>
-                    <strong>Data:</strong>{' '}
+                    <strong>{t('date')}:</strong>{' '}
                     {new Date(tx.date).toLocaleDateString('pl-PL', {
                       day: '2-digit',
                       month: '2-digit',
@@ -125,13 +127,19 @@ export default function TransactionList({ refresh }: { refresh: number }) {
                   </div>
 
                   <div className='text-sm'>
-                    <strong>Klient:</strong> <span className='font-medium'>{client?.name || 'Nieznany klient'}</span>
+                    <strong>{t('clientLabel')}:</strong>{' '}
+                    <span className='font-medium'>{client?.name || 'Nieznany klient'}</span>
                     {client?.address && <span className='text-muted-foreground'> • {client.address}</span>}
-                    {client?.phone && <span className='text-muted-foreground'> • tel. {client.phone}</span>}
+                    {client?.phone && (
+                      <span className='text-muted-foreground'>
+                        {' '}
+                        • {t('phone')} {client.phone}
+                      </span>
+                    )}
                   </div>
 
                   <div className='text-sm font-medium'>
-                    <strong>Kwota:</strong>{' '}
+                    <strong>{t('amount')}:</strong>{' '}
                     <span className='text-sm font-bold text-green-700 dark:text-green-400'>
                       {tx.totalPrice.toFixed(2)} zł
                     </span>
@@ -140,12 +148,12 @@ export default function TransactionList({ refresh }: { refresh: number }) {
 
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                   <div className='text-sm flex items-center gap-2'>
-                    <strong>Status:</strong>
+                    <strong>{t('status')}:</strong>
                     <Badge
                       variant={tx.status === 'finalised' ? 'default' : 'secondary'}
                       className={`text-white ${tx.status === 'finalised' ? 'bg-emerald-600' : 'bg-gray-500'}`}
                     >
-                      {tx.status === 'finalised' ? '✔ Zrealizowano' : '📝 W trakcie'}
+                      {tx.status === 'finalised' ? t('finalised') : t('draft')}
                     </Badge>
                   </div>
 
@@ -185,17 +193,19 @@ export default function TransactionList({ refresh }: { refresh: number }) {
                         </Button>
                       </DialogTrigger>
                       <DialogContent className='sm:max-w-md'>
-                        <DialogTitle>Potwierdź usunięcie</DialogTitle>
+                        <DialogTitle>{t('deleteTitle')}</DialogTitle>
                         <DialogDescription>
-                          Czy na pewno chcesz usunąć rozliczenie dla <strong>{client?.name}</strong> z dnia{' '}
-                          {new Date(tx.date).toLocaleDateString('pl-PL')}?
+                          {t('deleteMessage', {
+                            client: client?.name || '',
+                            date: new Date(tx.date).toLocaleDateString('pl-PL'),
+                          })}
                         </DialogDescription>
                         <DialogFooter className='mt-4 flex gap-2'>
                           <Button type='button' variant='outline' onClick={() => setSelectedTx(null)}>
-                            Anuluj
+                            {t('cancel')}
                           </Button>
                           <Button type='button' variant='destructive' onClick={() => handleDelete(tx.id)}>
-                            Usuń
+                            {t('delete')}
                           </Button>
                         </DialogFooter>
                       </DialogContent>

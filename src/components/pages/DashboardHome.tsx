@@ -31,13 +31,14 @@ import { getClients } from '@/utils/clientStorage';
 import { getSettings } from '@/utils/settingsStorage';
 
 export default function DashboardHome() {
+  const t = useTranslations('dashboard');
   const itemTypeT = useTranslations('itemType');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [rangeMode, setRangeMode] = useState<'month' | 'year' | 'custom' | '7days' | '30days'>('month');
   const [customRange, setCustomRange] = useState<DateRange | undefined>();
-  const { theme, currency } = getSettings();
+  const { theme, currency, distanceUnit } = getSettings();
   const currentDate = dayjs();
 
   useEffect(() => {
@@ -146,10 +147,10 @@ export default function DashboardHome() {
         className="text-center space-y-3 mt-4"
       >
         <h1 className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-lime-400 via-amber-300 to-yellow-400 dark:from-lime-300 dark:via-yellow-300 dark:to-amber-400 animate-text-glow drop-shadow-md">
-          Cennik Vet
+          {t('title')}
         </h1>
         <p className="text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          Aplikacja offline do rozliczeń weterynaryjnych
+          {t('subtitle')}
         </p>
       </motion.div>
 
@@ -163,25 +164,25 @@ export default function DashboardHome() {
         <Link href='/products'>
           <Button variant='outline' className='w-full gap-2 text-sm px-4 py-2 hover:shadow-md'>
             <Package size={16} />
-            Configure Products
+            {t('buttons.products')}
           </Button>
         </Link>
         <Link href='/clients/new'>
           <Button variant='outline' className='w-full gap-2 text-sm px-4 py-2 hover:shadow-md'>
             <Users size={16} />
-            Add Client
+            {t('buttons.addClient')}
           </Button>
         </Link>
         <Link href='/settings'>
           <Button variant='outline' className='w-full gap-2 text-sm px-4 py-2 hover:shadow-md'>
             <SettingsIcon size={16} />
-            Settings
+            {t('buttons.settings')}
           </Button>
         </Link>
         <Link href='/transactions/new'>
           <Button className='w-full gap-2 text-sm px-4 py-2 font-bold bg-green-600 hover:bg-green-700 text-white'>
             <Plus size={16} />
-            New Transaction
+            {t('buttons.newTransaction')}
           </Button>
         </Link>
       </motion.div>
@@ -195,25 +196,25 @@ export default function DashboardHome() {
       >
         {[
           {
-            title: `Travel`,
+            title: t('summary.travel'),
             value: totalSummary.travel,
-            unit: 'km',
+            unit: distanceUnit,
             icon: <MapPin className='w-5 h-5 text-green-500' />,
           },
           {
-            title: `Transactions`,
+            title: t('summary.transactions'),
             value: totalSummary.transactions,
             unit: '',
             icon: <ReceiptText className='w-5 h-5 text-indigo-500' />,
           },
           {
-            title: `Total Value`,
+            title: t('summary.totalValue'),
             value: totalSummary.value.toFixed(2),
             unit: currency,
             icon: <ReceiptText className='w-5 h-5 text-blue-500' />,
           },
           {
-            title: 'Avg per Transaction',
+            title: t('summary.avgPerTransaction'),
             value: (totalSummary.value / Math.max(1, totalSummary.transactions)).toFixed(2),
             unit: currency,
             icon: <CalendarIcon className='w-5 h-5 text-pink-500' />,
@@ -251,7 +252,7 @@ export default function DashboardHome() {
               <CardHeader>
                 <CardTitle className='flex items-center gap-4 text-foreground'>
                   <ReceiptText className='w-6 h-6 text-green-600 dark:text-green-400' />
-                  <h2 className='text-lg font-semibold tracking-tight dark:drop-shadow'>Transactions</h2>
+                  <h2 className='text-lg font-semibold tracking-tight dark:drop-shadow'>{t('summary.transactions')}</h2>
                 </CardTitle>
               </CardHeader>
               <CardContent className='pt-6 px-6'>
@@ -292,7 +293,7 @@ export default function DashboardHome() {
               <CardHeader>
                 <CardTitle className='flex items-center gap-4 text-foreground'>
                   <Users className='w-6 h-6 text-indigo-500 dark:text-indigo-300' />
-                  <h2 className='text-lg font-semibold tracking-tight dark:drop-shadow'>Clients</h2>
+                  <h2 className='text-lg font-semibold tracking-tight dark:drop-shadow'>{t('summary.clients')}</h2>
                 </CardTitle>
               </CardHeader>
               <CardContent className='pt-6 px-6'>
@@ -332,14 +333,14 @@ export default function DashboardHome() {
       >
         <Select value={rangeMode} onValueChange={(value: 'month' | 'year' | 'custom' | '7days' | '30days') => setRangeMode(value)}>
           <SelectTrigger className='w-full'>
-            <SelectValue placeholder='Select Range' />
+            <SelectValue placeholder={t('range.select')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='month'>This Month</SelectItem>
-            <SelectItem value='7days'>Last 7 Days</SelectItem>
-            <SelectItem value='30days'>Last 30 Days</SelectItem>
-            <SelectItem value='year'>Last Year</SelectItem>
-            <SelectItem value='custom'>Custom Range</SelectItem>
+            <SelectItem value='month'>{t('range.month')}</SelectItem>
+            <SelectItem value='7days'>{t('range.7days')}</SelectItem>
+            <SelectItem value='30days'>{t('range.30days')}</SelectItem>
+            <SelectItem value='year'>{t('range.year')}</SelectItem>
+            <SelectItem value='custom'>{t('range.custom')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -371,7 +372,7 @@ export default function DashboardHome() {
         <div className='col-span-7 lg:col-span-3'>
           <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
             <CardHeader>
-              <CardTitle className='text-lg font-semibold'>Daily Value vs Distance Traveled</CardTitle>
+              <CardTitle className='text-lg font-semibold'>{t('charts.valueVsDistance')}</CardTitle>
             </CardHeader>
             <CardContent className='h-[300px]'>
               <ResponsiveContainer width='100%' height='100%'>
@@ -381,7 +382,7 @@ export default function DashboardHome() {
                     yAxisId='left'
                     stroke='#ccc'
                     label={{
-                      value: 'Total Value',
+                      value: `${t('summary.totalValue')}`,
                       angle: -90,
                       position: 'insideLeft',
                     }}
@@ -391,7 +392,7 @@ export default function DashboardHome() {
                     orientation='right'
                     stroke='#ccc'
                     label={{
-                      value: 'Distance (km)',
+                      value: `${t('summary.travel')} (${distanceUnit})`,
                       angle: -90,
                       position: 'insideRight',
                     }}
@@ -410,14 +411,14 @@ export default function DashboardHome() {
                     }}
                   />
                   <Legend />
-                  <Bar yAxisId='left' dataKey='value' fill='#4ade80' name='Total Value (zł)' />
+                  <Bar yAxisId='left' dataKey='value' fill='#4ade80' name={`${t('summary.totalValue')} (${currency})`} />
                   <Line
                     yAxisId='right'
                     type='monotone'
                     dataKey='travel'
                     stroke='#60a5fa'
                     strokeWidth={2}
-                    name='Distance (km)'
+                    name={`${t('summary.travel')} (${distanceUnit})`}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -430,7 +431,7 @@ export default function DashboardHome() {
           {/* BarChart: Daily Clients Count */}
           <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
             <CardHeader>
-              <CardTitle className='text-lg font-semibold'>Daily Clients Count</CardTitle>
+              <CardTitle className='text-lg font-semibold'>{t('charts.dailyClients')}</CardTitle>
             </CardHeader>
             <CardContent className='h-[300px]'>
               <ResponsiveContainer width='100%' height='100%'>
@@ -449,7 +450,7 @@ export default function DashboardHome() {
                       fontSize: 12,
                       color: theme === 'dark' ? '#d1d5db' : '#374151',
                     }}
-                    formatter={val => [`${val}`, 'Clients']}
+                    formatter={val => [`${val}`, t('summary.clients')]}
                     cursor={{ fill: theme === 'dark' ? '#334155' : '#f1f5f9', opacity: 0.2 }}
                   />
                   <Bar dataKey='count' fill='#22c55e' radius={[4, 4, 0, 0]} />
@@ -463,7 +464,7 @@ export default function DashboardHome() {
             <Link href='/transactions/calendar'>
               <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
                 <CardHeader>
-                  <CardTitle>Calendar Overview</CardTitle>
+                  <CardTitle>{t('charts.calendar')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Calendar

@@ -13,6 +13,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { ComboboxGeneric } from '@/components/ComboboxGeneric';
 import { Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import ClientModal from '@/components/ClientModal';
 
 export default function TransactionForm({
   editingTransaction,
@@ -38,6 +39,7 @@ export default function TransactionForm({
   const [localFee, setLocalFee] = useState(additionalFee.toString());
   const [localQuantities, setLocalQuantities] = useState<string[]>([]);
   const [description, setDescription] = useState('');
+  const [isClientModalOpen, setClientModalOpen] = useState(false);
 
   useEffect(() => {
     setLocalQuantities(items.map(i => i.quantity.toString()));
@@ -200,262 +202,290 @@ export default function TransactionForm({
   const clientDetails = clients.find(c => c.id === clientId);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className='space-y-6 max-w-2xl mx-auto bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-xl px-6 py-8 border border-gray-200 dark:border-white/10'
-    >
-      <h1 className='text-2xl font-bold'>Rozliczenie</h1>
+    <>
+      <form
+        onSubmit={handleSubmit}
+        className='space-y-6 max-w-2xl mx-auto bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-xl px-6 py-8 border border-gray-200 dark:border-white/10'
+      >
+        <h1 className='text-2xl font-bold'>Rozliczenie</h1>
 
-      <div>
-        <Label className='py-2'>Klient</Label>
-        <ComboboxGeneric
-          items={clients}
-          selectedId={clientId}
-          onSelect={setClientId}
-          displayKey='name'
-          filterKeys={['name', 'address', 'phone']}
-          placeholder='Wyszukaj klienta...'
-          className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
-            readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
-          }`}
-          disabled={readOnly}
-        />
-        {clientDetails && (
-          <div
-            className='text-sm text-muted-foreground mt-2 overflow-hidden text-ellipsis whitespace-nowrap'
-            title={`${clientDetails.address}${clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}`}
-            style={{ direction: 'ltr', textAlign: 'left' }}
-          >
-            {clientDetails.address}
-            {clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}
-          </div>
-        )}
-      </div>
-
-      <div>
-        <Label className='py-2'>Pozycje</Label>
-        <div className='space-y-4'>
-          {items.map((item, index) => {
-            const product = products.find(p => p.id === item.productId);
-            const itemTotal = product ? product.pricePerUnit * item.quantity : 0;
-            return (
-              <div
-                key={index}
-                className='border border-gray-200 dark:border-white/10 rounded-xl p-4 bg-white/80 dark:bg-white/5 backdrop-blur-sm shadow-sm space-y-3 transition hover:shadow-md'
+        <div>
+          <Label className='py-2'>Klient</Label>
+          <div className='flex items-start gap-2'>
+            <div className='flex-1'>
+              <ComboboxGeneric
+                items={clients}
+                selectedId={clientId}
+                onSelect={val => setClientId(val)}
+                displayKey='name'
+                filterKeys={['name', 'address', 'phone']}
+                placeholder='Wyszukaj klienta...'
+                className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
+                  readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
+                }`}
+                disabled={readOnly}
+                addNewOption
+                onAddNew={() => setClientModalOpen(true)}
+              />
+            </div>
+            {!readOnly && (
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => setClientModalOpen(true)}
+                className='text-sm whitespace-nowrap'
               >
-                <div className='flex gap-2 items-center'>
-                  <div className='text-muted-foreground w-5 text-right'>{index + 1}.</div>
-                  <div className='flex-1 min-w-0'>
-                    {readOnly ? (
-                      <div
-                        className='text-md text-foreground font-medium overflow-hidden text-ellipsis whitespace-nowrap'
-                        title={product?.name}
-                        style={{ direction: 'ltr', textAlign: 'left' }}
-                      >
-                        {product?.name ?? '–'}
-                      </div>
-                    ) : (
-                      <ComboboxGeneric
-                        items={products}
-                        selectedId={item.productId}
-                        onSelect={val => !readOnly && handleItemChange(index, 'productId', val)}
-                        displayKey='name'
-                        filterKeys={['name']}
-                        placeholder='Wyszukaj produkt...'
-                        className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
-                          readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
-                        }`}
-                        disabled={readOnly}
-                      />
-                    )}
-                  </div>
+                + Nowy klient
+              </Button>
+            )}
+          </div>
 
-                  {!readOnly && (
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      onClick={() => handleRemoveItem(index)}
-                      className='flex-shrink-0'
-                    >
-                      <Trash className='w-4 h-4' />
-                    </Button>
-                  )}
-                </div>
-                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-                  <div className='flex items-center pr-3'>
-                    <Label className='py-2 mr-2'>Ilość:</Label>
-                    {readOnly ? (
-                      <div className='text-md'>{item.quantity}</div>
-                    ) : (
-                      <Input
-                        type='text'
-                        inputMode='decimal'
-                        pattern='[0-9]*[.,]?[0-9]*'
-                        value={localQuantities[index] ?? ''}
-                        onChange={e => {
-                          const input = e.target.value.replace(',', '.');
-                          setLocalQuantities(prev => {
-                            const copy = [...prev];
-                            copy[index] = input;
-                            return copy;
-                          });
-                        }}
-                        onBlur={() => {
-                          const parsed = parseFloat(localQuantities[index].replace(',', '.'));
-                          handleItemChange(index, 'quantity', isNaN(parsed) ? 0 : parsed);
-                        }}
-                        className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''} w-24`}
-                        disabled={readOnly}
-                      />
-                    )}
-                    <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
-                    {(products.find(p => p.id === item.productId)?.type || 'product') === 'service' && (
-                      <span className='ml-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded'>
-                        {itemTypeT('service')}
-                      </span>
-                    )}
-                    {(products.find(p => p.id === item.productId)?.type || 'product') === 'product' && (
-                      <span className='ml-2 text-xs font-semibold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900 px-2 py-0.5 rounded'>
-                        {itemTypeT('product')}
-                      </span>
-                    )}
-                  </div>
-                  {product?.name.toLowerCase() === itemTypeT('travel').toLowerCase() &&
-                    product?.unit === 'km' &&
-                    !readOnly && (
-                      <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold'>
-                        ⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)
-                      </div>
-                    )}
-                  <div className='flex flex-row sm:flex-row gap-6 text-sm sm:text-base pt-3'>
-                    <div className='text-gray-700 dark:text-gray-200 text-sm'>
-                      <span className='font-semibold'>Cena:</span>{' '}
-                      {item.priceAtTransaction != null
-                        ? `${item.priceAtTransaction.toFixed(2)} zł/${product?.unit ?? ''}`
-                        : product
-                        ? `${product.pricePerUnit.toFixed(2)} zł/${product.unit}`
-                        : '—'}
-                    </div>
-                    <div className='text-gray-700 dark:text-gray-200'>
-                      <span className='font-semibold'>Suma:</span>{' '}
-                      <span className='text-green-700 dark:text-green-400 font-bold'>{itemTotal.toFixed(2)} zł</span>
-                    </div>
-                  </div>
-                </div>
-                {item.priceAtTransaction != null && product && item.priceAtTransaction !== product.pricePerUnit && (
-                  <div className='text-sm text-yellow-600 dark:text-yellow-400'>
-                    ⚠️ Cena produktu uległa zmianie (obecnie: {product.pricePerUnit.toFixed(2)} zł)
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          {!readOnly && (
-            <Button
-              type='button'
-              variant='outline'
-              onClick={handleAddItem}
-              className='mt-2 hover:bg-gray-100 dark:hover:bg-white/10 transition'
+          {clientDetails && (
+            <div
+              className='text-sm text-muted-foreground mt-2 overflow-hidden text-ellipsis whitespace-nowrap'
+              title={`${clientDetails.address}${clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}`}
+              style={{ direction: 'ltr', textAlign: 'left' }}
             >
-              + Dodaj produkt
-            </Button>
+              {clientDetails.address}
+              {clientDetails.phone ? `, tel. ${clientDetails.phone}` : ''}
+            </div>
           )}
         </div>
-      </div>
 
-      <div>
-        <Label className='py-2'>Rabat</Label>
-        <div className='flex items-center gap-2'>
-          <Input
-            type='text'
-            inputMode='decimal'
-            pattern='[0-9]*[.,]?[0-9]*'
-            value={localDiscount}
-            onChange={e => {
-              const input = e.target.value.replace(',', '.');
-              setLocalDiscount(input);
-            }}
-            onBlur={() => {
-              const parsed = parseFloat(localDiscount);
-              const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
-              setDiscount(rounded);
-              setLocalDiscount(rounded.toString());
-            }}
-            placeholder='np. 10'
-            className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
-            disabled={readOnly}
-          />
+        <div>
+          <Label className='py-2'>Pozycje</Label>
+          <div className='space-y-4'>
+            {items.map((item, index) => {
+              const product = products.find(p => p.id === item.productId);
+              const itemTotal = product ? product.pricePerUnit * item.quantity : 0;
+              return (
+                <div
+                  key={index}
+                  className='border border-gray-200 dark:border-white/10 rounded-xl p-4 bg-white/80 dark:bg-white/5 backdrop-blur-sm shadow-sm space-y-3 transition hover:shadow-md'
+                >
+                  <div className='flex gap-2 items-center'>
+                    <div className='text-muted-foreground w-5 text-right'>{index + 1}.</div>
+                    <div className='flex-1 min-w-0'>
+                      {readOnly ? (
+                        <div
+                          className='text-md text-foreground font-medium overflow-hidden text-ellipsis whitespace-nowrap'
+                          title={product?.name}
+                          style={{ direction: 'ltr', textAlign: 'left' }}
+                        >
+                          {product?.name ?? '–'}
+                        </div>
+                      ) : (
+                        <ComboboxGeneric
+                          items={products}
+                          selectedId={item.productId}
+                          onSelect={val => !readOnly && handleItemChange(index, 'productId', val)}
+                          displayKey='name'
+                          filterKeys={['name']}
+                          placeholder='Wyszukaj produkt...'
+                          className={`w-full overflow-hidden text-ellipsis whitespace-nowrap ${
+                            readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
+                          }`}
+                          disabled={readOnly}
+                        />
+                      )}
+                    </div>
 
-          <span>zł</span>
-        </div>
-      </div>
-
-      <div>
-        <Label className='py-2'>Opłata dodatkowa</Label>
-        <div className='flex items-center gap-2'>
-          <Input
-            type='text'
-            inputMode='decimal'
-            pattern='[0-9]*[.,]?[0-9]*'
-            value={localFee}
-            onChange={e => {
-              const input = e.target.value.replace(',', '.');
-              setLocalFee(input);
-            }}
-            onBlur={() => {
-              const parsed = parseFloat(localFee);
-              const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
-              setAdditionalFee(rounded);
-              setLocalFee(rounded.toString());
-            }}
-            placeholder='np. 20'
-            className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
-            disabled={readOnly}
-          />
-
-          <span>zł</span>
-        </div>
-      </div>
-
-      <div className='text-xl font-semibold text-right text-green-700 dark:text-green-300'>
-        Suma: {calculateTotal().toFixed(2)} zł
-      </div>
-
-      <div>
-        <Label htmlFor='description' className='py-2'>
-          Opis
-        </Label>
-        <textarea
-          id='description'
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          placeholder='Tutaj możesz wpisać dodatkowe uwagi, komentarze lub inne informacje...'
-          disabled={readOnly}
-          className={`w-full min-h-[100px] resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-90 ${
-            readOnly ? 'text-foreground opacity-100 border-none' : ''
-          }`}
-        />
-      </div>
-
-      {!readOnly && status === 'draft' ? (
-        <Button
-          type='button'
-          onClick={handleFinalise}
-          className='bg-gradient-to-r from-emerald-700 to-lime-600 text-white shadow-md hover:opacity-90 transition'
-        >
-          Zrealizuj
-        </Button>
-      ) : (
-        !readOnly &&
-        status !== 'draft' && (
-          <div className='flex gap-2'>
-            <Button type='submit'>Zapisz</Button>
-            <Button type='button' variant='outline' onClick={onCancel}>
-              Anuluj
-            </Button>
+                    {!readOnly && (
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        onClick={() => handleRemoveItem(index)}
+                        className='flex-shrink-0'
+                      >
+                        <Trash className='w-4 h-4' />
+                      </Button>
+                    )}
+                  </div>
+                  <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+                    <div className='flex items-center pr-3'>
+                      <Label className='py-2 mr-2'>Ilość:</Label>
+                      {readOnly ? (
+                        <div className='text-md'>{item.quantity}</div>
+                      ) : (
+                        <Input
+                          type='text'
+                          inputMode='decimal'
+                          pattern='[0-9]*[.,]?[0-9]*'
+                          value={localQuantities[index] ?? ''}
+                          onChange={e => {
+                            const input = e.target.value.replace(',', '.');
+                            setLocalQuantities(prev => {
+                              const copy = [...prev];
+                              copy[index] = input;
+                              return copy;
+                            });
+                          }}
+                          onBlur={() => {
+                            const parsed = parseFloat(localQuantities[index].replace(',', '.'));
+                            handleItemChange(index, 'quantity', isNaN(parsed) ? 0 : parsed);
+                          }}
+                          className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''} w-24`}
+                          disabled={readOnly}
+                        />
+                      )}
+                      <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
+                      {(products.find(p => p.id === item.productId)?.type || 'product') === 'service' && (
+                        <span className='ml-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded'>
+                          {itemTypeT('service')}
+                        </span>
+                      )}
+                      {(products.find(p => p.id === item.productId)?.type || 'product') === 'product' && (
+                        <span className='ml-2 text-xs font-semibold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900 px-2 py-0.5 rounded'>
+                          {itemTypeT('product')}
+                        </span>
+                      )}
+                    </div>
+                    {product?.name.toLowerCase() === itemTypeT('travel').toLowerCase() &&
+                      product?.unit === 'km' &&
+                      !readOnly && (
+                        <div className='text-sm text-red-600 dark:text-red-400 mt-1 font-semibold'>
+                          ⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)
+                        </div>
+                      )}
+                    <div className='flex flex-row sm:flex-row gap-6 text-sm sm:text-base pt-3'>
+                      <div className='text-gray-700 dark:text-gray-200 text-sm'>
+                        <span className='font-semibold'>Cena:</span>{' '}
+                        {item.priceAtTransaction != null
+                          ? `${item.priceAtTransaction.toFixed(2)} zł/${product?.unit ?? ''}`
+                          : product
+                          ? `${product.pricePerUnit.toFixed(2)} zł/${product.unit}`
+                          : '—'}
+                      </div>
+                      <div className='text-gray-700 dark:text-gray-200'>
+                        <span className='font-semibold'>Suma:</span>{' '}
+                        <span className='text-green-700 dark:text-green-400 font-bold'>{itemTotal.toFixed(2)} zł</span>
+                      </div>
+                    </div>
+                  </div>
+                  {item.priceAtTransaction != null && product && item.priceAtTransaction !== product.pricePerUnit && (
+                    <div className='text-sm text-yellow-600 dark:text-yellow-400'>
+                      ⚠️ Cena produktu uległa zmianie (obecnie: {product.pricePerUnit.toFixed(2)} zł)
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {!readOnly && (
+              <Button
+                type='button'
+                variant='outline'
+                onClick={handleAddItem}
+                className='mt-2 hover:bg-gray-100 dark:hover:bg-white/10 transition'
+              >
+                + Dodaj produkt
+              </Button>
+            )}
           </div>
-        )
-      )}
-    </form>
+        </div>
+
+        <div>
+          <Label className='py-2'>Rabat</Label>
+          <div className='flex items-center gap-2'>
+            <Input
+              type='text'
+              inputMode='decimal'
+              pattern='[0-9]*[.,]?[0-9]*'
+              value={localDiscount}
+              onChange={e => {
+                const input = e.target.value.replace(',', '.');
+                setLocalDiscount(input);
+              }}
+              onBlur={() => {
+                const parsed = parseFloat(localDiscount);
+                const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
+                setDiscount(rounded);
+                setLocalDiscount(rounded.toString());
+              }}
+              placeholder='np. 10'
+              className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
+              disabled={readOnly}
+            />
+
+            <span>zł</span>
+          </div>
+        </div>
+
+        <div>
+          <Label className='py-2'>Opłata dodatkowa</Label>
+          <div className='flex items-center gap-2'>
+            <Input
+              type='text'
+              inputMode='decimal'
+              pattern='[0-9]*[.,]?[0-9]*'
+              value={localFee}
+              onChange={e => {
+                const input = e.target.value.replace(',', '.');
+                setLocalFee(input);
+              }}
+              onBlur={() => {
+                const parsed = parseFloat(localFee);
+                const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
+                setAdditionalFee(rounded);
+                setLocalFee(rounded.toString());
+              }}
+              placeholder='np. 20'
+              className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
+              disabled={readOnly}
+            />
+
+            <span>zł</span>
+          </div>
+        </div>
+
+        <div className='text-xl font-semibold text-right text-green-700 dark:text-green-300'>
+          Suma: {calculateTotal().toFixed(2)} zł
+        </div>
+
+        <div>
+          <Label htmlFor='description' className='py-2'>
+            Opis
+          </Label>
+          <textarea
+            id='description'
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder='Tutaj możesz wpisać dodatkowe uwagi, komentarze lub inne informacje...'
+            disabled={readOnly}
+            className={`w-full min-h-[100px] resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-90 ${
+              readOnly ? 'text-foreground opacity-100 border-none' : ''
+            }`}
+          />
+        </div>
+
+        {!readOnly && status === 'draft' ? (
+          <Button
+            type='button'
+            onClick={handleFinalise}
+            className='bg-gradient-to-r from-emerald-700 to-lime-600 text-white shadow-md hover:opacity-90 transition'
+          >
+            Zrealizuj
+          </Button>
+        ) : (
+          !readOnly &&
+          status !== 'draft' && (
+            <div className='flex gap-2'>
+              <Button type='submit'>Zapisz</Button>
+              <Button type='button' variant='outline' onClick={onCancel}>
+                Anuluj
+              </Button>
+            </div>
+          )
+        )}
+      </form>
+      <ClientModal
+        open={isClientModalOpen}
+        onClose={() => setClientModalOpen(false)}
+        onClientCreated={id => {
+          const updatedClients = getClients();
+          setClients(updatedClients);
+          setClientId(id);
+        }}
+      />
+    </>
   );
 }
