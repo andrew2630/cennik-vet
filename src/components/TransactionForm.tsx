@@ -345,16 +345,7 @@ export default function TransactionForm({
                           disabled={readOnly}
                         />
                       )}
-                      <span
-                        className={cnjoin(
-                          'text-muted-foreground',
-                          (product?.unit?.length || 0) > 8
-                            ? 'mt-1 sm:mt-0 sm:ml-2 whitespace-nowrap'
-                            : 'ml-2'
-                        )}
-                      >
-                        {product?.unit || ''}
-                      </span>
+                      <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
                       {(products.find(p => p.id === item.productId)?.type || 'product') === 'service' && (
                         <span
                           className={cnjoin(
