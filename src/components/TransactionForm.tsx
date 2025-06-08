@@ -43,6 +43,7 @@ export default function TransactionForm({
   const [localQuantities, setLocalQuantities] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   const [isClientModalOpen, setClientModalOpen] = useState(false);
+  const [openItemIndex, setOpenItemIndex] = useState<number | null>(null);
   const { currency } = getSettings();
 
   useEffect(() => {
@@ -151,11 +152,19 @@ export default function TransactionForm({
   };
 
   const handleAddItem = () => {
-    setItems([...items, { productId: '', quantity: 1 }]);
+    setItems(prev => {
+      const newItems = [...prev, { productId: '', quantity: 1 }];
+      setOpenItemIndex(newItems.length - 1);
+      return newItems;
+    });
   };
 
   const handleRemoveItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index));
+    setItems(prev => {
+      const newItems = prev.filter((_, i) => i !== index);
+      setOpenItemIndex(null);
+      return newItems;
+    });
   };
 
   const handleFinalise = () => {
@@ -290,6 +299,8 @@ export default function TransactionForm({
                             readOnly ? 'pointer-events-none bg-transparent text-foreground opacity-100' : ''
                           }`}
                           disabled={readOnly}
+                          open={openItemIndex === index}
+                          onOpenChange={o => setOpenItemIndex(o ? index : null)}
                         />
                       )}
                     </div>
