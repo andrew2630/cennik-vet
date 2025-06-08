@@ -5,6 +5,7 @@ import HomeButton from '@/components/HomeButton';
 import { Toaster } from 'sonner';
 import BuyMeCoffee from '@/components/BuyMeCoffee';
 import InstallPrompt from '@/components/InstallPrompt';
+import PageWrapper from '@/components/PageWrapper';
 
 export const metadata: Metadata = {
   title: 'Cennik Vet',
@@ -47,7 +48,9 @@ export default function RootLayout({
         <Toaster richColors position='top-right' />
         <HomeButton />
         <BuyMeCoffee />
-        <InstallPrompt />
+        <PageWrapper>
+          <InstallPrompt />
+        </PageWrapper>
       </body>
     </html>
   );
