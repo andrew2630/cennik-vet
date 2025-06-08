@@ -272,5 +272,10 @@
     "service": "Usługa",
     "examplePrice": "np. 49.99",
     "exampleName": "np. Szczepienie"
+  },
+  "installPrompt": {
+    "text": "Zainstalować aplikację, aby działała offline?",
+    "install": "Zainstaluj",
+    "dismiss": "Nie teraz"
   }
 }
