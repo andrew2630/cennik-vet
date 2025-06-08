@@ -7,24 +7,24 @@ import { X } from 'lucide-react';
 
 export default function InstallPrompt() {
   const t = useTranslations('installPrompt');
-  const [deferred, setDeferred] = useState<any>(null);
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: Event) => {
       e.preventDefault();
-      setDeferred(e);
+      setDeferred(e as BeforeInstallPromptEvent);
       setVisible(true);
     };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    window.addEventListener('beforeinstallprompt', handler as EventListener);
+    return () => window.removeEventListener('beforeinstallprompt', handler as EventListener);
   }, []);
 
   useEffect(() => {
     const checkInstalled = () => {
       if (
         window.matchMedia('(display-mode: standalone)').matches ||
-        (navigator as any).standalone === true
+        navigator.standalone === true
       ) {
         setVisible(false);
       }
