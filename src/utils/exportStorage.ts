@@ -1,12 +1,21 @@
 import { saveAs } from 'file-saver';
+import pl from '@/public/locales/pl.json';
+import en from '@/public/locales/en.json';
 
 export function exportAllDataToJSON() {
+  const settings = JSON.parse(localStorage.getItem('vet_settings') || '{}');
   const data = {
     products: JSON.parse(localStorage.getItem('vet_products') || '[]'),
     clients: JSON.parse(localStorage.getItem('vet_clients') || '[]'),
     transactions: JSON.parse(localStorage.getItem('vet_transactions') || '[]'),
-    settings: JSON.parse(localStorage.getItem('vet_settings') || '{}'),
+    settings,
   };
+
+  const travelName = (settings.language === 'en' ? en : pl).itemType.travel.toLowerCase();
+
+  data.products = (data.products as any[]).map(p =>
+    p.name.toLowerCase() === travelName ? { ...p, unit: settings.distanceUnit } : p
+  );
 
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json' });

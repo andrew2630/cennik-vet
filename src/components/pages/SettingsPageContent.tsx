@@ -6,6 +6,7 @@ import { exportAllDataToJSON } from '@/utils/exportStorage';
 import ImportButton from '@/components/ImportButton';
 import { applyTheme, getStoredTheme, Theme } from '@/utils/theme';
 import { Settings as SettingsType, Currency, TravelUnit } from '@/types';
+import { getProducts } from '@/utils/productStorage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -15,6 +16,7 @@ import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
+  const itemTypeT = useTranslations('itemType');
 
   const [settings, setSettings] = useState<SettingsType>({
     currency: 'zł',
@@ -38,6 +40,16 @@ export default function SettingsPage() {
 
     if (field === 'theme') {
       applyTheme(value as Theme);
+    }
+
+    if (field === 'distanceUnit') {
+      const products = getProducts();
+      const travelName = itemTypeT('travel').toLowerCase();
+      const idx = products.findIndex(p => p.name.toLowerCase() === travelName);
+      if (idx !== -1) {
+        products[idx] = { ...products[idx], unit: value as TravelUnit };
+        localStorage.setItem('vet_products', JSON.stringify(products));
+      }
     }
   };
 
