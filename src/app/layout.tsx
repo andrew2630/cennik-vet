@@ -38,8 +38,15 @@ export default function RootLayout({
             `,
           }}
         />
-        <link rel='manifest' href='/cennik-vet/manifest.json' />
-        <link rel='apple-touch-icon' href='/cennik-vet/icon-192.png' />
+        {(() => {
+          const base = process.env.NEXT_PUBLIC_BASE_PATH || '/cennik-vet';
+          return (
+            <>
+              <link rel='manifest' href={`${base}/manifest.json`} />
+              <link rel='apple-touch-icon' href={`${base}/icon-192.png`} />
+            </>
+          );
+        })()}
         <meta name='theme-color' content='#0A0A0A' />
       </head>
       <body className='min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white font-sans antialiased'>
