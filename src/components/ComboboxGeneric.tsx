@@ -9,6 +9,16 @@ import { DialogTitle } from '@/components/ui/dialog';
 import { Item } from '@/types';
 import { useTranslations } from 'next-intl';
 
+export function getSearchValue(
+  item: Item,
+  displayKey: string,
+  filterKeys: string[] = []
+) {
+  return [displayKey, ...filterKeys]
+    .map(key => String(item[key] ?? ''))
+    .join(' ');
+}
+
 interface ComboboxGenericProps {
   items: Item[];
   selectedId: string;
@@ -28,6 +38,7 @@ export function ComboboxGeneric({
   onSelect,
   placeholder = 'Select...',
   displayKey,
+  filterKeys = [],
   className = '',
   disabled = false,
   onAddNew
@@ -55,6 +66,7 @@ export function ComboboxGeneric({
     return null;
   };
 
+
   const List = ({ close }: { close: () => void }) => (
     <Command>
       <CommandInput placeholder={t('search')} disabled={disabled} />
@@ -64,7 +76,7 @@ export function ComboboxGeneric({
           {items.map(item => (
             <CommandItem
               key={item.id}
-              value={String(item[displayKey])}
+              value={getSearchValue(item, displayKey, filterKeys)}
               onSelect={() => {
                 if (!disabled) {
                   onSelect(item.id);
