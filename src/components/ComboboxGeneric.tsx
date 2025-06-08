@@ -28,6 +28,7 @@ export function ComboboxGeneric({
   onSelect,
   placeholder = 'Select...',
   displayKey,
+  filterKeys = [],
   className = '',
   disabled = false,
   onAddNew
@@ -61,10 +62,17 @@ export function ComboboxGeneric({
       <CommandList>
         <CommandEmpty>{t('noResults')}</CommandEmpty>
         <CommandGroup>
-          {items.map(item => (
-            <CommandItem
-              key={item.id}
-              value={String(item[displayKey])}
+          {items.map(item => {
+            const searchValue =
+              filterKeys.length > 0
+                ? filterKeys
+                    .map(key => String((item as Record<string, unknown>)[key] ?? ''))
+                    .join(' ')
+                : String(item[displayKey]);
+            return (
+              <CommandItem
+                key={item.id}
+                value={searchValue}
               onSelect={() => {
                 if (!disabled) {
                   onSelect(item.id);
@@ -77,7 +85,8 @@ export function ComboboxGeneric({
               <span className='truncate'>{String(item[displayKey])}</span>
               {renderBadge(item.type)}
             </CommandItem>
-          ))}
+            );
+          })}
           {onAddNew && (
             <CommandItem
               key='__add_new'
