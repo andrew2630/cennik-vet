@@ -42,7 +42,7 @@ export default function ImportButton({ onFinish }: { onFinish: () => void }) {
         className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
       >
         <Upload className="w-4 h-4" />
-        {t('buttonLabel')} {/* e.g., "Importuj dane" */}
+        {t('buttonLabel')} {/* localized label */}
       </Button>
     </div>
   );
