@@ -22,14 +22,31 @@ interface ComboboxGenericProps {
   onAddNew?: () => void;
 }
 
+export function buildSearchValue(
+  item: Item,
+  displayKey: string,
+  filterKeys?: string[],
+) {
+  const keys = [displayKey, ...(filterKeys ?? [])]
+  return keys
+    .map(k => {
+      const value = item[k]
+      return value !== undefined && value !== null ? String(value) : ''
+    })
+    .join(' ')
+    .trim()
+}
+
 export function ComboboxGeneric({
   items,
   selectedId,
   onSelect,
   placeholder = 'Select...',
   displayKey,
+  filterKeys,
   className = '',
   disabled = false,
+  addNewOption,
   onAddNew
 }: ComboboxGenericProps) {
   const t = useTranslations('combobox');
@@ -64,7 +81,7 @@ export function ComboboxGeneric({
           {items.map(item => (
             <CommandItem
               key={item.id}
-              value={String(item[displayKey])}
+              value={buildSearchValue(item, displayKey, filterKeys)}
               onSelect={() => {
                 if (!disabled) {
                   onSelect(item.id);
@@ -78,7 +95,7 @@ export function ComboboxGeneric({
               {renderBadge(item.type)}
             </CommandItem>
           ))}
-          {onAddNew && (
+          {addNewOption && onAddNew && (
             <CommandItem
               key='__add_new'
               onSelect={() => {
