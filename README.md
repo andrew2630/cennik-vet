@@ -38,7 +38,7 @@ Cennik Vet is designed for individual veterinarians or small practices that need
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/andre2630/cennik-vet.git
+git clone https://github.com/andrew2630/cennik-vet.git
 cd cennik-vet
 npm install
 ````
