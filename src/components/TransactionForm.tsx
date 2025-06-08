@@ -15,6 +15,7 @@ import { Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ClientModal from '@/components/ClientModal';
 import { getSettings } from '@/utils/settingsStorage';
+import { cnjoin } from '@/lib/utils';
 
 export default function TransactionForm({
   editingTransaction,
@@ -305,7 +306,14 @@ export default function TransactionForm({
                     )}
                   </div>
                   <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-                    <div className='flex items-center pr-3'>
+                    <div
+                      className={cnjoin(
+                        'flex pr-3',
+                        (product?.unit?.length || 0) > 8
+                          ? 'flex-col items-start sm:flex-row sm:items-center'
+                          : 'items-center'
+                      )}
+                    >
                       <Label className='py-2 mr-2'>{t('quantity')}</Label>
                       {readOnly ? (
                         <div className='text-md'>{item.quantity}</div>
@@ -327,18 +335,34 @@ export default function TransactionForm({
                             const parsed = parseFloat(localQuantities[index].replace(',', '.'));
                             handleItemChange(index, 'quantity', isNaN(parsed) ? 0 : parsed);
                           }}
-                          className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''} w-24 shrink-0`}
+                          className={cnjoin(
+                            readOnly
+                              ? 'bg-transparent text-foreground opacity-100 border-none'
+                              : '',
+                            'w-24',
+                            (product?.unit?.length || 0) > 8 && 'shrink-0'
+                          )}
                           disabled={readOnly}
                         />
                       )}
-                      <span className='ml-2 text-muted-foreground whitespace-nowrap'>{product?.unit || ''}</span>
+                      <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
                       {(products.find(p => p.id === item.productId)?.type || 'product') === 'service' && (
-                        <span className='ml-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded'>
+                        <span
+                          className={cnjoin(
+                            'text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded',
+                            (product?.unit?.length || 0) > 8 ? 'mt-1 sm:mt-0 sm:ml-2' : 'ml-2'
+                          )}
+                        >
                           {itemTypeT('service')}
                         </span>
                       )}
                       {(products.find(p => p.id === item.productId)?.type || 'product') === 'product' && (
-                        <span className='ml-2 text-xs font-semibold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900 px-2 py-0.5 rounded'>
+                        <span
+                          className={cnjoin(
+                            'text-xs font-semibold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900 px-2 py-0.5 rounded',
+                            (product?.unit?.length || 0) > 8 ? 'mt-1 sm:mt-0 sm:ml-2' : 'ml-2'
+                          )}
+                        >
                           {itemTypeT('product')}
                         </span>
                       )}
