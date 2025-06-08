@@ -48,7 +48,6 @@ export function ComboboxGeneric({
   filterKeys = [],
   className = '',
   disabled = false,
-  addNewOption,
   onAddNew,
   open: controlledOpen,
   onOpenChange
