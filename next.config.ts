@@ -3,10 +3,12 @@ import withPWA from 'next-pwa';
 
 const withNextIntl = require('next-intl/plugin')('./i18n.ts');
 
+const basePath = process.env.BASE_PATH || '/cennik-vet';
+
 const baseConfig: NextConfig = {
   reactStrictMode: true,
   output: 'export',
-  basePath: '/cennik-vet',
+  basePath,
   trailingSlash: true,
 };
 
