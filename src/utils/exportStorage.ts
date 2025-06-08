@@ -13,8 +13,11 @@ export function exportAllDataToJSON() {
 
   const travelName = (settings.language === 'en' ? en : pl).itemType.travel.toLowerCase();
 
-  data.products = (data.products as any[]).map(p =>
-    p.name.toLowerCase() === travelName ? { ...p, unit: settings.distanceUnit } : p
+  type Product = { name?: string; unit?: string; [key: string]: unknown };
+  data.products = (data.products as Product[]).map(p =>
+    p.name && typeof p.name === 'string' && p.name.toLowerCase() === travelName
+      ? { ...p, unit: settings.distanceUnit }
+      : p
   );
 
   const json = JSON.stringify(data, null, 2);

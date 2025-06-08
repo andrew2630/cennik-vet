@@ -46,7 +46,6 @@ export function ComboboxGeneric({
   filterKeys = [],
   className = '',
   disabled = false,
-  addNewOption,
   onAddNew
 }: ComboboxGenericProps) {
   const t = useTranslations('combobox');
