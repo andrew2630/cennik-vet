@@ -50,7 +50,15 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000/cennik-vet/` in your browser.
+Open `http://localhost:3000/cennik-vet/` in your browser. You can override the
+`/cennik-vet` part by setting the `BASE_PATH` environment variable before
+starting the server:
+
+```bash
+BASE_PATH=/my-dev-path npm run dev
+```
+
+Then visit `http://localhost:3000/my-dev-path/`.
 
 ---
 
@@ -61,7 +69,14 @@ npm run build
 npm start
 ```
 
-App is exported to `out/` folder and served statically.
+App is exported to the `out/` folder and served statically. You can set a
+different base path during the build step using `BASE_PATH`:
+
+```bash
+BASE_PATH=/my-dev-path npm run build
+```
+
+The exported site will then expect to be hosted under that path.
 
 ---
 
