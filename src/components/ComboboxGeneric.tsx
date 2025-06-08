@@ -22,6 +22,21 @@ interface ComboboxGenericProps {
   onAddNew?: () => void;
 }
 
+export function buildSearchValue(
+  item: Item,
+  displayKey: string,
+  filterKeys?: string[],
+) {
+  const keys = [displayKey, ...(filterKeys ?? [])]
+  return keys
+    .map(k => {
+      const value = item[k]
+      return value !== undefined && value !== null ? String(value) : ''
+    })
+    .join(' ')
+    .trim()
+}
+
 export function ComboboxGeneric({
   items,
   selectedId,
@@ -31,6 +46,7 @@ export function ComboboxGeneric({
   filterKeys = [],
   className = '',
   disabled = false,
+  addNewOption,
   onAddNew
 }: ComboboxGenericProps) {
   const t = useTranslations('combobox');
