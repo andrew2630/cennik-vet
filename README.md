@@ -20,6 +20,7 @@
 - 📄 **PDF export** (with full Polish locale support)
 - 🔌 **Offline support** with **PWA** (via `next-pwa`)
 - ☁️ Works 100% offline (great for home visits)
+- 📲 Suggests installation on mobile for quick "Add to Home Screen"
 - 🌘 **Dark mode** with automatic theme detection
 - 🧾 **Combobox**-based product & client selectors
 - ⚡ Smart auto-saving for drafts

@@ -20,6 +20,8 @@ interface ComboboxGenericProps {
   disabled?: boolean;
   addNewOption?: boolean;
   onAddNew?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function buildSearchValue(
@@ -46,12 +48,18 @@ export function ComboboxGeneric({
   filterKeys = [],
   className = '',
   disabled = false,
-  onAddNew
+  addNewOption,
+  onAddNew,
+  open: controlledOpen,
+  onOpenChange
 }: ComboboxGenericProps) {
   const t = useTranslations('combobox');
   const itemTypeT = useTranslations('itemType');
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const [open, setOpen] = React.useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const isControlled = controlledOpen !== undefined && onOpenChange !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = isControlled ? onOpenChange! : setUncontrolledOpen;
   const selectedItem = items.find(i => i.id === selectedId);
   placeholder = t('select');
 
