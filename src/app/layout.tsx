@@ -4,6 +4,7 @@ import { SparklesCore } from '@/components/ui/sparkles';
 import HomeButton from '@/components/HomeButton';
 import { Toaster } from 'sonner';
 import BuyMeCoffee from '@/components/BuyMeCoffee';
+import InstallPrompt from '@/components/InstallPrompt';
 
 export const metadata: Metadata = {
   title: 'Cennik Vet',
@@ -46,6 +47,7 @@ export default function RootLayout({
         <Toaster richColors position='top-right' />
         <HomeButton />
         <BuyMeCoffee />
+        <InstallPrompt />
       </body>
     </html>
   );

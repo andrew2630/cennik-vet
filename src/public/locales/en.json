@@ -272,5 +272,10 @@
     "service": "Service",
     "examplePrice": "e.g. 49.99",
     "exampleName": "e.g. Vaccination"
+  },
+  "installPrompt": {
+    "text": "Install this app for offline access?",
+    "install": "Install",
+    "dismiss": "Dismiss"
   }
 }
