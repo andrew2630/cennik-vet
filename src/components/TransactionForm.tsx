@@ -327,11 +327,11 @@ export default function TransactionForm({
                             const parsed = parseFloat(localQuantities[index].replace(',', '.'));
                             handleItemChange(index, 'quantity', isNaN(parsed) ? 0 : parsed);
                           }}
-                          className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''} w-24`}
+                          className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''} w-24 shrink-0`}
                           disabled={readOnly}
                         />
                       )}
-                      <span className='ml-2 text-muted-foreground'>{product?.unit || ''}</span>
+                      <span className='ml-2 text-muted-foreground whitespace-nowrap'>{product?.unit || ''}</span>
                       {(products.find(p => p.id === item.productId)?.type || 'product') === 'service' && (
                         <span className='ml-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 rounded'>
                           {itemTypeT('service')}

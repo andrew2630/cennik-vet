@@ -99,7 +99,7 @@ export async function handleExport(transaction: Transaction, t: ExportLabels) {
           `${index + 1}.`,
           text(product.name),
           item.quantity.toString(),
-          text(product.unit),
+          text(settings.distanceUnit),
           product.pricePerUnit.toFixed(2),
           value.toFixed(2),
         ];
