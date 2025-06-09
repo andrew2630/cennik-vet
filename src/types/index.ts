@@ -53,12 +53,26 @@ export interface TransactionItem {
   priceAtTransaction?: number;
 }
 
+export type DiscountScope = 'all' | 'no-travel' | 'services' | 'products';
+
+export type Discount =
+  | number
+  | {
+      type: 'value';
+      value: number;
+    }
+  | {
+      type: 'percentage';
+      value: number;
+      scope: DiscountScope;
+    };
+
 export interface Transaction extends Item {
   id: string;
   clientId: string;
   date: string;
   items: TransactionItem[];
-  discount?: number;
+  discount?: Discount;
   additionalFee?: number;
   totalPrice: number;
   status: TransactionStatus;
