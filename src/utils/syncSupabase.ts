@@ -12,6 +12,17 @@ function snakeCaseKeys<T extends Record<string, unknown>>(obj: T): Record<string
   )
 }
 
+function nullifyEmptyStrings(obj: unknown): unknown {
+  if (obj === '') return null
+  if (Array.isArray(obj)) return obj.map(item => nullifyEmptyStrings(item))
+  if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>).map(([k, v]) => [k, nullifyEmptyStrings(v)]),
+    )
+  }
+  return obj
+}
+
 interface Operation {
   type: 'upsert' | 'delete'
   table: 'products' | 'clients' | 'transactions'
@@ -65,7 +76,11 @@ export async function syncQueue(userId: string) {
           op.type === 'upsert' && op.data
             ? await supabase
                 .from(op.table)
-                .upsert(snakeCaseKeys({ ...op.data, user_id: userId }))
+                .upsert(
+                  nullifyEmptyStrings(
+                    snakeCaseKeys({ ...op.data, user_id: userId }),
+                  ) as Record<string, unknown>,
+                )
             : op.type === 'delete' && op.id
               ? await supabase.from(op.table).delete().eq('id', op.id)
               : { error: null }
