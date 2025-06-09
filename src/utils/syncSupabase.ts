@@ -168,15 +168,15 @@ export async function downloadUserData(userId: string) {
     }
 
     const products = (productsRes.data || []).map(r => {
-      const { user_id, updated_at, ...rest } = r as Record<string, unknown>
+      const { updated_at, ...rest } = r as Record<string, unknown>
       return { ...(camelCaseKeys(rest) as Product), updatedAt: updated_at as string }
     })
     const clients = (clientsRes.data || []).map(r => {
-      const { user_id, updated_at, ...rest } = r as Record<string, unknown>
+      const { updated_at, ...rest } = r as Record<string, unknown>
       return { ...(camelCaseKeys(rest) as Client), updatedAt: updated_at as string }
     })
     const transactions = (transactionsRes.data || []).map(r => {
-      const { user_id, updated_at, ...rest } = r as Record<string, unknown>
+      const { updated_at, ...rest } = r as Record<string, unknown>
       return { ...(camelCaseKeys(rest) as Transaction), updatedAt: updated_at as string }
     })
 
