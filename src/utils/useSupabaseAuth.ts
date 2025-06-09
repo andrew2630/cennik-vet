@@ -30,7 +30,13 @@ export function useSupabaseAuth() {
     supabase.auth.signInWithPassword({ email: email.trim(), password })
 
   const signUp = (email: string, password: string) =>
-    supabase.auth.signUp({ email: email.trim(), password })
+    supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        emailRedirectTo: `${location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || ''}/`,
+      },
+    })
 
   const signOut = () => supabase.auth.signOut()
 

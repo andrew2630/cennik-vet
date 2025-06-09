@@ -171,7 +171,13 @@
     "loginError": "\u274c B\u0142\u0105d logowania.",
     "registerSuccess": "\u2705 Rejestracja zako\u0144czona.",
     "registerError": "\u274c B\u0142\u0105d rejestracji.",
-    "logoutSuccess": "\u2705 Wylogowano."
+    "logoutSuccess": "\u2705 Wylogowano.",
+    "checkEmail": "\ud83d\udce7 Sprawd\u017a e-mail, aby potwierdzi\u0107 konto.",
+    "invalidCredentials": "\u274c Nieprawid\u0142owe dane logowania.",
+    "emailNotConfirmed": "\u274c Najpierw potwierd\u017a e-mail.",
+    "userExists": "\u274c U\u017cytkownik ju\u017c istnieje.",
+    "weakPassword": "\u274c Has\u0142o musi mie\u0107 co najmniej 6 znak\u00f3w.",
+    "invalidEmail": "\u274c Nieprawid\u0142owy format e-maila."
   },
   "transactionsList": {
     "unknownClient": "Nieznany klient",
