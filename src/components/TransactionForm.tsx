@@ -5,15 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getClients } from '@/utils/clientStorage';
 import { getProducts } from '@/utils/productStorage';
 import { updateTransaction } from '@/utils/transactionStorage';
-import {
-  Client,
-  Product,
-  TransactionItem,
-  Transaction,
-  TransactionStatus,
-  Discount,
-  DiscountScope,
-} from '@/types';
+import { Client, Product, TransactionItem, Transaction, TransactionStatus, Discount, DiscountScope } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -115,7 +107,7 @@ export default function TransactionForm({
 
     const isEmpty =
       !clientId &&
-      isOnlyEmptyTravel &&
+      (isOnlyEmptyTravel || items.length === 0) &&
       calculateDiscountAmount() === 0 &&
       additionalFee === 0 &&
       calculateTotal() === 0;
@@ -177,7 +169,7 @@ export default function TransactionForm({
           if (!isTravel) base += val;
           break;
         case 'services':
-          if (product.type === 'service') base += val;
+          if (product.type === 'service' && !isTravel) base += val;
           break;
         case 'products':
           if (product.type === 'product') base += val;
@@ -407,9 +399,7 @@ export default function TransactionForm({
                             handleItemChange(index, 'quantity', isNaN(parsed) ? 0 : parsed);
                           }}
                           className={cnjoin(
-                            readOnly
-                              ? 'bg-transparent text-foreground opacity-100 border-none'
-                              : '',
+                            readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : '',
                             'w-24',
                             (product?.unit?.length || 0) > 8 && 'shrink-0'
                           )}
@@ -486,19 +476,41 @@ export default function TransactionForm({
         <div>
           <Label className='py-2'>{t('discount')}</Label>
           <div className='space-y-2'>
-            <Select
-              value={discount.type}
-              onValueChange={val => !readOnly && setDiscount(d => ({ ...d, type: val as 'value' | 'percentage' }))}
-              disabled={readOnly}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('discount')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='value'>{t('discountTypeValue')}</SelectItem>
-                <SelectItem value='percentage'>{t('discountTypePercent')}</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className='md:flex items-start md:gap-2'>
+              <div className='mb-2 md:mb-0'>
+                <Select
+                  value={discount.type}
+                  onValueChange={val => !readOnly && setDiscount(d => ({ ...d, type: val as 'value' | 'percentage' }))}
+                  disabled={readOnly}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('discount')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='value'>{t('discountTypeValue')}</SelectItem>
+                    <SelectItem value='percentage'>{t('discountTypePercent')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {discount.type === 'percentage' && (
+                <Select
+                  value={discount.scope}
+                  onValueChange={val => !readOnly && setDiscount(d => ({ ...d, scope: val as DiscountScope }))}
+                  disabled={readOnly}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>{t('discountScopeAll')}</SelectItem>
+                    <SelectItem value='no-travel'>{t('discountScopeNoTravel')}</SelectItem>
+                    <SelectItem value='services'>{t('discountScopeServices')}</SelectItem>
+                    <SelectItem value='products'>{t('discountScopeProducts')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
             <div className='flex items-center gap-2'>
               <Input
                 type='text'
@@ -521,23 +533,6 @@ export default function TransactionForm({
               />
               <span>{discount.type === 'value' ? currency : '%'}</span>
             </div>
-            {discount.type === 'percentage' && (
-              <Select
-                value={discount.scope}
-                onValueChange={val => !readOnly && setDiscount(d => ({ ...d, scope: val as DiscountScope }))}
-                disabled={readOnly}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>{t('discountScopeAll')}</SelectItem>
-                  <SelectItem value='no-travel'>{t('discountScopeNoTravel')}</SelectItem>
-                  <SelectItem value='services'>{t('discountScopeServices')}</SelectItem>
-                  <SelectItem value='products'>{t('discountScopeProducts')}</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
           </div>
         </div>
 

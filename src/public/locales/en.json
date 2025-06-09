@@ -198,7 +198,7 @@
     "discountTypePercent": "Percentage",
     "discountScopeAll": "Everything",
     "discountScopeNoTravel": "Everything except travel",
-    "discountScopeServices": "Services only",
+    "discountScopeServices": "Services only (except travel)",
     "discountScopeProducts": "Products only",
     "additionalFee": "Additional Fee",
     "totalAmount": "Total: {amount} zł",

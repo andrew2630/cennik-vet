@@ -198,7 +198,7 @@
     "discountTypePercent": "Procentowy",
     "discountScopeAll": "Od całości",
     "discountScopeNoTravel": "Od całości bez dojazdu",
-    "discountScopeServices": "Tylko usługi",
+    "discountScopeServices": "Tylko usługi (bez dojazdu)",
     "discountScopeProducts": "Tylko produkty",
     "additionalFee": "Opłata dodatkowa",
     "totalAmount": "Suma: {amount} {currency}",

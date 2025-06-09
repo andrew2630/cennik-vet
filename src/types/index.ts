@@ -55,17 +55,11 @@ export interface TransactionItem {
 
 export type DiscountScope = 'all' | 'no-travel' | 'services' | 'products';
 
-export type Discount =
-  | number
-  | {
-      type: 'value';
-      value: number;
-    }
-  | {
-      type: 'percentage';
-      value: number;
-      scope: DiscountScope;
-    };
+export type Discount = {
+  type: 'value' | 'percentage';
+  value: number;
+  scope: DiscountScope;
+};
 
 export interface Transaction extends Item {
   id: string;
