@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Settings as SettingsIcon, Download } from 'lucide-react';
+import { Settings as SettingsIcon, Download, LogIn, UserPlus, LogOut } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
@@ -87,25 +87,37 @@ export default function SettingsPage() {
             </h1>
           </div>
 
-          <div className='p-2 space-y-6'>
-            <div className='space-y-1'>
-              {user ? (
-                <div className='flex items-center gap-2'>
-                  <span>{t('loggedIn')}</span>
-                  <Button size='sm' onClick={() => signOut()}>{t('logout')}</Button>
-                </div>
-              ) : (
-                <div className='space-y-2'>
-                  <Input placeholder='Email' value={email} onChange={e => setEmail(e.target.value)} />
-                  <Input type='password' placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} />
-                  <div className='flex gap-2'>
-                    <Button size='sm' onClick={handleLogin}>{t('login')}</Button>
-                    <Button size='sm' variant='outline' onClick={handleRegister}>{t('register')}</Button>
-                  </div>
-                </div>
-              )}
+          {!user ? (
+            <div className='bg-white/30 dark:bg-white/5 rounded-xl p-6 shadow-md space-y-4 border border-gray-200 dark:border-white/10 transition-all hover:shadow-xl'>
+              <h2 className='text-xl font-semibold text-center'>{t('loginTitle')}</h2>
+              <div className='flex flex-col md:flex-row gap-4'>
+                <Input type='email' placeholder='Email' value={email} onChange={e => setEmail(e.target.value)} />
+                <Input
+                  type='password'
+                  placeholder={t('password')}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+              </div>
+              <div className='flex gap-4 justify-center pt-2'>
+                <Button onClick={handleLogin} className='gap-2'>
+                  <LogIn className='w-4 h-4' /> {t('login')}
+                </Button>
+                <Button onClick={handleRegister} variant='outline' className='gap-2'>
+                  <UserPlus className='w-4 h-4' /> {t('register')}
+                </Button>
+              </div>
             </div>
-            <div className='space-y-1'>
+          ) : (
+            <div className='flex items-center justify-between bg-green-100/30 dark:bg-green-800/10 p-4 rounded-xl'>
+              <span>{t('loggedIn')}</span>
+              <Button variant='destructive' size='sm' onClick={signOut} className='gap-2'>
+                <LogOut className='w-4 h-4' /> {t('logout')}
+              </Button>
+            </div>
+          )}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='space-y-2'>
               <Label>{t('theme')}</Label>
               <Select value={settings.theme} onValueChange={val => handleChange('theme', val as Theme)}>
                 <SelectTrigger>
@@ -119,7 +131,7 @@ export default function SettingsPage() {
               </Select>
             </div>
 
-            <div className='space-y-1'>
+            <div className='space-y-2'>
               <Label>{t('language')}</Label>
               <Select value={settings.language} onValueChange={val => handleChange('language', val as 'pl' | 'en')}>
                 <SelectTrigger>
@@ -132,7 +144,7 @@ export default function SettingsPage() {
               </Select>
             </div>
 
-            <div className='space-y-1'>
+            <div className='space-y-2'>
               <Label>{t('currency')}</Label>
               <Select value={settings.currency} onValueChange={val => handleChange('currency', val as Currency)}>
                 <SelectTrigger>
@@ -148,7 +160,7 @@ export default function SettingsPage() {
               </Select>
             </div>
 
-            <div className='space-y-1'>
+            <div className='space-y-2'>
               <Label>{t('distance')}</Label>
               <Select
                 value={settings.distanceUnit}
@@ -163,18 +175,18 @@ export default function SettingsPage() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div className='flex gap-3 flex-wrap pt-4'>
-              <ImportButton onFinish={() => window.location.reload()} />
-              <Button
-                onClick={() => exportAllDataToJSON()}
-                variant='default'
-                className='bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700'
-              >
-                <Download className='w-4 h-4 mr-2' />
-                {t('export')}
-              </Button>
-            </div>
+          <div className='flex gap-3 flex-wrap pt-4'>
+            <ImportButton onFinish={() => window.location.reload()} />
+            <Button
+              onClick={() => exportAllDataToJSON()}
+              variant='default'
+              className='bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700'
+            >
+              <Download className='w-4 h-4 mr-2' />
+              {t('export')}
+            </Button>
           </div>
         </CardContent>
       </Card>
