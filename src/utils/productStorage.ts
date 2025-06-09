@@ -12,11 +12,15 @@ export function getProducts(): Product[] {
 }
 
 export function saveProduct(product: Product) {
+  const productToSave = { ...product, updatedAt: new Date().toISOString() };
   const all = getProducts();
-  const index = all.findIndex(p => p.id === product.id);
-  const updated = index !== -1 ? [...all.slice(0, index), product, ...all.slice(index + 1)] : [...all, product];
+  const index = all.findIndex(p => p.id === productToSave.id);
+  const updated =
+    index !== -1
+      ? [...all.slice(0, index), productToSave, ...all.slice(index + 1)]
+      : [...all, productToSave];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  queueOperation({ type: 'upsert', table: 'products', data: product });
+  queueOperation({ type: 'upsert', table: 'products', data: productToSave });
 }
 
 export function deleteProduct(id: string): void {

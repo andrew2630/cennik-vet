@@ -17,6 +17,7 @@ export function saveTransaction(tx: Transaction): Transaction {
     ...tx,
     id: tx.id || uuid(),
     date: tx.date || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   const index = all.findIndex((t) => t.id === transactionToSave.id);
