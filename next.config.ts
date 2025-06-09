@@ -4,6 +4,8 @@ import withPWA from 'next-pwa';
 const withNextIntl = require('next-intl/plugin')('./i18n.ts');
 
 const basePath = process.env.BASE_PATH || '/cennik-vet';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 const baseConfig: NextConfig = {
   reactStrictMode: true,
@@ -11,6 +13,8 @@ const baseConfig: NextConfig = {
   basePath,
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,
   },
   trailingSlash: true,
 };
@@ -26,6 +30,4 @@ const pwaConfig = {
   },
 };
 
-export default withPWA(pwaConfig)(
-  withNextIntl(baseConfig)
-);
+export default withPWA(pwaConfig)(withNextIntl(baseConfig));
