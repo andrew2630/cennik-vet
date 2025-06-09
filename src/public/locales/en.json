@@ -168,7 +168,8 @@
     "logout": "Log out",
     "loggedIn": "Logged in",
     "deleteAccount": "Delete account",
-    "deleteAccountConfirm": "Are you sure you want to delete your account?"
+    "deleteAccountConfirm": "Are you sure you want to delete your account?",
+    "deleteAccountContact": "For account deletion contact kontakt@andrzejpudzisz.com"
   },
   "auth": {
     "loginSuccess": "\u2705 Logged in successfully.",

@@ -168,7 +168,8 @@
     "logout": "Wyloguj",
     "loggedIn": "Zalogowany",
     "deleteAccount": "Usuń konto",
-    "deleteAccountConfirm": "Czy na pewno chcesz usunąć swoje konto?"
+    "deleteAccountConfirm": "Czy na pewno chcesz usunąć swoje konto?",
+    "deleteAccountContact": "Aby usunąć konto, skontaktuj się z kontakt@andrzejpudzisz.com"
   },
   "auth": {
     "loginSuccess": "\u2705 Pomy\u015blnie zalogowano.",
