@@ -52,11 +52,12 @@ export default function SettingsPage() {
     distanceUnit: 'km',
   });
 
-  const { user, signIn, signUp, signOut, deleteAccount } = useSupabaseAuth();
+  const { user, signIn, signUp, signOut } = useSupabaseAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [hasOfflineData, setHasOfflineData] = useState(false);
+  const [showContactDialog, setShowContactDialog] = useState(false)
+  const [hasOfflineData, setHasOfflineData] = useState(false)
 
   useEffect(() => {
     const saved = getSettings();
@@ -118,14 +119,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    const { error } = await deleteAccount();
-    if (!error) {
-      toast.success(authT('deleteAccountSuccess'));
-    } else {
-      toast.error(localizeSupabaseMessage(error.message, authT, 'deleteAccountError'));
-    }
-  };
 
   const handleIncludeOffline = async () => {
     const { data } = await supabase.auth.getUser();
@@ -288,12 +281,24 @@ export default function SettingsPage() {
                 <Button
                   type='button'
                   variant='destructive'
-                  onClick={async () => {
-                    await handleDeleteAccount();
-                    setShowDeleteDialog(false);
+                  onClick={() => {
+                    setShowDeleteDialog(false)
+                    setShowContactDialog(true)
                   }}
                 >
                   {commonT('delete')}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+            <DialogContent className='sm:max-w-md'>
+              <DialogTitle>{t('deleteAccount')}</DialogTitle>
+              <DialogDescription>{t('deleteAccountContact')}</DialogDescription>
+              <DialogFooter className='mt-4 flex gap-2'>
+                <Button type='button' onClick={() => setShowContactDialog(false)}>
+                  OK
                 </Button>
               </DialogFooter>
             </DialogContent>
