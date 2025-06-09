@@ -27,7 +27,13 @@ export function saveTransaction(tx: Transaction): Transaction {
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  queueOperation({ type: 'upsert', table: 'transactions', data: transactionToSave });
+  if (transactionToSave.clientId) {
+    queueOperation({
+      type: 'upsert',
+      table: 'transactions',
+      data: transactionToSave,
+    })
+  }
   return transactionToSave;
 }
 
