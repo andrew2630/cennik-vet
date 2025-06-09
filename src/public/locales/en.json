@@ -253,6 +253,7 @@
     "empty": "No clients to display.",
     "confirmDelete": "Confirm deletion",
     "deleteQuestion": "Are you sure you want to delete",
+    "deleteWarning": "This will also delete all related transactions.",
     "cancel": "Cancel",
     "delete": "Delete"
   },

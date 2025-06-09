@@ -253,6 +253,7 @@
     "empty": "Brak klientów do wyświetlenia.",
     "confirmDelete": "Potwierdź usunięcie",
     "deleteQuestion": "Czy na pewno chcesz usunąć",
+    "deleteWarning": "Usunie to również wszystkie powiązane rozliczenia.",
     "cancel": "Anuluj",
     "delete": "Usuń"
   },
