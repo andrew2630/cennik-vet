@@ -17,7 +17,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Settings as SettingsIcon, Download, LogIn, UserPlus, LogOut } from 'lucide-react';
+import { Settings as SettingsIcon, Download, LogIn, UserPlus, LogOut, UserX } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
@@ -32,7 +32,7 @@ export default function SettingsPage() {
     distanceUnit: 'km',
   });
 
-  const { user, signIn, signUp, signOut } = useSupabaseAuth();
+  const { user, signIn, signUp, signOut, deleteAccount } = useSupabaseAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -84,6 +84,16 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!confirm(t('deleteAccountConfirm'))) return;
+    const { error } = await deleteAccount();
+    if (!error) {
+      toast.success(authT('deleteAccountSuccess'));
+    } else {
+      toast.error(localizeSupabaseMessage(error.message, authT, 'deleteAccountError'));
+    }
+  };
+
   return (
     <div className='max-w-2xl mx-auto'>
       <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/10 dark:to-slate-900/20 shadow-2xl p-4'>
@@ -117,11 +127,16 @@ export default function SettingsPage() {
               </div>
             </div>
           ) : (
-            <div className='flex items-center justify-between bg-green-100/30 dark:bg-green-800/10 p-4 rounded-xl'>
+            <div className='flex flex-col gap-2 md:flex-row md:items-center justify-between bg-green-100/30 dark:bg-green-800/10 p-4 rounded-xl'>
               <span>{t('loggedIn')}</span>
-              <Button variant='destructive' size='sm' onClick={signOut} className='gap-2'>
-                <LogOut className='w-4 h-4' /> {t('logout')}
-              </Button>
+              <div className='flex gap-2'>
+                <Button variant='destructive' size='sm' onClick={signOut} className='gap-2'>
+                  <LogOut className='w-4 h-4' /> {t('logout')}
+                </Button>
+                <Button variant='destructive' size='sm' onClick={handleDeleteAccount} className='gap-2'>
+                  <UserX className='w-4 h-4' /> {t('deleteAccount')}
+                </Button>
+              </div>
             </div>
           )}
 

@@ -40,5 +40,13 @@ export function useSupabaseAuth() {
 
   const signOut = () => supabase.auth.signOut()
 
-  return { user, signIn, signUp, signOut }
+  const deleteAccount = async () => {
+    const { data } = await supabase.auth.getUser()
+    if (!data.user) return { error: new Error('notLoggedIn') }
+    const { error } = await supabase.auth.admin.deleteUser(data.user.id)
+    if (!error) setUser(null)
+    return { error }
+  }
+
+  return { user, signIn, signUp, signOut, deleteAccount }
 }

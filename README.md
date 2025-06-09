@@ -103,6 +103,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<your key>
 
 When you sign in from the Settings page the app will sync any queued changes to Supabase whenever you are online. Login, registration and logout events display toast messages so you know whether authentication succeeded.
 
+Backups exported to JSON now include an `exportedAt` timestamp. When you import a backup while logged in, this timestamp is used to immediately sync the restored data with Supabase.
+
 ---
 
 ## 📁 Project Structure

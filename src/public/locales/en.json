@@ -164,7 +164,9 @@
     "login": "Log in",
     "register": "Register",
     "logout": "Log out",
-    "loggedIn": "Logged in"
+    "loggedIn": "Logged in",
+    "deleteAccount": "Delete account",
+    "deleteAccountConfirm": "Are you sure you want to delete your account?"
   },
   "auth": {
     "loginSuccess": "\u2705 Logged in successfully.",
@@ -177,7 +179,9 @@
     "emailNotConfirmed": "\u274c Please confirm your email first.",
     "userExists": "\u274c User already registered.",
     "weakPassword": "\u274c Password should be at least 6 characters.",
-    "invalidEmail": "\u274c Invalid email format."
+    "invalidEmail": "\u274c Invalid email format.",
+    "deleteAccountSuccess": "\u2705 Account deleted.",
+    "deleteAccountError": "\u274c Failed to delete account."
   },
   "transactionsList": {
     "unknownClient": "Unknown client",

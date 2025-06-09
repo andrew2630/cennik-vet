@@ -1,7 +1,8 @@
 'use client';
 
 import { toast } from 'sonner';
-import { queueOperation } from './syncSupabase';
+import { queueOperation, syncQueue } from './syncSupabase';
+import { supabase } from './supabaseClient';
 import type { Product, Client, Transaction } from '@/types';
 
 export function importAllDataFromJSON(
@@ -40,6 +41,13 @@ export function importAllDataFromJSON(
       if (parsed.settings) {
         localStorage.setItem('vet_settings', JSON.stringify(parsed.settings));
       }
+      if (parsed.exportedAt) {
+        localStorage.setItem('vet_last_import', parsed.exportedAt);
+      }
+
+      supabase.auth.getUser().then(res => {
+        if (res.data.user) syncQueue(res.data.user.id);
+      });
 
       toast.success(translations.success);
       onFinish();

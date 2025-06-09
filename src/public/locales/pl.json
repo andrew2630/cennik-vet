@@ -164,7 +164,9 @@
     "login": "Zaloguj",
     "register": "Rejestracja",
     "logout": "Wyloguj",
-    "loggedIn": "Zalogowany"
+    "loggedIn": "Zalogowany",
+    "deleteAccount": "Usuń konto",
+    "deleteAccountConfirm": "Czy na pewno chcesz usunąć swoje konto?"
   },
   "auth": {
     "loginSuccess": "\u2705 Pomy\u015blnie zalogowano.",
@@ -177,7 +179,9 @@
     "emailNotConfirmed": "\u274c Najpierw potwierd\u017a e-mail.",
     "userExists": "\u274c U\u017cytkownik ju\u017c istnieje.",
     "weakPassword": "\u274c Has\u0142o musi mie\u0107 co najmniej 6 znak\u00f3w.",
-    "invalidEmail": "\u274c Nieprawid\u0142owy format e-maila."
+    "invalidEmail": "\u274c Nieprawid\u0142owy format e-maila.",
+    "deleteAccountSuccess": "\u2705 Konto usuni\u0119te.",
+    "deleteAccountError": "\u274c Nie uda\u0142o si\u0119 usun\u0105\u0107 konta."
   },
   "transactionsList": {
     "unknownClient": "Nieznany klient",
