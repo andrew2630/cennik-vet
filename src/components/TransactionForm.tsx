@@ -141,15 +141,7 @@ export default function TransactionForm({
     if (status === 'draft' && !readOnly) debouncedSave();
   }, [clientId, items, discount, additionalFee, debouncedSave, readOnly, status]);
 
-  const calculateDiscountAmount = (preSubtotal?: number) => {
-    const subtotal =
-      preSubtotal ??
-      items.reduce((acc, item) => {
-        const product = products.find(p => p.id === item.productId);
-        const price = item.priceAtTransaction ?? product?.pricePerUnit ?? 0;
-        return acc + price * item.quantity;
-      }, 0);
-
+  const calculateDiscountAmount = () => {
     if (discount.type === 'value') {
       return discount.value;
     }
@@ -187,7 +179,7 @@ export default function TransactionForm({
       const price = item.priceAtTransaction ?? product?.pricePerUnit ?? 0;
       return acc + price * item.quantity;
     }, 0);
-    const discountValue = calculateDiscountAmount(subtotal);
+    const discountValue = calculateDiscountAmount();
     return Math.max(0, Math.round((subtotal - discountValue + additionalFee) * 100) / 100);
   };
 

@@ -142,8 +142,8 @@ export async function handleExport(transaction: Transaction, t: ExportLabels) {
 
   const calculateDiscount = () => {
     if (!discountDef) return 0;
-    if ((discountDef as any).type === 'value') {
-      return (discountDef as any).value;
+    if (discountDef.type === 'value') {
+      return discountDef.value;
     }
     const disc = discountDef as { type: 'percentage'; value: number; scope: DiscountScope };
     let base = 0;

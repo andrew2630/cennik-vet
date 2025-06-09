@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,10 +18,10 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
   const t = useTranslations('ProductForm');
   const unitT = useTranslations('unit');
 
-  const predefinedUnits: Unit[] = [
+  const predefinedUnits: Unit[] = useMemo(() => [
     'pcs', 'ml', 'g', 'kg', 'pack', 'dose', 'tablet', 'dropper',
     'ampoule', 'sachet', 'blister', 'tube', 'tubosyringe', 'can', 'km',
-  ];
+  ], []);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [name, setName] = useState('');
@@ -52,7 +52,7 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
       setIsCustomUnit(true);
       setCustomUnit(product.unit);
     }
-  }, [product]);
+  }, [product, predefinedUnits]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
