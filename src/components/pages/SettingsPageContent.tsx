@@ -7,6 +7,7 @@ import ImportButton from '@/components/ImportButton';
 import { applyTheme, getStoredTheme, Theme } from '@/utils/theme';
 import { Settings as SettingsType, Currency, TravelUnit } from '@/types';
 import { getProducts } from '@/utils/productStorage';
+import { notifyDataUpdated } from '@/utils/dataUpdateEvent';
 import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
 import { syncQueue, downloadUserData } from '@/utils/syncSupabase';
 import { supabase } from '@/utils/supabaseClient';
@@ -83,6 +84,7 @@ export default function SettingsPage() {
       if (idx !== -1) {
         products[idx] = { ...products[idx], unit: value as TravelUnit };
         localStorage.setItem('vet_products', JSON.stringify(products));
+        notifyDataUpdated();
       }
     }
   };

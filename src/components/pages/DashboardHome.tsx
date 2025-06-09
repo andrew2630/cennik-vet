@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import useDataUpdate from '@/utils/useDataUpdate';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import CountUp from 'react-countup';
@@ -33,6 +34,7 @@ import { getSettings } from '@/utils/settingsStorage';
 export default function DashboardHome() {
   const t = useTranslations('dashboard');
   const itemTypeT = useTranslations('itemType');
+  const refresh = useDataUpdate();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -45,7 +47,7 @@ export default function DashboardHome() {
     setTransactions(getTransactions());
     setProducts(getProducts());
     setClients(getClients());
-  }, []);
+  }, [refresh]);
 
   const getClientName = (id: string) => clients.find(c => c.id === id)?.name || 'Nieznany klient';
 

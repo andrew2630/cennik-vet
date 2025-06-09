@@ -1,6 +1,7 @@
 'use client'
 
 import { supabase } from './supabaseClient'
+import { notifyDataUpdated } from './dataUpdateEvent'
 import { Client, Product, Transaction } from '@/types'
 
 function snakeCaseKeys<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
@@ -193,6 +194,7 @@ export async function downloadUserData(userId: string) {
     localStorage.setItem('vet_products', JSON.stringify(mergedProducts))
     localStorage.setItem('vet_clients', JSON.stringify(mergedClients))
     localStorage.setItem('vet_transactions', JSON.stringify(mergedTransactions))
+    notifyDataUpdated()
   } catch (e) {
     console.error('Supabase download error', e)
   }

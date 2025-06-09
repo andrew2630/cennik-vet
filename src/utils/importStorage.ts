@@ -3,6 +3,7 @@
 import { toast } from 'sonner';
 import { queueOperation, syncQueue } from './syncSupabase';
 import { supabase } from './supabaseClient';
+import { notifyDataUpdated } from './dataUpdateEvent';
 import type { Product, Client, Transaction } from '@/types';
 
 export function importAllDataFromJSON(
@@ -26,6 +27,7 @@ export function importAllDataFromJSON(
           updatedAt: p.updatedAt || new Date().toISOString(),
         }))
         localStorage.setItem('vet_products', JSON.stringify(productsWithDates))
+        notifyDataUpdated()
         productsWithDates.forEach(p =>
           queueOperation({ type: 'upsert', table: 'products', data: p })
         )
@@ -36,6 +38,7 @@ export function importAllDataFromJSON(
           updatedAt: c.updatedAt || new Date().toISOString(),
         }))
         localStorage.setItem('vet_clients', JSON.stringify(clientsWithDates))
+        notifyDataUpdated()
         clientsWithDates.forEach(c =>
           queueOperation({ type: 'upsert', table: 'clients', data: c })
         )
@@ -46,6 +49,7 @@ export function importAllDataFromJSON(
           updatedAt: t.updatedAt || new Date().toISOString(),
         }))
         localStorage.setItem('vet_transactions', JSON.stringify(transactionsWithDates))
+        notifyDataUpdated()
         transactionsWithDates.forEach(t =>
           queueOperation({ type: 'upsert', table: 'transactions', data: t })
         )
