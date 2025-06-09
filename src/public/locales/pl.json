@@ -158,7 +158,18 @@
     "distance": "Jednostka dystansu",
     "distanceKm": "Kilometr",
     "distanceMi": "Mila",
-    "export": "Eksportuj dane"
+    "export": "Eksportuj dane",
+    "login": "Zaloguj",
+    "register": "Rejestracja",
+    "logout": "Wyloguj",
+    "loggedIn": "Zalogowany"
+  },
+  "auth": {
+    "loginSuccess": "\u2705 Pomy\u015blnie zalogowano.",
+    "loginError": "\u274c B\u0142\u0105d logowania.",
+    "registerSuccess": "\u2705 Rejestracja zako\u0144czona.",
+    "registerError": "\u274c B\u0142\u0105d rejestracji.",
+    "logoutSuccess": "\u2705 Wylogowano."
   },
   "transactionsList": {
     "unknownClient": "Nieznany klient",

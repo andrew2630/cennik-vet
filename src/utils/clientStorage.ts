@@ -1,4 +1,5 @@
 import { Client } from '@/types';
+import { queueOperation } from './syncSupabase';
 
 const STORAGE_KEY = 'vet_clients';
 
@@ -13,9 +14,11 @@ export function saveClient(client: Client) {
   const index = all.findIndex(p => p.id === client.id);
   const updated = index !== -1 ? [...all.slice(0, index), client, ...all.slice(index + 1)] : [...all, client];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  queueOperation({ type: 'upsert', table: 'clients', data: client });
 }
 
 export function deleteClient(id: string): void {
   const clients = getClients().filter(c => c.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+  queueOperation({ type: 'delete', table: 'clients', id });
 }

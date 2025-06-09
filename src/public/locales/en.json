@@ -158,7 +158,18 @@
     "distance": "Distance Unit",
     "distanceKm": "Kilometer",
     "distanceMi": "Mile",
-    "export": "Export Data"
+    "export": "Export Data",
+    "login": "Log in",
+    "register": "Register",
+    "logout": "Log out",
+    "loggedIn": "Logged in"
+  },
+  "auth": {
+    "loginSuccess": "\u2705 Logged in successfully.",
+    "loginError": "\u274c Login failed.",
+    "registerSuccess": "\u2705 Registration successful.",
+    "registerError": "\u274c Registration failed.",
+    "logoutSuccess": "\u2705 Logged out."
   },
   "transactionsList": {
     "unknownClient": "Unknown client",
