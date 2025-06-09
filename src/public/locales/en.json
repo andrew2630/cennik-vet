@@ -171,7 +171,13 @@
     "loginError": "\u274c Login failed.",
     "registerSuccess": "\u2705 Registration successful.",
     "registerError": "\u274c Registration failed.",
-    "logoutSuccess": "\u2705 Logged out."
+    "logoutSuccess": "\u2705 Logged out.",
+    "checkEmail": "\ud83d\udce7 Check your email to confirm your account.",
+    "invalidCredentials": "\u274c Invalid login credentials.",
+    "emailNotConfirmed": "\u274c Please confirm your email first.",
+    "userExists": "\u274c User already registered.",
+    "weakPassword": "\u274c Password should be at least 6 characters.",
+    "invalidEmail": "\u274c Invalid email format."
   },
   "transactionsList": {
     "unknownClient": "Unknown client",

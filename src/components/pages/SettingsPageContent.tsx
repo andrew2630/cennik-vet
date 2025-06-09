@@ -10,6 +10,7 @@ import { getProducts } from '@/utils/productStorage';
 import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
 import { syncQueue } from '@/utils/syncSupabase';
 import { supabase } from '@/utils/supabaseClient';
+import { localizeSupabaseMessage } from '@/utils/supabaseMessages';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -64,23 +65,22 @@ export default function SettingsPage() {
   };
 
   const handleLogin = async () => {
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email.trim(), password);
     if (!error) {
       toast.success(authT('loginSuccess'));
       const { data } = await supabase.auth.getUser();
       if (data.user) await syncQueue(data.user.id);
     } else {
-      toast.error(authT('loginError'));
+      toast.error(localizeSupabaseMessage(error.message, authT, 'loginError'));
     }
   };
 
   const handleRegister = async () => {
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email.trim(), password);
     if (!error) {
-      toast.success(authT('registerSuccess'));
-      await handleLogin();
+      toast.success(authT('checkEmail'));
     } else {
-      toast.error(authT('registerError'));
+      toast.error(localizeSupabaseMessage(error.message, authT, 'registerError'));
     }
   };
 
