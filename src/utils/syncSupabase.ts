@@ -22,10 +22,18 @@ function saveQueue(queue: Operation[]) {
   localStorage.setItem(QUEUE_KEY, JSON.stringify(queue))
 }
 
-export function queueOperation(op: Operation) {
+export async function queueOperation(op: Operation) {
   const queue = getQueue()
   queue.push(op)
   saveQueue(queue)
+
+  try {
+    const { data } = await supabase.auth.getUser()
+    const userId = data.user?.id
+    if (userId) await syncQueue(userId)
+  } catch (e) {
+    console.error('Supabase auto-sync error', e)
+  }
 }
 
 export async function syncQueue(userId: string) {
