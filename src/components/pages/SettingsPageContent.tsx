@@ -64,23 +64,23 @@ export default function SettingsPage() {
   };
 
   const handleLogin = async () => {
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email.trim(), password);
     if (!error) {
       toast.success(authT('loginSuccess'));
       const { data } = await supabase.auth.getUser();
       if (data.user) await syncQueue(data.user.id);
     } else {
-      toast.error(authT('loginError'));
+      toast.error(error.message || authT('loginError'));
     }
   };
 
   const handleRegister = async () => {
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email.trim(), password);
     if (!error) {
       toast.success(authT('registerSuccess'));
       await handleLogin();
     } else {
-      toast.error(authT('registerError'));
+      toast.error(error.message || authT('registerError'));
     }
   };
 
