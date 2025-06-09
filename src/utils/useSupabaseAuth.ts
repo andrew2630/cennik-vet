@@ -21,6 +21,7 @@ export function useSupabaseAuth() {
     if (!user) return
     const handleOnline = () => syncQueue(user.id)
     window.addEventListener('online', handleOnline)
+    syncQueue(user.id)
     return () => {
       window.removeEventListener('online', handleOnline)
     }
