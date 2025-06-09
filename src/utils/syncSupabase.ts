@@ -48,8 +48,15 @@ export async function queueOperation(op: Operation) {
   if (typeof window === 'undefined') return
 
   const queue = getQueue()
-  queue.push(op)
-  saveQueue(queue)
+  const opId = op.data ? (op.data as { id: string }).id : op.id
+
+  const updatedQueue = queue.filter(q => {
+    const qId = q.data ? (q.data as { id: string }).id : q.id
+    return !(q.table === op.table && qId === opId)
+  })
+
+  updatedQueue.push(op)
+  saveQueue(updatedQueue)
 
   try {
     const { data } = await supabase.auth.getUser()
