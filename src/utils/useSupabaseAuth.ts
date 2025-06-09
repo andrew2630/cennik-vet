@@ -19,9 +19,11 @@ export function useSupabaseAuth() {
 
   useEffect(() => {
     if (!user) return
-    const handleOnline = () => syncQueue(user.id)
+    const handleOnline = () => {
+      syncQueue(user.id).catch(console.error)
+    }
     window.addEventListener('online', handleOnline)
-    syncQueue(user.id)
+    syncQueue(user.id).catch(console.error)
     return () => {
       window.removeEventListener('online', handleOnline)
     }
