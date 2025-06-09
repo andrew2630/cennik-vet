@@ -101,7 +101,7 @@ NEXT_PUBLIC_SUPABASE_URL=<your url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your key>
 ```
 
-When you sign in from the Settings page the app will sync any queued changes to Supabase whenever you are online.
+When you sign in from the Settings page the app will sync any queued changes to Supabase whenever you are online. Login, registration and logout events display toast messages so you know whether authentication succeeded.
 
 ---
 

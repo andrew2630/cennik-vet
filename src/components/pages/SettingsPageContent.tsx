@@ -15,12 +15,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Settings as SettingsIcon, Download, LogIn, UserPlus, LogOut } from 'lucide-react';
+import { toast } from 'sonner';
+import { Settings as SettingsIcon, Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
   const itemTypeT = useTranslations('itemType');
+  const authT = useTranslations('auth');
 
   const [settings, setSettings] = useState<SettingsType>({
     currency: 'zł',
@@ -64,15 +66,21 @@ export default function SettingsPage() {
   const handleLogin = async () => {
     const { error } = await signIn(email, password);
     if (!error) {
+      toast.success(authT('loginSuccess'));
       const { data } = await supabase.auth.getUser();
       if (data.user) await syncQueue(data.user.id);
+    } else {
+      toast.error(authT('loginError'));
     }
   };
 
   const handleRegister = async () => {
     const { error } = await signUp(email, password);
     if (!error) {
+      toast.success(authT('registerSuccess'));
       await handleLogin();
+    } else {
+      toast.error(authT('registerError'));
     }
   };
 
@@ -87,37 +95,25 @@ export default function SettingsPage() {
             </h1>
           </div>
 
-          {!user ? (
-            <div className='bg-white/30 dark:bg-white/5 rounded-xl p-6 shadow-md space-y-4 border border-gray-200 dark:border-white/10 transition-all hover:shadow-xl'>
-              <h2 className='text-xl font-semibold text-center'>{t('loginTitle')}</h2>
-              <div className='flex flex-col md:flex-row gap-4'>
-                <Input type='email' placeholder='Email' value={email} onChange={e => setEmail(e.target.value)} />
-                <Input
-                  type='password'
-                  placeholder={t('password')}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                />
-              </div>
-              <div className='flex gap-4 justify-center pt-2'>
-                <Button onClick={handleLogin} className='gap-2'>
-                  <LogIn className='w-4 h-4' /> {t('login')}
-                </Button>
-                <Button onClick={handleRegister} variant='outline' className='gap-2'>
-                  <UserPlus className='w-4 h-4' /> {t('register')}
-                </Button>
-              </div>
+          <div className='p-2 space-y-6'>
+            <div className='space-y-1'>
+              {user ? (
+                <div className='flex items-center gap-2'>
+                  <span>{t('loggedIn')}</span>
+                  <Button size='sm' onClick={() => { signOut(); toast.success(authT('logoutSuccess')); }}>{t('logout')}</Button>
+                </div>
+              ) : (
+                <div className='space-y-2'>
+                  <Input placeholder='Email' value={email} onChange={e => setEmail(e.target.value)} />
+                  <Input type='password' placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} />
+                  <div className='flex gap-2'>
+                    <Button size='sm' onClick={handleLogin}>{t('login')}</Button>
+                    <Button size='sm' variant='outline' onClick={handleRegister}>{t('register')}</Button>
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className='flex items-center justify-between bg-green-100/30 dark:bg-green-800/10 p-4 rounded-xl'>
-              <span>{t('loggedIn')}</span>
-              <Button variant='destructive' size='sm' onClick={signOut} className='gap-2'>
-                <LogOut className='w-4 h-4' /> {t('logout')}
-              </Button>
-            </div>
-          )}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className='space-y-2'>
+            <div className='space-y-1'>
               <Label>{t('theme')}</Label>
               <Select value={settings.theme} onValueChange={val => handleChange('theme', val as Theme)}>
                 <SelectTrigger>

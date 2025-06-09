@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
+import { syncQueue } from './syncSupabase'
 import type { User } from '@supabase/supabase-js'
 
 export function useSupabaseAuth() {
@@ -15,6 +16,15 @@ export function useSupabaseAuth() {
       data.subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    const handleOnline = () => syncQueue(user.id)
+    window.addEventListener('online', handleOnline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [user])
 
   const signIn = (email: string, password: string) =>
     supabase.auth.signInWithPassword({ email, password })
