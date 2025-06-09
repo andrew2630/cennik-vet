@@ -155,6 +155,7 @@ export default function ClientList({ refresh }: { refresh: number }) {
                       <DialogTitle>{t('confirmDelete')}</DialogTitle>
                       <DialogDescription>
                         {t('deleteQuestion')} <strong>{client.name}</strong>?
+                        <p className='mt-2'>{t('deleteWarning')}</p>
                       </DialogDescription>
                       <DialogFooter className='mt-4 flex gap-2'>
                         <Button type='button' variant='outline' onClick={() => setSelectedClient(null)}>

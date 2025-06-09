@@ -1,5 +1,6 @@
 import { Client } from '@/types';
 import { queueOperation } from './syncSupabase';
+import { getTransactions, deleteTransaction } from './transactionStorage';
 
 const STORAGE_KEY = 'vet_clients';
 
@@ -20,5 +21,9 @@ export function saveClient(client: Client) {
 export function deleteClient(id: string): void {
   const clients = getClients().filter(c => c.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+
+  const toDelete = getTransactions().filter(t => t.clientId === id);
+  toDelete.forEach(t => deleteTransaction(t.id));
+
   queueOperation({ type: 'delete', table: 'clients', id });
 }
