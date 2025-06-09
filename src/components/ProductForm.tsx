@@ -1,25 +1,24 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { getProducts, saveProduct } from '@/utils/productStorage';
 import { Unit, ItemType } from '@/types';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
 
 export default function ProductForm({ onAdd }: { onAdd: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get('id');
+
+  const product = useMemo(() => {
+    if (!productId) return null;
+    return getProducts().find(p => p.id === productId) || null;
+  }, [productId]);
 
   const t = useTranslations('ProductForm');
   const unitT = useTranslations('unit');
@@ -32,28 +31,37 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
   const [isCustomUnit, setIsCustomUnit] = useState(false);
 
   const predefinedUnits: Unit[] = [
-    'pcs', 'ml', 'g', 'kg', 'pack', 'dose', 'tablet', 'dropper',
-    'ampoule', 'sachet', 'blister', 'tube', 'tubosyringe', 'can', 'km'
+    'pcs',
+    'ml',
+    'g',
+    'kg',
+    'pack',
+    'dose',
+    'tablet',
+    'dropper',
+    'ampoule',
+    'sachet',
+    'blister',
+    'tube',
+    'tubosyringe',
+    'can',
+    'km',
   ];
 
   useEffect(() => {
-    if (productId) {
-      const product = getProducts().find(p => p.id === productId);
-      if (product) {
-        setName(product.name);
-        if (predefinedUnits.includes(product.unit)) {
-          setUnit(product.unit);
-          setIsCustomUnit(false);
-          setCustomUnit('');
-        } else {
-          setCustomUnit(product.unit);
-          setIsCustomUnit(true);
-        }
-        setPrice(product.pricePerUnit.toString());
-        setType(product.type);
-      }
+    if (!product) return;
+    setName(product.name);
+    if (predefinedUnits.includes(product.unit)) {
+      setUnit(product.unit);
+      setIsCustomUnit(false);
+      setCustomUnit('');
+    } else {
+      setCustomUnit(product.unit);
+      setIsCustomUnit(true);
     }
-  }, [productId]);
+    setPrice(product.pricePerUnit.toString());
+    setType(product.type);
+  }, [product]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
