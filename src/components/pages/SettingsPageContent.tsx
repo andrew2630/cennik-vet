@@ -10,6 +10,9 @@ import { getProducts } from '@/utils/productStorage';
 import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
 import { syncQueue } from '@/utils/syncSupabase';
 import { supabase } from '@/utils/supabaseClient';
+import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
+import { syncQueue } from '@/utils/syncSupabase';
+import { supabase } from '@/utils/supabaseClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -30,6 +33,10 @@ export default function SettingsPage() {
     language: 'pl',
     distanceUnit: 'km',
   });
+
+  const { user, signIn, signUp, signOut } = useSupabaseAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const { user, signIn, signUp, signOut } = useSupabaseAuth();
   const [email, setEmail] = useState('');
@@ -127,7 +134,7 @@ export default function SettingsPage() {
               </Select>
             </div>
 
-            <div className='space-y-1'>
+            <div className='space-y-2'>
               <Label>{t('language')}</Label>
               <Select value={settings.language} onValueChange={val => handleChange('language', val as 'pl' | 'en')}>
                 <SelectTrigger>
@@ -140,7 +147,7 @@ export default function SettingsPage() {
               </Select>
             </div>
 
-            <div className='space-y-1'>
+            <div className='space-y-2'>
               <Label>{t('currency')}</Label>
               <Select value={settings.currency} onValueChange={val => handleChange('currency', val as Currency)}>
                 <SelectTrigger>
@@ -156,7 +163,7 @@ export default function SettingsPage() {
               </Select>
             </div>
 
-            <div className='space-y-1'>
+            <div className='space-y-2'>
               <Label>{t('distance')}</Label>
               <Select
                 value={settings.distanceUnit}
@@ -171,18 +178,18 @@ export default function SettingsPage() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div className='flex gap-3 flex-wrap pt-4'>
-              <ImportButton onFinish={() => window.location.reload()} />
-              <Button
-                onClick={() => exportAllDataToJSON()}
-                variant='default'
-                className='bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700'
-              >
-                <Download className='w-4 h-4 mr-2' />
-                {t('export')}
-              </Button>
-            </div>
+          <div className='flex gap-3 flex-wrap pt-4'>
+            <ImportButton onFinish={() => window.location.reload()} />
+            <Button
+              onClick={() => exportAllDataToJSON()}
+              variant='default'
+              className='bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700'
+            >
+              <Download className='w-4 h-4 mr-2' />
+              {t('export')}
+            </Button>
           </div>
         </CardContent>
       </Card>

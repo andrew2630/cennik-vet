@@ -159,6 +159,8 @@
     "distanceKm": "Kilometr",
     "distanceMi": "Mila",
     "export": "Eksportuj dane",
+    "loginTitle": "Logowanie",
+    "password": "Hasło",
     "login": "Zaloguj",
     "register": "Rejestracja",
     "logout": "Wyloguj",
