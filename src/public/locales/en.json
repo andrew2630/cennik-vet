@@ -159,6 +159,8 @@
     "distanceKm": "Kilometer",
     "distanceMi": "Mile",
     "export": "Export Data",
+    "includeOffline": "Include offline data",
+    "includeOfflineSuccess": "\u2705 Offline data added.",
     "loginTitle": "Login",
     "password": "Password",
     "login": "Log in",

@@ -106,6 +106,7 @@ When you sign in from the Settings page the app will sync any queued changes to 
 Backups exported to JSON now include an `exportedAt` timestamp. When you import a backup while logged in, this timestamp is used to immediately sync the restored data with Supabase.
 
 Whenever data is downloaded from Supabase it is merged with your local storage using an `updatedAt` timestamp so that the newest version of every product, client and transaction is kept.
+If you created data before logging in, open Settings and use **Include offline data** to merge it with your account and sync.
 
 ---
 
@@ -146,7 +147,7 @@ interface Transaction {
 ## 🙋 FAQ
 
 **Q: Does this app send data anywhere?**
-A: No. All data stays in your browser via `localStorage`.
+A: No. All data stays in your browser via `localStorage`. Each account (including when not logged in) uses its own storage so your data never mixes with other users.
 
 **Q: Can I use it offline?**
 A: Yes! It’s a PWA — install it and it works offline like a native app.

@@ -1,13 +1,15 @@
-import { Transaction } from '@/types';
-import { queueOperation } from './syncSupabase';
-import { notifyDataUpdated } from './dataUpdateEvent';
+import { Transaction } from '@/types'
+import { queueOperation } from './syncSupabase'
+import { notifyDataUpdated } from './dataUpdateEvent'
 import { v4 as uuid } from 'uuid';
+import { storageKey } from './userStorage'
 
-const STORAGE_KEY = 'vet_transactions';
+const BASE_KEY = 'vet_transactions'
+const STORAGE_KEY = () => storageKey(BASE_KEY)
 
 export function getTransactions(): Transaction[] {
   if (typeof window === 'undefined') return [];
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = localStorage.getItem(STORAGE_KEY())
   return stored ? JSON.parse(stored) : [];
 }
 
@@ -28,7 +30,7 @@ export function saveTransaction(tx: Transaction): Transaction {
     all.push(transactionToSave);
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  localStorage.setItem(STORAGE_KEY(), JSON.stringify(all))
   notifyDataUpdated();
   if (transactionToSave.clientId) {
     queueOperation({
@@ -45,8 +47,8 @@ export function updateTransaction(tx: Transaction): Transaction {
 }
 
 export function deleteTransaction(id: string): void {
-  const filtered = getTransactions().filter((t) => t.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  const filtered = getTransactions().filter((t) => t.id !== id)
+  localStorage.setItem(STORAGE_KEY(), JSON.stringify(filtered))
   notifyDataUpdated();
   queueOperation({ type: 'delete', table: 'transactions', id });
 }

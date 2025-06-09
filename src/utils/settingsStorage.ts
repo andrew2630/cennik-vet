@@ -1,6 +1,8 @@
-import { Settings } from '@/types';
+import { Settings } from '@/types'
+import { storageKey } from './userStorage'
 
-const STORAGE_KEY = 'vet_settings';
+const BASE_KEY = 'vet_settings'
+const STORAGE_KEY = () => storageKey(BASE_KEY)
 
 const defaultSettings: Settings = {
   currency: 'zł',
@@ -11,14 +13,14 @@ const defaultSettings: Settings = {
 
 export function getSettings(): Settings {
   if (typeof window === 'undefined') return defaultSettings;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? { ...defaultSettings, ...JSON.parse(stored) } : defaultSettings;
+  const stored = localStorage.getItem(STORAGE_KEY())
+  return stored ? { ...defaultSettings, ...JSON.parse(stored) } : defaultSettings
 }
 
 export function saveSettings(data: Settings) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEY(), JSON.stringify(data))
 }
 
 export function resetSettings() {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY())
 }

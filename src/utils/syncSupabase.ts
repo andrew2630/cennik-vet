@@ -3,6 +3,7 @@
 import { supabase } from './supabaseClient'
 import { notifyDataUpdated } from './dataUpdateEvent'
 import { Client, Product, Transaction } from '@/types'
+import { storageKey } from './userStorage'
 
 function snakeCaseKeys<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
   return Object.fromEntries(
@@ -40,18 +41,19 @@ interface Operation {
   id?: string
 }
 
-const QUEUE_KEY = 'vet_supabase_queue'
+const QUEUE_KEY_BASE = 'vet_supabase_queue'
+const QUEUE_KEY = () => storageKey(QUEUE_KEY_BASE)
 
 function getQueue(): Operation[] {
   try {
-    return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') as Operation[]
+    return JSON.parse(localStorage.getItem(QUEUE_KEY()) || '[]') as Operation[]
   } catch {
     return []
   }
 }
 
 function saveQueue(queue: Operation[]) {
-  localStorage.setItem(QUEUE_KEY, JSON.stringify(queue))
+  localStorage.setItem(QUEUE_KEY(), JSON.stringify(queue))
 }
 
 export async function queueOperation(op: Operation) {
@@ -179,21 +181,21 @@ export async function downloadUserData(userId: string) {
     })
 
     const mergedProducts = mergeById(
-      JSON.parse(localStorage.getItem('vet_products') || '[]'),
+      JSON.parse(localStorage.getItem(storageKey('vet_products')) || '[]'),
       products,
     )
     const mergedClients = mergeById(
-      JSON.parse(localStorage.getItem('vet_clients') || '[]'),
+      JSON.parse(localStorage.getItem(storageKey('vet_clients')) || '[]'),
       clients,
     )
     const mergedTransactions = mergeById(
-      JSON.parse(localStorage.getItem('vet_transactions') || '[]'),
+      JSON.parse(localStorage.getItem(storageKey('vet_transactions')) || '[]'),
       transactions,
     )
 
-    localStorage.setItem('vet_products', JSON.stringify(mergedProducts))
-    localStorage.setItem('vet_clients', JSON.stringify(mergedClients))
-    localStorage.setItem('vet_transactions', JSON.stringify(mergedTransactions))
+    localStorage.setItem(storageKey('vet_products'), JSON.stringify(mergedProducts))
+    localStorage.setItem(storageKey('vet_clients'), JSON.stringify(mergedClients))
+    localStorage.setItem(storageKey('vet_transactions'), JSON.stringify(mergedTransactions))
     notifyDataUpdated()
   } catch (e) {
     console.error('Supabase download error', e)
