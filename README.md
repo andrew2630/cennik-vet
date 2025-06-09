@@ -89,6 +89,22 @@ Deploy via any static host:
 
 ---
 
+## ☁️ Supabase Sync
+
+1. Create a new [Supabase](https://supabase.com/) project and note the `SUPABASE_URL` and `SUPABASE_ANON_KEY` values.
+2. In the project, create tables named `products`, `clients` and `transactions`. Each table should contain all fields from the local models and a `user_id` column of type `uuid`.
+3. Enable Row Level Security on each table and add a policy to allow users to access rows where `user_id = auth.uid()`.
+4. In your `.env` file expose these keys to the frontend:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=<your url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your key>
+```
+
+When you sign in from the Settings page the app will sync any queued changes to Supabase whenever you are online.
+
+---
+
 ## 📁 Project Structure
 
 ```

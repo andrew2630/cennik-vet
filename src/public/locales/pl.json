@@ -158,7 +158,11 @@
     "distance": "Jednostka dystansu",
     "distanceKm": "Kilometr",
     "distanceMi": "Mila",
-    "export": "Eksportuj dane"
+    "export": "Eksportuj dane",
+    "login": "Zaloguj",
+    "register": "Rejestracja",
+    "logout": "Wyloguj",
+    "loggedIn": "Zalogowany"
   },
   "transactionsList": {
     "unknownClient": "Nieznany klient",

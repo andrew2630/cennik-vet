@@ -1,0 +1,28 @@
+'use client'
+import { useEffect, useState } from 'react'
+import { supabase } from './supabaseClient'
+import type { User } from '@supabase/supabase-js'
+
+export function useSupabaseAuth() {
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(res => setUser(res.data.user ?? null))
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => {
+      data.subscription.unsubscribe()
+    }
+  }, [])
+
+  const signIn = (email: string, password: string) =>
+    supabase.auth.signInWithPassword({ email, password })
+
+  const signUp = (email: string, password: string) =>
+    supabase.auth.signUp({ email, password })
+
+  const signOut = () => supabase.auth.signOut()
+
+  return { user, signIn, signUp, signOut }
+}

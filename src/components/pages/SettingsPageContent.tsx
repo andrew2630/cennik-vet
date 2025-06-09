@@ -7,10 +7,14 @@ import ImportButton from '@/components/ImportButton';
 import { applyTheme, getStoredTheme, Theme } from '@/utils/theme';
 import { Settings as SettingsType, Currency, TravelUnit } from '@/types';
 import { getProducts } from '@/utils/productStorage';
+import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
+import { syncQueue } from '@/utils/syncSupabase';
+import { supabase } from '@/utils/supabaseClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Settings as SettingsIcon, Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -24,6 +28,10 @@ export default function SettingsPage() {
     language: 'pl',
     distanceUnit: 'km',
   });
+
+  const { user, signIn, signUp, signOut } = useSupabaseAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const saved = getSettings();
@@ -53,6 +61,21 @@ export default function SettingsPage() {
     }
   };
 
+  const handleLogin = async () => {
+    const { error } = await signIn(email, password);
+    if (!error) {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) await syncQueue(data.user.id);
+    }
+  };
+
+  const handleRegister = async () => {
+    const { error } = await signUp(email, password);
+    if (!error) {
+      await handleLogin();
+    }
+  };
+
   return (
     <div className='max-w-2xl mx-auto'>
       <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/10 dark:to-slate-900/20 shadow-2xl p-4'>
@@ -65,6 +88,23 @@ export default function SettingsPage() {
           </div>
 
           <div className='p-2 space-y-6'>
+            <div className='space-y-1'>
+              {user ? (
+                <div className='flex items-center gap-2'>
+                  <span>{t('loggedIn')}</span>
+                  <Button size='sm' onClick={() => signOut()}>{t('logout')}</Button>
+                </div>
+              ) : (
+                <div className='space-y-2'>
+                  <Input placeholder='Email' value={email} onChange={e => setEmail(e.target.value)} />
+                  <Input type='password' placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} />
+                  <div className='flex gap-2'>
+                    <Button size='sm' onClick={handleLogin}>{t('login')}</Button>
+                    <Button size='sm' variant='outline' onClick={handleRegister}>{t('register')}</Button>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className='space-y-1'>
               <Label>{t('theme')}</Label>
               <Select value={settings.theme} onValueChange={val => handleChange('theme', val as Theme)}>
