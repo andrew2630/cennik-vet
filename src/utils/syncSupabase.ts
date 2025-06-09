@@ -69,6 +69,13 @@ export async function syncQueue(userId: string) {
 
   try {
     const queue = getQueue()
+    const priority: Record<Operation['table'], number> = {
+      products: 0,
+      clients: 1,
+      transactions: 2,
+    }
+    queue.sort((a, b) => priority[a.table] - priority[b.table])
+    saveQueue(queue)
     while (queue.length > 0) {
       const op = queue[0]
       try {
