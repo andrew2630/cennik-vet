@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,11 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
   const searchParams = useSearchParams();
   const productId = searchParams.get('id');
 
+  const product = useMemo(() => {
+    if (!productId) return null;
+    return getProducts().find(p => p.id === productId) || null;
+  }, [productId]);
+
   const t = useTranslations('ProductForm');
   const unitT = useTranslations('unit');
 
@@ -37,16 +42,19 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
   ];
 
   useEffect(() => {
-    if (productId) {
-      const product = getProducts().find(p => p.id === productId);
-      if (product) {
-        setName(product.name);
-        setUnit(product.unit);
-        setPrice(product.pricePerUnit.toString());
-        setType(product.type);
-      }
+    if (!product) return;
+    setName(product.name);
+    if (predefinedUnits.includes(product.unit)) {
+      setUnit(product.unit);
+      setIsCustomUnit(false);
+      setCustomUnit('');
+    } else {
+      setCustomUnit(product.unit);
+      setIsCustomUnit(true);
     }
-  }, [productId]);
+    setPrice(product.pricePerUnit.toString());
+    setType(product.type);
+  }, [product]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
