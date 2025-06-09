@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
-import { syncQueue } from './syncSupabase'
+import { syncQueue, downloadUserData } from './syncSupabase'
 import type { User } from '@supabase/supabase-js'
 
 export function useSupabaseAuth() {
@@ -20,10 +20,14 @@ export function useSupabaseAuth() {
   useEffect(() => {
     if (!user) return
     const handleOnline = () => {
-      syncQueue(user.id).catch(console.error)
+      syncQueue(user.id)
+        .then(() => downloadUserData(user.id))
+        .catch(console.error)
     }
     window.addEventListener('online', handleOnline)
-    syncQueue(user.id).catch(console.error)
+    syncQueue(user.id)
+      .then(() => downloadUserData(user.id))
+      .catch(console.error)
     return () => {
       window.removeEventListener('online', handleOnline)
     }

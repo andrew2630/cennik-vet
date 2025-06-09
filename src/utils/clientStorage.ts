@@ -11,11 +11,15 @@ export function getClients(): Client[] {
 }
 
 export function saveClient(client: Client) {
+  const clientToSave = { ...client, updatedAt: new Date().toISOString() };
   const all = getClients();
-  const index = all.findIndex(p => p.id === client.id);
-  const updated = index !== -1 ? [...all.slice(0, index), client, ...all.slice(index + 1)] : [...all, client];
+  const index = all.findIndex(p => p.id === clientToSave.id);
+  const updated =
+    index !== -1
+      ? [...all.slice(0, index), clientToSave, ...all.slice(index + 1)]
+      : [...all, clientToSave];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  queueOperation({ type: 'upsert', table: 'clients', data: client });
+  queueOperation({ type: 'upsert', table: 'clients', data: clientToSave });
 }
 
 export function deleteClient(id: string): void {

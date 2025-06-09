@@ -21,22 +21,34 @@ export function importAllDataFromJSON(
       const parsed = JSON.parse(reader.result as string);
 
       if (parsed.products) {
-        localStorage.setItem('vet_products', JSON.stringify(parsed.products));
-        (parsed.products as Product[]).forEach(p =>
+        const productsWithDates = (parsed.products as Product[]).map(p => ({
+          ...p,
+          updatedAt: p.updatedAt || new Date().toISOString(),
+        }))
+        localStorage.setItem('vet_products', JSON.stringify(productsWithDates))
+        productsWithDates.forEach(p =>
           queueOperation({ type: 'upsert', table: 'products', data: p })
-        );
+        )
       }
       if (parsed.clients) {
-        localStorage.setItem('vet_clients', JSON.stringify(parsed.clients));
-        (parsed.clients as Client[]).forEach(c =>
+        const clientsWithDates = (parsed.clients as Client[]).map(c => ({
+          ...c,
+          updatedAt: c.updatedAt || new Date().toISOString(),
+        }))
+        localStorage.setItem('vet_clients', JSON.stringify(clientsWithDates))
+        clientsWithDates.forEach(c =>
           queueOperation({ type: 'upsert', table: 'clients', data: c })
-        );
+        )
       }
       if (parsed.transactions) {
-        localStorage.setItem('vet_transactions', JSON.stringify(parsed.transactions));
-        (parsed.transactions as Transaction[]).forEach(t =>
+        const transactionsWithDates = (parsed.transactions as Transaction[]).map(t => ({
+          ...t,
+          updatedAt: t.updatedAt || new Date().toISOString(),
+        }))
+        localStorage.setItem('vet_transactions', JSON.stringify(transactionsWithDates))
+        transactionsWithDates.forEach(t =>
           queueOperation({ type: 'upsert', table: 'transactions', data: t })
-        );
+        )
       }
       if (parsed.settings) {
         localStorage.setItem('vet_settings', JSON.stringify(parsed.settings));

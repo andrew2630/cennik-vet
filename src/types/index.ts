@@ -20,6 +20,7 @@ export type ItemType = 'product' | 'service';
 
 export type Item = {
   id: string;
+  updatedAt?: string;
   [key: string]: unknown;
   type?: ItemType;
 };

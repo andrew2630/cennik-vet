@@ -23,6 +23,15 @@ function nullifyEmptyStrings(obj: unknown): unknown {
   return obj
 }
 
+function camelCaseKeys<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+      value,
+    ]),
+  )
+}
+
 interface Operation {
   type: 'upsert' | 'delete'
   table: 'products' | 'clients' | 'transactions'
@@ -113,5 +122,78 @@ export async function syncQueue(userId: string) {
     }
   } finally {
     isSyncing = false
+  }
+}
+
+function mergeById<T extends { id: string; updatedAt?: string }>(
+  local: T[],
+  remote: T[],
+): T[] {
+  const map = new Map(local.map(i => [i.id, i]))
+  for (const item of remote) {
+    const existing = map.get(item.id)
+    if (!existing) {
+      map.set(item.id, item)
+      continue
+    }
+
+    const localTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0
+    const remoteTime = item.updatedAt ? new Date(item.updatedAt).getTime() : 0
+    if (remoteTime > localTime) {
+      map.set(item.id, item)
+    }
+  }
+  return Array.from(map.values())
+}
+
+export async function downloadUserData(userId: string) {
+  if (typeof navigator === 'undefined' || !navigator.onLine) return
+
+  try {
+    const [productsRes, clientsRes, transactionsRes] = await Promise.all([
+      supabase.from('products').select('*').eq('user_id', userId),
+      supabase.from('clients').select('*').eq('user_id', userId),
+      supabase.from('transactions').select('*').eq('user_id', userId),
+    ])
+
+    if (productsRes.error || clientsRes.error || transactionsRes.error) {
+      console.error(
+        'Supabase download error',
+        productsRes.error || clientsRes.error || transactionsRes.error,
+      )
+      return
+    }
+
+    const products = (productsRes.data || []).map(r => {
+      const { user_id, updated_at, ...rest } = r as Record<string, unknown>
+      return { ...(camelCaseKeys(rest) as Product), updatedAt: updated_at as string }
+    })
+    const clients = (clientsRes.data || []).map(r => {
+      const { user_id, updated_at, ...rest } = r as Record<string, unknown>
+      return { ...(camelCaseKeys(rest) as Client), updatedAt: updated_at as string }
+    })
+    const transactions = (transactionsRes.data || []).map(r => {
+      const { user_id, updated_at, ...rest } = r as Record<string, unknown>
+      return { ...(camelCaseKeys(rest) as Transaction), updatedAt: updated_at as string }
+    })
+
+    const mergedProducts = mergeById(
+      JSON.parse(localStorage.getItem('vet_products') || '[]'),
+      products,
+    )
+    const mergedClients = mergeById(
+      JSON.parse(localStorage.getItem('vet_clients') || '[]'),
+      clients,
+    )
+    const mergedTransactions = mergeById(
+      JSON.parse(localStorage.getItem('vet_transactions') || '[]'),
+      transactions,
+    )
+
+    localStorage.setItem('vet_products', JSON.stringify(mergedProducts))
+    localStorage.setItem('vet_clients', JSON.stringify(mergedClients))
+    localStorage.setItem('vet_transactions', JSON.stringify(mergedTransactions))
+  } catch (e) {
+    console.error('Supabase download error', e)
   }
 }

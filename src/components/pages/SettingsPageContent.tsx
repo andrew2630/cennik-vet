@@ -8,7 +8,7 @@ import { applyTheme, getStoredTheme, Theme } from '@/utils/theme';
 import { Settings as SettingsType, Currency, TravelUnit } from '@/types';
 import { getProducts } from '@/utils/productStorage';
 import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
-import { syncQueue } from '@/utils/syncSupabase';
+import { syncQueue, downloadUserData } from '@/utils/syncSupabase';
 import { supabase } from '@/utils/supabaseClient';
 import { localizeSupabaseMessage } from '@/utils/supabaseMessages';
 import { Card, CardContent } from '@/components/ui/card';
@@ -92,7 +92,10 @@ export default function SettingsPage() {
     if (!error) {
       toast.success(authT('loginSuccess'));
       const { data } = await supabase.auth.getUser();
-      if (data.user) await syncQueue(data.user.id);
+      if (data.user) {
+        await syncQueue(data.user.id);
+        await downloadUserData(data.user.id);
+      }
     } else {
       toast.error(localizeSupabaseMessage(error.message, authT, 'loginError'));
     }
