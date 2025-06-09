@@ -1,5 +1,5 @@
 import { cn } from '../src/lib/utils'
-import { buildSearchValue } from '../src/components/ComboboxGeneric'
+import { buildSearchValue } from '../src/utils/buildSearchValue'
 
 describe('cn', () => {
   it('merges class names', () => {

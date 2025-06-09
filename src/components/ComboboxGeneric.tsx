@@ -24,20 +24,7 @@ interface ComboboxGenericProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export function buildSearchValue(
-  item: Item,
-  displayKey: string,
-  filterKeys?: string[],
-) {
-  const keys = [displayKey, ...(filterKeys ?? [])]
-  return keys
-    .map(k => {
-      const value = item[k]
-      return value !== undefined && value !== null ? String(value) : ''
-    })
-    .join(' ')
-    .trim()
-}
+import { buildSearchValue } from '@/utils/buildSearchValue'
 
 export function ComboboxGeneric({
   items,
@@ -85,12 +72,7 @@ export function ComboboxGeneric({
         <CommandEmpty>{t('noResults')}</CommandEmpty>
         <CommandGroup>
           {items.map(item => {
-            const searchValue =
-              filterKeys.length > 0
-                ? filterKeys
-                    .map(key => String((item as Record<string, unknown>)[key] ?? ''))
-                    .join(' ')
-                : String(item[displayKey]);
+            const searchValue = buildSearchValue(item, displayKey, filterKeys)
             return (
               <CommandItem
                 key={item.id}
