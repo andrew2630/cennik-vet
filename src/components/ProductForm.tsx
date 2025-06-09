@@ -41,7 +41,14 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
       const product = getProducts().find(p => p.id === productId);
       if (product) {
         setName(product.name);
-        setUnit(product.unit);
+        if (predefinedUnits.includes(product.unit)) {
+          setUnit(product.unit);
+          setIsCustomUnit(false);
+          setCustomUnit('');
+        } else {
+          setCustomUnit(product.unit);
+          setIsCustomUnit(true);
+        }
         setPrice(product.pricePerUnit.toString());
         setType(product.type);
       }

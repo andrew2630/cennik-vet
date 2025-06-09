@@ -58,7 +58,7 @@
     "title": "Cennik Vet",
     "subtitle": "Aplikacja offline do rozliczeń weterynaryjnych",
     "buttons": {
-      "products": "Konfiguruj produkty",
+      "products": "Usługi i produkty",
       "addClient": "Dodaj klienta",
       "settings": "Ustawienia",
       "newTransaction": "Nowe rozliczenie"

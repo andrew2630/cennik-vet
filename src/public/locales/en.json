@@ -58,7 +58,7 @@
     "title": "Vet Price List",
     "subtitle": "Offline app for veterinary billing",
     "buttons": {
-      "products": "Configure Products",
+      "products": "Services & Products",
       "addClient": "Add Client",
       "settings": "Settings",
       "newTransaction": "New Transaction"
