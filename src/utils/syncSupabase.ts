@@ -36,21 +36,40 @@ export async function queueOperation(op: Operation) {
   }
 }
 
-export async function syncQueue(userId: string) {
-  if (!navigator.onLine) return
+let isSyncing = false
 
-  const queue = getQueue()
-  for (const op of queue) {
-    try {
-      if (op.type === 'upsert' && op.data) {
-        await supabase.from(op.table).upsert({ ...op.data, user_id: userId })
-      } else if (op.type === 'delete' && op.id) {
-        await supabase.from(op.table).delete().eq('id', op.id)
+export async function syncQueue(userId: string) {
+  if (!navigator.onLine || isSyncing) return
+
+  isSyncing = true
+
+  try {
+    let queue = getQueue()
+    while (queue.length > 0) {
+      const op = queue[0]
+      try {
+        const { error } =
+          op.type === 'upsert' && op.data
+            ? await supabase
+                .from(op.table)
+                .upsert({ ...op.data, user_id: userId })
+            : op.type === 'delete' && op.id
+              ? await supabase.from(op.table).delete().eq('id', op.id)
+              : { error: null }
+
+        if (error) {
+          console.error('Supabase sync error', error)
+          break
+        }
+
+        queue.shift()
+        saveQueue(queue)
+      } catch (e) {
+        console.error('Supabase sync error', e)
+        break
       }
-    } catch (e) {
-      console.error('Supabase sync error', e)
-      return
     }
+  } finally {
+    isSyncing = false
   }
-  saveQueue([])
 }
