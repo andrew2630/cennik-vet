@@ -16,14 +16,36 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Settings as SettingsIcon, Download, LogIn, UserPlus, LogOut, UserX } from 'lucide-react';
+import {
+  Settings as SettingsIcon,
+  Download,
+  LogIn,
+  UserPlus,
+  LogOut,
+  UserX,
+  MoreHorizontal,
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
   const itemTypeT = useTranslations('itemType');
   const authT = useTranslations('auth');
+  const commonT = useTranslations('productList');
 
   const [settings, setSettings] = useState<SettingsType>({
     currency: 'zł',
@@ -35,6 +57,7 @@ export default function SettingsPage() {
   const { user, signIn, signUp, signOut, deleteAccount } = useSupabaseAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     const saved = getSettings();
@@ -85,7 +108,6 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm(t('deleteAccountConfirm'))) return;
     const { error } = await deleteAccount();
     if (!error) {
       toast.success(authT('deleteAccountSuccess'));
@@ -133,9 +155,22 @@ export default function SettingsPage() {
                 <Button variant='destructive' size='sm' onClick={signOut} className='gap-2'>
                   <LogOut className='w-4 h-4' /> {t('logout')}
                 </Button>
-                <Button variant='destructive' size='sm' onClick={handleDeleteAccount} className='gap-2'>
-                  <UserX className='w-4 h-4' /> {t('deleteAccount')}
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant='outline' size='sm' className='gap-2'>
+                      <MoreHorizontal className='w-4 h-4' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    <DropdownMenuItem
+                      variant='destructive'
+                      onSelect={() => setShowDeleteDialog(true)}
+                      className='gap-2'
+                    >
+                      <UserX className='w-4 h-4' /> {t('deleteAccount')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           )}
@@ -212,6 +247,28 @@ export default function SettingsPage() {
               {t('export')}
             </Button>
           </div>
+
+          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogContent className='sm:max-w-md'>
+              <DialogTitle>{commonT('confirmDeleteTitle')}</DialogTitle>
+              <DialogDescription>{t('deleteAccountConfirm')}</DialogDescription>
+              <DialogFooter className='mt-4 flex gap-2'>
+                <Button type='button' variant='outline' onClick={() => setShowDeleteDialog(false)}>
+                  {commonT('cancel')}
+                </Button>
+                <Button
+                  type='button'
+                  variant='destructive'
+                  onClick={async () => {
+                    await handleDeleteAccount();
+                    setShowDeleteDialog(false);
+                  }}
+                >
+                  {commonT('delete')}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>
