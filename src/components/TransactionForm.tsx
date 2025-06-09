@@ -5,10 +5,19 @@ import { v4 as uuidv4 } from 'uuid';
 import { getClients } from '@/utils/clientStorage';
 import { getProducts } from '@/utils/productStorage';
 import { updateTransaction } from '@/utils/transactionStorage';
-import { Client, Product, TransactionItem, Transaction, TransactionStatus } from '@/types';
+import {
+  Client,
+  Product,
+  TransactionItem,
+  Transaction,
+  TransactionStatus,
+  Discount,
+  DiscountScope,
+} from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useDebouncedCallback } from 'use-debounce';
 import { ComboboxGeneric } from '@/components/ComboboxGeneric';
 import { Trash } from 'lucide-react';
@@ -34,11 +43,11 @@ export default function TransactionForm({
   const [products, setProducts] = useState<Product[]>([]);
   const [clientId, setClientId] = useState('');
   const [items, setItems] = useState<TransactionItem[]>([]);
-  const [discount, setDiscount] = useState(0);
+  const [discount, setDiscount] = useState<Discount>({ type: 'value', value: 0, scope: 'all' });
   const [additionalFee, setAdditionalFee] = useState(0);
   const [status, setStatus] = useState<TransactionStatus>('draft');
   const [id, setId] = useState(uuidv4());
-  const [localDiscount, setLocalDiscount] = useState(discount.toString());
+  const [localDiscount, setLocalDiscount] = useState(discount.value.toString());
   const [localFee, setLocalFee] = useState(additionalFee.toString());
   const [localQuantities, setLocalQuantities] = useState<string[]>([]);
   const [description, setDescription] = useState('');
@@ -51,7 +60,7 @@ export default function TransactionForm({
   }, [items]);
 
   useEffect(() => {
-    setLocalDiscount(discount.toString());
+    setLocalDiscount(discount.value.toString());
     setLocalFee(additionalFee.toString());
   }, [discount, additionalFee]);
 
@@ -76,7 +85,13 @@ export default function TransactionForm({
     if (editingTransaction) {
       setClientId(editingTransaction.clientId);
       setItems(editingTransaction.items);
-      setDiscount(editingTransaction.discount || 0);
+      if (typeof editingTransaction.discount === 'number') {
+        setDiscount({ type: 'value', value: editingTransaction.discount, scope: 'all' });
+      } else if (editingTransaction.discount) {
+        setDiscount(editingTransaction.discount);
+      } else {
+        setDiscount({ type: 'value', value: 0, scope: 'all' });
+      }
       setAdditionalFee(editingTransaction.additionalFee || 0);
       setStatus(editingTransaction.status);
       setId(editingTransaction.id);
@@ -98,7 +113,12 @@ export default function TransactionForm({
         );
       })();
 
-    const isEmpty = !clientId && isOnlyEmptyTravel && discount === 0 && additionalFee === 0 && calculateTotal() === 0;
+    const isEmpty =
+      !clientId &&
+      isOnlyEmptyTravel &&
+      calculateDiscountAmount() === 0 &&
+      additionalFee === 0 &&
+      calculateTotal() === 0;
 
     return isNew && isEmpty;
   };
@@ -129,14 +149,54 @@ export default function TransactionForm({
     if (status === 'draft' && !readOnly) debouncedSave();
   }, [clientId, items, discount, additionalFee, debouncedSave, readOnly, status]);
 
+  const calculateDiscountAmount = (preSubtotal?: number) => {
+    const subtotal =
+      preSubtotal ??
+      items.reduce((acc, item) => {
+        const product = products.find(p => p.id === item.productId);
+        const price = item.priceAtTransaction ?? product?.pricePerUnit ?? 0;
+        return acc + price * item.quantity;
+      }, 0);
+
+    if (discount.type === 'value') {
+      return discount.value;
+    }
+
+    let base = 0;
+    items.forEach(item => {
+      const product = products.find(p => p.id === item.productId);
+      if (!product) return;
+      const price = item.priceAtTransaction ?? product.pricePerUnit;
+      const val = price * item.quantity;
+      const isTravel = product.name.toLowerCase() === itemTypeT('travel').toLowerCase();
+      switch (discount.scope) {
+        case 'all':
+          base += val;
+          break;
+        case 'no-travel':
+          if (!isTravel) base += val;
+          break;
+        case 'services':
+          if (product.type === 'service') base += val;
+          break;
+        case 'products':
+          if (product.type === 'product') base += val;
+          break;
+        default:
+          break;
+      }
+    });
+    return (base * discount.value) / 100;
+  };
+
   const calculateTotal = () => {
     const subtotal = items.reduce((acc, item) => {
       const product = products.find(p => p.id === item.productId);
       const price = item.priceAtTransaction ?? product?.pricePerUnit ?? 0;
       return acc + price * item.quantity;
     }, 0);
-
-    return Math.max(0, Math.round((subtotal - discount + additionalFee) * 100) / 100);
+    const discountValue = calculateDiscountAmount(subtotal);
+    return Math.max(0, Math.round((subtotal - discountValue + additionalFee) * 100) / 100);
   };
 
   const handleItemChange = (index: number, field: keyof TransactionItem, value: string | number) => {
@@ -425,28 +485,59 @@ export default function TransactionForm({
 
         <div>
           <Label className='py-2'>{t('discount')}</Label>
-          <div className='flex items-center gap-2'>
-            <Input
-              type='text'
-              inputMode='decimal'
-              pattern='[0-9]*[.,]?[0-9]*'
-              value={localDiscount}
-              onChange={e => {
-                const input = e.target.value.replace(',', '.');
-                setLocalDiscount(input);
-              }}
-              onBlur={() => {
-                const parsed = parseFloat(localDiscount);
-                const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
-                setDiscount(rounded);
-                setLocalDiscount(rounded.toString());
-              }}
-              placeholder='np. 10'
-              className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
+          <div className='space-y-2'>
+            <Select
+              value={discount.type}
+              onValueChange={val => !readOnly && setDiscount(d => ({ ...d, type: val as 'value' | 'percentage' }))}
               disabled={readOnly}
-            />
-
-            <span>{currency}</span>
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t('discount')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='value'>{t('discountTypeValue')}</SelectItem>
+                <SelectItem value='percentage'>{t('discountTypePercent')}</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className='flex items-center gap-2'>
+              <Input
+                type='text'
+                inputMode='decimal'
+                pattern='[0-9]*[.,]?[0-9]*'
+                value={localDiscount}
+                onChange={e => {
+                  const input = e.target.value.replace(',', '.');
+                  setLocalDiscount(input);
+                }}
+                onBlur={() => {
+                  const parsed = parseFloat(localDiscount);
+                  const rounded = isNaN(parsed) ? 0 : Math.round(parsed * 100) / 100;
+                  setDiscount(d => ({ ...d, value: rounded }));
+                  setLocalDiscount(rounded.toString());
+                }}
+                placeholder='np. 10'
+                className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
+                disabled={readOnly}
+              />
+              <span>{discount.type === 'value' ? currency : '%'}</span>
+            </div>
+            {discount.type === 'percentage' && (
+              <Select
+                value={discount.scope}
+                onValueChange={val => !readOnly && setDiscount(d => ({ ...d, scope: val as DiscountScope }))}
+                disabled={readOnly}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>{t('discountScopeAll')}</SelectItem>
+                  <SelectItem value='no-travel'>{t('discountScopeNoTravel')}</SelectItem>
+                  <SelectItem value='services'>{t('discountScopeServices')}</SelectItem>
+                  <SelectItem value='products'>{t('discountScopeProducts')}</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </div>
 

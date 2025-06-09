@@ -111,7 +111,10 @@ interface Transaction {
   clientId: string;
   date: string;
   items: TransactionItem[];
-  discount?: number;
+  discount?:
+    | number
+    | { type: 'value'; value: number }
+    | { type: 'percentage'; value: number; scope: 'all' | 'no-travel' | 'services' | 'products' };
   additionalFee?: number;
   totalPrice: number;
   status: 'draft' | 'finalised';

@@ -1,4 +1,4 @@
-import { Transaction, Product, ExportLabels } from '@/types';
+import { Transaction, Product, ExportLabels, Discount, DiscountScope } from '@/types';
 import { getProducts } from '@/utils/productStorage';
 import { getClients } from '@/utils/clientStorage';
 import { getSettings } from './settingsStorage';
@@ -34,7 +34,7 @@ export async function handleExport(transaction: Transaction, t: ExportLabels) {
   const clients = getClients();
   const client = clients.find(c => c.id === transaction.clientId);
   const items = transaction.items || [];
-  const discount = transaction.discount || 0;
+  const discountDef: Discount | undefined = transaction.discount;
   const additionalFee = transaction.additionalFee || 0;
   const settings = getSettings();
 
@@ -139,6 +139,40 @@ export async function handleExport(transaction: Transaction, t: ExportLabels) {
   const travel = formatItemsTravel();
   const products = formatItems('product');
   const services = formatItems('service', t.travel);
+
+  const calculateDiscount = () => {
+    if (!discountDef) return 0;
+    if ((discountDef as any).type === 'value') {
+      return (discountDef as any).value;
+    }
+    const disc = discountDef as { type: 'percentage'; value: number; scope: DiscountScope };
+    let base = 0;
+    items.forEach(item => {
+      const product = productsList.find(p => p.id === item.productId);
+      if (!product) return;
+      const val = item.quantity * product.pricePerUnit;
+      const isTravel = product.name.toLowerCase() === t.travel.toLowerCase();
+      switch (disc.scope) {
+        case 'all':
+          base += val;
+          break;
+        case 'no-travel':
+          if (!isTravel) base += val;
+          break;
+        case 'services':
+          if (product.type === 'service') base += val;
+          break;
+        case 'products':
+          if (product.type === 'product') base += val;
+          break;
+        default:
+          break;
+      }
+    });
+    return (base * disc.value) / 100;
+  };
+
+  const discount = calculateDiscount();
 
   let cursorY = 50;
   cursorY = addSection(text(t.travel), travel.rows, travel.subtotal, cursorY);
