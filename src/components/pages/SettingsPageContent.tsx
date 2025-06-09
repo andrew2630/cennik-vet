@@ -10,9 +10,6 @@ import { getProducts } from '@/utils/productStorage';
 import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
 import { syncQueue } from '@/utils/syncSupabase';
 import { supabase } from '@/utils/supabaseClient';
-import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
-import { syncQueue } from '@/utils/syncSupabase';
-import { supabase } from '@/utils/supabaseClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -33,10 +30,6 @@ export default function SettingsPage() {
     language: 'pl',
     distanceUnit: 'km',
   });
-
-  const { user, signIn, signUp, signOut } = useSupabaseAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   const { user, signIn, signUp, signOut } = useSupabaseAuth();
   const [email, setEmail] = useState('');
