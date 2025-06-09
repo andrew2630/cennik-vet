@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
 import { syncQueue, downloadUserData } from './syncSupabase'
+import { setCurrentUserId } from './userStorage'
 import type { User } from '@supabase/supabase-js'
 
 export function useSupabaseAuth() {
@@ -16,6 +17,11 @@ export function useSupabaseAuth() {
       data.subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setCurrentUserId(user?.id ?? null)
+  }, [user])
 
   useEffect(() => {
     if (!user) return

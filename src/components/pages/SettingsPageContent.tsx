@@ -8,8 +8,10 @@ import { applyTheme, getStoredTheme, Theme } from '@/utils/theme';
 import { Settings as SettingsType, Currency, TravelUnit } from '@/types';
 import { getProducts } from '@/utils/productStorage';
 import { notifyDataUpdated } from '@/utils/dataUpdateEvent';
+import { storageKey } from '@/utils/userStorage'
 import { useSupabaseAuth } from '@/utils/useSupabaseAuth';
 import { syncQueue, downloadUserData } from '@/utils/syncSupabase';
+import { includeOfflineData } from '@/utils/includeOfflineData'
 import { supabase } from '@/utils/supabaseClient';
 import { localizeSupabaseMessage } from '@/utils/supabaseMessages';
 import { Card, CardContent } from '@/components/ui/card';
@@ -59,6 +61,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [hasOfflineData, setHasOfflineData] = useState(false)
 
   useEffect(() => {
     const saved = getSettings();
@@ -67,6 +70,14 @@ export default function SettingsPage() {
     setSettings(updated);
     applyTheme(updated.theme);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hasData = ['vet_products_local', 'vet_clients_local', 'vet_transactions_local'].some(key =>
+      !!localStorage.getItem(key),
+    )
+    setHasOfflineData(hasData)
+  }, [user])
 
   const handleChange = <K extends keyof SettingsType>(field: K, value: SettingsType[K]) => {
     const updated = { ...settings, [field]: value };
@@ -82,8 +93,8 @@ export default function SettingsPage() {
       const travelName = itemTypeT('travel').toLowerCase();
       const idx = products.findIndex(p => p.name.toLowerCase() === travelName);
       if (idx !== -1) {
-        products[idx] = { ...products[idx], unit: value as TravelUnit };
-        localStorage.setItem('vet_products', JSON.stringify(products));
+        products[idx] = { ...products[idx], unit: value as TravelUnit }
+        localStorage.setItem(storageKey('vet_products'), JSON.stringify(products))
         notifyDataUpdated();
       }
     }
@@ -120,6 +131,15 @@ export default function SettingsPage() {
       toast.error(localizeSupabaseMessage(error.message, authT, 'deleteAccountError'));
     }
   };
+
+  const handleIncludeOffline = async () => {
+    const { data } = await supabase.auth.getUser()
+    const uid = data.user?.id
+    if (!uid) return
+    await includeOfflineData(uid)
+    toast.success(t('includeOfflineSuccess'))
+    setHasOfflineData(false)
+  }
 
   return (
     <div className='max-w-2xl mx-auto'>
@@ -243,6 +263,14 @@ export default function SettingsPage() {
 
           <div className='flex gap-3 flex-wrap pt-4'>
             <ImportButton onFinish={() => window.location.reload()} />
+            {user && hasOfflineData && (
+              <Button
+                onClick={handleIncludeOffline}
+                className='gap-2 bg-yellow-500 hover:bg-yellow-600 text-white dark:bg-yellow-600 dark:hover:bg-yellow-700'
+              >
+                {t('includeOffline')}
+              </Button>
+            )}
             <Button
               onClick={() => exportAllDataToJSON()}
               variant='default'

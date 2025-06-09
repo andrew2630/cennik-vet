@@ -1,13 +1,14 @@
-import { saveAs } from 'file-saver';
-import pl from '@/public/locales/pl.json';
-import en from '@/public/locales/en.json';
+import { saveAs } from 'file-saver'
+import pl from '@/public/locales/pl.json'
+import en from '@/public/locales/en.json'
+import { storageKey } from './userStorage'
 
 export function exportAllDataToJSON() {
-  const settings = JSON.parse(localStorage.getItem('vet_settings') || '{}');
+  const settings = JSON.parse(localStorage.getItem(storageKey('vet_settings')) || '{}')
   const data = {
-    products: JSON.parse(localStorage.getItem('vet_products') || '[]'),
-    clients: JSON.parse(localStorage.getItem('vet_clients') || '[]'),
-    transactions: JSON.parse(localStorage.getItem('vet_transactions') || '[]'),
+    products: JSON.parse(localStorage.getItem(storageKey('vet_products')) || '[]'),
+    clients: JSON.parse(localStorage.getItem(storageKey('vet_clients')) || '[]'),
+    transactions: JSON.parse(localStorage.getItem(storageKey('vet_transactions')) || '[]'),
     exportedAt: new Date().toISOString(),
     settings,
   };
