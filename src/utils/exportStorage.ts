@@ -8,6 +8,7 @@ export function exportAllDataToJSON() {
     products: JSON.parse(localStorage.getItem('vet_products') || '[]'),
     clients: JSON.parse(localStorage.getItem('vet_clients') || '[]'),
     transactions: JSON.parse(localStorage.getItem('vet_transactions') || '[]'),
+    exportedAt: new Date().toISOString(),
     settings,
   };
 
