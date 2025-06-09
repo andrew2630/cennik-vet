@@ -158,7 +158,11 @@
     "distance": "Distance Unit",
     "distanceKm": "Kilometer",
     "distanceMi": "Mile",
-    "export": "Export Data"
+    "export": "Export Data",
+    "login": "Log in",
+    "register": "Register",
+    "logout": "Log out",
+    "loggedIn": "Logged in"
   },
   "transactionsList": {
     "unknownClient": "Unknown client",
