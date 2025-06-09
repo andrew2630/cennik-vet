@@ -1,3 +1,5 @@
+'use client'
+
 import { supabase } from './supabaseClient'
 import { Client, Product, Transaction } from '@/types'
 
@@ -23,6 +25,8 @@ function saveQueue(queue: Operation[]) {
 }
 
 export async function queueOperation(op: Operation) {
+  if (typeof window === 'undefined') return
+
   const queue = getQueue()
   queue.push(op)
   saveQueue(queue)
@@ -39,7 +43,7 @@ export async function queueOperation(op: Operation) {
 let isSyncing = false
 
 export async function syncQueue(userId: string) {
-  if (!navigator.onLine || isSyncing) return
+  if (typeof navigator === 'undefined' || !navigator.onLine || isSyncing) return
 
   isSyncing = true
 
