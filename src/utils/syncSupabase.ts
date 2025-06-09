@@ -3,6 +3,15 @@
 import { supabase } from './supabaseClient'
 import { Client, Product, Transaction } from '@/types'
 
+function snakeCaseKeys<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key.replace(/([A-Z])/g, '_$1').toLowerCase(),
+      value,
+    ]),
+  )
+}
+
 interface Operation {
   type: 'upsert' | 'delete'
   table: 'products' | 'clients' | 'transactions'
@@ -48,7 +57,7 @@ export async function syncQueue(userId: string) {
   isSyncing = true
 
   try {
-    let queue = getQueue()
+    const queue = getQueue()
     while (queue.length > 0) {
       const op = queue[0]
       try {
@@ -56,7 +65,7 @@ export async function syncQueue(userId: string) {
           op.type === 'upsert' && op.data
             ? await supabase
                 .from(op.table)
-                .upsert({ ...op.data, user_id: userId })
+                .upsert(snakeCaseKeys({ ...op.data, user_id: userId }))
             : op.type === 'delete' && op.id
               ? await supabase.from(op.table).delete().eq('id', op.id)
               : { error: null }
