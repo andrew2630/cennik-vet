@@ -19,17 +19,17 @@ export function useSupabaseAuth() {
 
   useEffect(() => {
     if (!user) return
-    const handleOnline = () => {
+    const handleSync = () => {
       syncQueue(user.id)
         .then(() => downloadUserData(user.id))
         .catch(console.error)
     }
-    window.addEventListener('online', handleOnline)
-    syncQueue(user.id)
-      .then(() => downloadUserData(user.id))
-      .catch(console.error)
+    window.addEventListener('online', handleSync)
+    handleSync()
+    const interval = setInterval(handleSync, 5 * 60 * 1000)
     return () => {
-      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('online', handleSync)
+      clearInterval(interval)
     }
   }, [user])
 

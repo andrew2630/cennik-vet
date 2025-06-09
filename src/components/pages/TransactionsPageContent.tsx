@@ -1,6 +1,7 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
+import useDataUpdate from '@/utils/useDataUpdate';
 import Link from 'next/link';
 import { PlusCircle, ReceiptText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import TransactionList from '@/components/TransactionList';
 import { useTranslations } from 'next-intl';
 
 export default function TransactionsPage() {
-  const [refresh] = useState(0);
+  const refresh = useDataUpdate();
   const t = useTranslations('transactions');
 
   return (

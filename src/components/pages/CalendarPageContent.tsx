@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import useDataUpdate from '@/utils/useDataUpdate';
 import { getTransactions } from '@/utils/transactionStorage';
 import { getClients } from '@/utils/clientStorage';
 import { Transaction, Client } from '@/types';
@@ -20,13 +21,14 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const router = useRouter();
+  const refresh = useDataUpdate();
 
   const dateFnsLocale = locale === 'pl' ? pl : enUS;
 
   useEffect(() => {
     setTransactions(getTransactions());
     setClients(getClients());
-  }, []);
+  }, [refresh]);
 
   const formatDate = (date: Date) => date.toLocaleDateString('sv-SE'); // ISO-like YYYY-MM-DD
 

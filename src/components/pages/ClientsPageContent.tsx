@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import useDataUpdate from '@/utils/useDataUpdate';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import ClientList from '@/components/ClientList';
@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function ClientsPage() {
-  const [refresh] = useState(0);
+  const refresh = useDataUpdate();
   const t = useTranslations('clientsPage');
 
   return (

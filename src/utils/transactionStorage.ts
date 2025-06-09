@@ -1,5 +1,6 @@
 import { Transaction } from '@/types';
 import { queueOperation } from './syncSupabase';
+import { notifyDataUpdated } from './dataUpdateEvent';
 import { v4 as uuid } from 'uuid';
 
 const STORAGE_KEY = 'vet_transactions';
@@ -28,6 +29,7 @@ export function saveTransaction(tx: Transaction): Transaction {
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  notifyDataUpdated();
   if (transactionToSave.clientId) {
     queueOperation({
       type: 'upsert',
@@ -45,5 +47,6 @@ export function updateTransaction(tx: Transaction): Transaction {
 export function deleteTransaction(id: string): void {
   const filtered = getTransactions().filter((t) => t.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  notifyDataUpdated();
   queueOperation({ type: 'delete', table: 'transactions', id });
 }
