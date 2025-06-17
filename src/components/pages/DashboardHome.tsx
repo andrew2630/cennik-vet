@@ -146,14 +146,12 @@ export default function DashboardHome() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="text-center space-y-3 mt-4"
+        className='text-center space-y-3 mt-4'
       >
-        <h1 className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-lime-400 via-amber-300 to-yellow-400 dark:from-lime-300 dark:via-yellow-300 dark:to-amber-400 animate-text-glow drop-shadow-md">
+        <h1 className='text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-lime-400 via-amber-300 to-yellow-400 dark:from-lime-300 dark:via-yellow-300 dark:to-amber-400 animate-text-glow drop-shadow-md'>
           {t('title')}
         </h1>
-        <p className="text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          {t('subtitle')}
-        </p>
+        <p className='text-base text-muted-foreground max-w-xl mx-auto leading-relaxed'>{t('subtitle')}</p>
       </motion.div>
 
       {/* Navigation Buttons */}
@@ -190,55 +188,57 @@ export default function DashboardHome() {
       </motion.div>
 
       {/* Summary Cards */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className='grid grid-cols-2 md:grid-cols-4 gap-6'
-      >
-        {[
-          {
-            title: t('summary.travel'),
-            value: totalSummary.travel,
-            unit: distanceUnit,
-            icon: <MapPin className='w-5 h-5 text-green-500' />,
-          },
-          {
-            title: t('summary.transactions'),
-            value: totalSummary.transactions,
-            unit: '',
-            icon: <ReceiptText className='w-5 h-5 text-indigo-500' />,
-          },
-          {
-            title: t('summary.totalValue'),
-            value: totalSummary.value.toFixed(2),
-            unit: currency,
-            icon: <ReceiptText className='w-5 h-5 text-blue-500' />,
-          },
-          {
-            title: t('summary.avgPerTransaction'),
-            value: (totalSummary.value / Math.max(1, totalSummary.transactions)).toFixed(2),
-            unit: currency,
-            icon: <CalendarIcon className='w-5 h-5 text-pink-500' />,
-          },
-        ].map((item, idx) => (
-          <motion.div
-            key={idx}
-            className='rounded-2xl p-4 backdrop-blur-xs bg-white/10 dark:bg-slate-800/30 border border-white/10 shadow-xl transition-all'
-          >
-            <div className='flex items-center justify-between mb-2'>
-              <div className='text-sm font-medium text-foreground flex items-center gap-2'>
-                {item.icon}
-                {item.title}
+      {false /* not needed by the user */ && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className='grid grid-cols-2 md:grid-cols-4 gap-6'
+        >
+          {[
+            {
+              title: t('summary.travel'),
+              value: totalSummary.travel,
+              unit: distanceUnit,
+              icon: <MapPin className='w-5 h-5 text-green-500' />,
+            },
+            {
+              title: t('summary.transactions'),
+              value: totalSummary.transactions,
+              unit: '',
+              icon: <ReceiptText className='w-5 h-5 text-indigo-500' />,
+            },
+            {
+              title: t('summary.totalValue'),
+              value: totalSummary.value.toFixed(2),
+              unit: currency,
+              icon: <ReceiptText className='w-5 h-5 text-blue-500' />,
+            },
+            {
+              title: t('summary.avgPerTransaction'),
+              value: (totalSummary.value / Math.max(1, totalSummary.transactions)).toFixed(2),
+              unit: currency,
+              icon: <CalendarIcon className='w-5 h-5 text-pink-500' />,
+            },
+          ].map((item, idx) => (
+            <motion.div
+              key={idx}
+              className='rounded-2xl p-4 backdrop-blur-xs bg-white/10 dark:bg-slate-800/30 border border-white/10 shadow-xl transition-all'
+            >
+              <div className='flex items-center justify-between mb-2'>
+                <div className='text-sm font-medium text-foreground flex items-center gap-2'>
+                  {item.icon}
+                  {item.title}
+                </div>
               </div>
-            </div>
-            <div className='text-3xl font-bold text-foreground mt-1'>
-              <CountUp end={parseInt(item.value.toString())} duration={1.4} separator=' ' />
-              {` ${item.unit}`}
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+              <div className='text-3xl font-bold text-foreground mt-1'>
+                <CountUp end={parseInt(item.value.toString())} duration={1.4} separator=' ' />
+                {` ${item.unit}`}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
       {/* Recent Transactions & Clients */}
       <motion.div
@@ -333,7 +333,10 @@ export default function DashboardHome() {
         transition={{ delay: 0.2, duration: 0.7 }}
         className='grid grid-cols-1 lg:grid-cols-1 max-w-xs mx-auto'
       >
-        <Select value={rangeMode} onValueChange={(value: 'month' | 'year' | 'custom' | '7days' | '30days') => setRangeMode(value)}>
+        <Select
+          value={rangeMode}
+          onValueChange={(value: 'month' | 'year' | 'custom' | '7days' | '30days') => setRangeMode(value)}
+        >
           <SelectTrigger className='w-full'>
             <SelectValue placeholder={t('range.select')} />
           </SelectTrigger>
@@ -372,94 +375,104 @@ export default function DashboardHome() {
       >
         {/* ComposedChart: Value vs Travel */}
         <div className='col-span-7 lg:col-span-3'>
-          <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
-            <CardHeader>
-              <CardTitle className='text-lg font-semibold'>{t('charts.valueVsDistance')}</CardTitle>
-            </CardHeader>
-            <CardContent className='h-[300px]'>
-              <ResponsiveContainer width='100%' height='100%'>
-                <ComposedChart data={Object.values(dailyData)}>
-                  <XAxis dataKey='date' stroke='#ccc' tick={{ fontSize: 10 }} />
-                  <YAxis
-                    yAxisId='left'
-                    stroke='#ccc'
-                    label={{
-                      value: `${t('summary.totalValue')}`,
-                      angle: -90,
-                      position: 'insideLeft',
-                    }}
-                  />
-                  <YAxis
-                    yAxisId='right'
-                    orientation='right'
-                    stroke='#ccc'
-                    label={{
-                      value: `${t('summary.travel')} (${distanceUnit})`,
-                      angle: -90,
-                      position: 'insideRight',
-                    }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                      color: theme === 'dark' ? '#f9fafb' : '#1f2937',
-                      borderRadius: 8,
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      fontSize: 12,
-                    }}
-                    labelStyle={{
-                      fontSize: 12,
-                      color: theme === 'dark' ? '#d1d5db' : '#374151',
-                    }}
-                  />
-                  <Legend />
-                  <Bar yAxisId='left' dataKey='value' fill='#4ade80' name={`${t('summary.totalValue')} (${currency})`} />
-                  <Line
-                    yAxisId='right'
-                    type='monotone'
-                    dataKey='travel'
-                    stroke='#60a5fa'
-                    strokeWidth={2}
-                    name={`${t('summary.travel')} (${distanceUnit})`}
-                  />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          {false /* not needed by the user */ && (
+            <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
+              <CardHeader>
+                <CardTitle className='text-lg font-semibold'>{t('charts.valueVsDistance')}</CardTitle>
+              </CardHeader>
+              <CardContent className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <ComposedChart data={Object.values(dailyData)}>
+                    <XAxis dataKey='date' stroke='#ccc' tick={{ fontSize: 10 }} />
+                    <YAxis
+                      yAxisId='left'
+                      stroke='#ccc'
+                      label={{
+                        value: `${t('summary.totalValue')}`,
+                        angle: -90,
+                        position: 'insideLeft',
+                      }}
+                    />
+                    <YAxis
+                      yAxisId='right'
+                      orientation='right'
+                      stroke='#ccc'
+                      label={{
+                        value: `${t('summary.travel')} (${distanceUnit})`,
+                        angle: -90,
+                        position: 'insideRight',
+                      }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                        color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                        borderRadius: 8,
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        fontSize: 12,
+                      }}
+                      labelStyle={{
+                        fontSize: 12,
+                        color: theme === 'dark' ? '#d1d5db' : '#374151',
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      yAxisId='left'
+                      dataKey='value'
+                      fill='#4ade80'
+                      name={`${t('summary.totalValue')} (${currency})`}
+                    />
+                    <Line
+                      yAxisId='right'
+                      type='monotone'
+                      dataKey='travel'
+                      stroke='#60a5fa'
+                      strokeWidth={2}
+                      name={`${t('summary.travel')} (${distanceUnit})`}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Clients per Day & Calendar Overview */}
-        <div className='col-span-7 lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-6'>
+        {/* <div className='col-span-7 lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-6'> */}
+        <div className='col-span-7 grid grid-cols-1 gap-6'>
           {/* BarChart: Daily Clients Count */}
-          <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
-            <CardHeader>
-              <CardTitle className='text-lg font-semibold'>{t('charts.dailyClients')}</CardTitle>
-            </CardHeader>
-            <CardContent className='h-[300px]'>
-              <ResponsiveContainer width='100%' height='100%'>
-                <BarChart data={Object.values(dailyData)}>
-                  <XAxis dataKey='date' tick={{ fontSize: 10 }} stroke='#ccc' />
-                  <YAxis stroke='#ccc' width={20} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                      color: theme === 'dark' ? '#f9fafb' : '#1f2937',
-                      borderRadius: 8,
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      fontSize: 12,
-                    }}
-                    labelStyle={{
-                      fontSize: 12,
-                      color: theme === 'dark' ? '#d1d5db' : '#374151',
-                    }}
-                    formatter={val => [`${val}`, t('summary.clients')]}
-                    cursor={{ fill: theme === 'dark' ? '#334155' : '#f1f5f9', opacity: 0.2 }}
-                  />
-                  <Bar dataKey='count' fill='#22c55e' radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          {false /* not needed by the user */ && (
+            <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
+              <CardHeader>
+                <CardTitle className='text-lg font-semibold'>{t('charts.dailyClients')}</CardTitle>
+              </CardHeader>
+              <CardContent className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <BarChart data={Object.values(dailyData)}>
+                    <XAxis dataKey='date' tick={{ fontSize: 10 }} stroke='#ccc' />
+                    <YAxis stroke='#ccc' width={20} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                        color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                        borderRadius: 8,
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        fontSize: 12,
+                      }}
+                      labelStyle={{
+                        fontSize: 12,
+                        color: theme === 'dark' ? '#d1d5db' : '#374151',
+                      }}
+                      formatter={val => [`${val}`, t('summary.clients')]}
+                      cursor={{ fill: theme === 'dark' ? '#334155' : '#f1f5f9', opacity: 0.2 }}
+                    />
+                    <Bar dataKey='count' fill='#22c55e' radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Calendar Overview */}
           <motion.div layout whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
