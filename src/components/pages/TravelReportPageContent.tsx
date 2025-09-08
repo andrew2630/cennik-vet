@@ -13,6 +13,9 @@ import { getClients } from '@/utils/clientStorage';
 import { MapPin } from 'lucide-react';
 import { getSettings } from '@/utils/settingsStorage';
 import { toast } from 'sonner';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface TravelRow {
   date: string;
@@ -87,6 +90,12 @@ export default function TravelReportPageContent() {
               <MapPin className='w-8 h-8 text-indigo-600 dark:text-indigo-300' />
               {t('title')}
             </h1>
+            <Link href='/transactions'>
+              <Button variant='ghost' className='flex items-center gap-2 text-sm'>
+                <ArrowLeft className='w-4 h-4' />
+                {t('back')}
+              </Button>
+            </Link>
           </div>
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <div className='bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg text-center shadow'>

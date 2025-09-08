@@ -223,7 +223,8 @@
     "client": "Client",
     "distance": "Distance",
     "value": "Value",
-    "noData": "No data."
+    "noData": "No data.",
+    "back": "Back"
   },
   "transactionForm": {
     "title": "Transaction",
