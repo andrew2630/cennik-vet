@@ -42,7 +42,7 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
     if (!product) return;
     setName(product.name);
     setPrice(product.pricePerUnit.toString());
-    setType(product.type);
+    setType(product.type || 'product');
 
     if (predefinedUnits.includes(product.unit)) {
       setUnit(product.unit as Unit);
@@ -67,7 +67,7 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
       name,
       unit: finalUnit,
       pricePerUnit: Math.round(parsedPrice * 100) / 100,
-      type,
+      type: type || 'product',
     });
 
     onAdd();
