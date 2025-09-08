@@ -235,7 +235,9 @@
     "save": "Zapisz",
     "cancel": "Anuluj",
     "travelNote": "⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)",
-    "priceChanged": "⚠️ Cena produktu uległa zmianie (obecnie: {price} {currency})"
+    "priceChanged": "⚠️ Cena produktu uległa zmianie (obecnie: {price} {currency})",
+    "date": "Data",
+    "time": "Godzina"
   },
   "clientModal": {
     "title": "Dodaj klienta"
