@@ -32,7 +32,7 @@ export default function TravelReportPageContent() {
   const from = params.get('from');
   const to = params.get('to');
   const [rows, setRows] = useState<TravelRow[]>([]);
-  const { distanceUnit } = getSettings();
+  const { distanceUnit, currency } = getSettings();
 
   useEffect(() => {
     const txs = getTransactions();
@@ -111,7 +111,7 @@ export default function TravelReportPageContent() {
                 {t('totalValue')}
               </p>
               <p className='text-2xl font-bold text-green-600 dark:text-green-300'>
-                {totalValue.toFixed(2)}
+                {totalValue.toFixed(2)} {currency}
               </p>
             </div>
           </div>
@@ -156,9 +156,11 @@ export default function TravelReportPageContent() {
                     >
                       <TableCell className='font-medium'>{r.date}</TableCell>
                       <TableCell className='font-medium'>{r.client}</TableCell>
-                      <TableCell>{r.distance.toFixed(2)}</TableCell>
+                      <TableCell className='text-green-700 dark:text-green-300'>
+                        {r.distance.toFixed(2)}
+                      </TableCell>
                       <TableCell className='text-indigo-700 dark:text-indigo-300'>
-                        {r.value.toFixed(2)}
+                        {r.value.toFixed(2)} {currency}
                       </TableCell>
                     </TableRow>
                   ))
