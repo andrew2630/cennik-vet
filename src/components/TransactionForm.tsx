@@ -56,6 +56,10 @@ export default function TransactionForm({
     return new Date(`${date}T${timePart}`).toISOString();
   };
 
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const formatDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const formatTime = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
   useEffect(() => {
     setLocalQuantities(items.map(i => i.quantity.toString()));
   }, [items]);
@@ -98,13 +102,13 @@ export default function TransactionForm({
       setId(editingTransaction.id);
       setDescription(editingTransaction.description || '');
       const d = new Date(editingTransaction.date);
-      setTransactionDate(d.toISOString().slice(0, 10));
-      setTransactionTime(d.toISOString().slice(11, 16));
+      setTransactionDate(formatDate(d));
+      setTransactionTime(formatTime(d));
     }
     if (!editingTransaction) {
       const now = new Date();
-      setTransactionDate(now.toISOString().slice(0, 10));
-      setTransactionTime(now.toISOString().slice(11, 16));
+      setTransactionDate(formatDate(now));
+      setTransactionTime(formatTime(now));
     }
   }, [editingTransaction]);
 
