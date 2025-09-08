@@ -20,6 +20,10 @@ import ClientModal from '@/components/ClientModal';
 import { getSettings } from '@/utils/settingsStorage';
 import { cnjoin } from '@/lib/utils';
 
+const pad = (n: number) => n.toString().padStart(2, '0');
+const formatDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const formatTime = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
 export default function TransactionForm({
   editingTransaction,
   onSaved,
@@ -53,12 +57,8 @@ export default function TransactionForm({
 
   const combineDateTime = (date: string, time: string) => {
     const timePart = time || '00:00';
-    return new Date(`${date}T${timePart}`).toISOString();
+    return `${date}T${timePart}`;
   };
-
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  const formatDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const formatTime = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
   useEffect(() => {
     setLocalQuantities(items.map(i => i.quantity.toString()));
@@ -101,9 +101,9 @@ export default function TransactionForm({
       setStatus(editingTransaction.status);
       setId(editingTransaction.id);
       setDescription(editingTransaction.description || '');
-      const d = new Date(editingTransaction.date);
-      setTransactionDate(formatDate(d));
-      setTransactionTime(formatTime(d));
+      const [datePart, timePart = ''] = editingTransaction.date.split('T');
+      setTransactionDate(datePart);
+      setTransactionTime(timePart.slice(0, 5));
     }
     if (!editingTransaction) {
       const now = new Date();
