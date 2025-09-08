@@ -4,6 +4,7 @@ import { supabase } from './supabaseClient'
 import { notifyDataUpdated } from './dataUpdateEvent'
 import { Client, Product, Transaction } from '@/types'
 import { storageKey } from './userStorage'
+import { normalizeProduct } from './productStorage'
 
 function snakeCaseKeys<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
   return Object.fromEntries(
@@ -169,7 +170,10 @@ export async function downloadUserData(userId: string) {
 
     const products = (productsRes.data || []).map(r => {
       const { updated_at, ...rest } = r as Record<string, unknown>
-      return { ...(camelCaseKeys(rest) as Product), updatedAt: updated_at as string }
+      return normalizeProduct({
+        ...(camelCaseKeys(rest) as Product),
+        updatedAt: updated_at as string,
+      })
     })
     const clients = (clientsRes.data || []).map(r => {
       const { updated_at, ...rest } = r as Record<string, unknown>
@@ -183,7 +187,7 @@ export async function downloadUserData(userId: string) {
     const mergedProducts = mergeById(
       JSON.parse(localStorage.getItem(storageKey('vet_products')) || '[]'),
       products,
-    )
+    ).map(normalizeProduct)
     const mergedClients = mergeById(
       JSON.parse(localStorage.getItem(storageKey('vet_clients')) || '[]'),
       clients,

@@ -5,7 +5,8 @@ import { queueOperation, syncQueue } from './syncSupabase'
 import { supabase } from './supabaseClient'
 import { notifyDataUpdated } from './dataUpdateEvent'
 import { storageKey } from './userStorage'
-import type { Product, Client, Transaction } from '@/types';
+import type { Product, Client, Transaction } from '@/types'
+import { normalizeProduct } from './productStorage'
 
 export function importAllDataFromJSON(
   file: File,
@@ -23,10 +24,12 @@ export function importAllDataFromJSON(
       const parsed = JSON.parse(reader.result as string);
 
       if (parsed.products) {
-        const productsWithDates = (parsed.products as Product[]).map(p => ({
-          ...p,
-          updatedAt: p.updatedAt || new Date().toISOString(),
-        }))
+        const productsWithDates = (parsed.products as Product[]).map(p =>
+          normalizeProduct({
+            ...p,
+            updatedAt: p.updatedAt || new Date().toISOString(),
+          }),
+        )
         localStorage.setItem(storageKey('vet_products'), JSON.stringify(productsWithDates))
         notifyDataUpdated()
         productsWithDates.forEach(p =>

@@ -2,6 +2,7 @@ import { queueOperation, syncQueue } from './syncSupabase'
 import { notifyDataUpdated } from './dataUpdateEvent'
 import { storageKey } from './userStorage'
 import type { Product, Client, Transaction } from '@/types'
+import { normalizeProduct } from './productStorage'
 
 interface Operation {
   type: 'upsert' | 'delete'
@@ -39,7 +40,7 @@ export async function includeOfflineData(userId: string) {
   const userClients = JSON.parse(localStorage.getItem(storageKey('vet_clients')) || '[]') as Client[]
   const userTransactions = JSON.parse(localStorage.getItem(storageKey('vet_transactions')) || '[]') as Transaction[]
 
-  const mergedProducts = mergeById(userProducts, localProducts)
+  const mergedProducts = mergeById(userProducts, localProducts).map(normalizeProduct)
   const mergedClients = mergeById(userClients, localClients)
   const mergedTransactions = mergeById(userTransactions, localTransactions)
 
