@@ -11,15 +11,18 @@ import { useTranslations } from 'next-intl';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { handleExportRange } from '@/utils/pdfExport';
 import { getTransactions } from '@/utils/transactionStorage';
+import { getProducts } from '@/utils/productStorage';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
+import { toast } from 'sonner';
 
 export default function TransactionsPage() {
   const refresh = useDataUpdate();
   const t = useTranslations('transactions');
   const pdfT = useTranslations('pdfLabels');
+  const itemTypeT = useTranslations('itemType');
   const router = useRouter();
   const [expRange, setExpRange] = useState<DateRange | undefined>();
   const [repRange, setRepRange] = useState<DateRange | undefined>();
@@ -88,6 +91,10 @@ export default function TransactionsPage() {
                                 && (!to || d.isBefore(dayjs(to).add(1, 'day')));
                             })
                             .sort((a, b) => a.date.localeCompare(b.date));
+                          if (txs.length === 0) {
+                            toast.error(t('noTransactionsError'));
+                            return;
+                          }
                           handleExportRange(txs, exportLabels, from || 'start', to || 'end');
                         }}
                       >
@@ -121,6 +128,26 @@ export default function TransactionsPage() {
                         onClick={() => {
                           const from = repRange?.from ? dayjs(repRange.from).format('YYYY-MM-DD') : '';
                           const to = repRange?.to ? dayjs(repRange.to).format('YYYY-MM-DD') : '';
+                          const txs = getTransactions().filter(tx => {
+                            const d = dayjs(tx.date);
+                            return (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
+                              && (!to || d.isBefore(dayjs(to).add(1, 'day')));
+                          });
+                          const products = getProducts();
+                          const hasTravel = txs.some(tx =>
+                            tx.items.some(item => {
+                              const prod = products.find(p => p.id === item.productId);
+                              return (
+                                prod &&
+                                prod.name.toLowerCase() ===
+                                  itemTypeT('travel').toLowerCase()
+                              );
+                            })
+                          );
+                          if (!hasTravel) {
+                            toast.error(t('noTravelError'));
+                            return;
+                          }
                           const params = new URLSearchParams();
                           if (from) params.set('from', from);
                           if (to) params.set('to', to);

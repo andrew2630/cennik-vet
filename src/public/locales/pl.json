@@ -92,7 +92,9 @@
     "travelReport": "Raport dojazdów",
     "from": "Od",
     "to": "Do",
-    "generate": "Generuj"
+    "generate": "Generuj",
+    "noTransactionsError": "\u274c Brak rozliczeń w wybranym zakresie.",
+    "noTravelError": "\u274c Brak dojazdów w wybranym zakresie."
   },
   "transactionNew": {
     "title": "Nowe rozliczenie",
