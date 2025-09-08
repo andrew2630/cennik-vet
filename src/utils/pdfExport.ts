@@ -1,4 +1,4 @@
-import { Transaction, Product, ExportLabels, Discount, DiscountScope } from '@/types';
+import { Transaction, Product, ExportLabels, Discount, DiscountScope, Client, Settings } from '@/types';
 import { getProducts } from '@/utils/productStorage';
 import { getClients } from '@/utils/clientStorage';
 import { getSettings } from './settingsStorage';
@@ -29,25 +29,22 @@ const removeDiacritics = (str: string): string => {
 
 const text = (txt: string) => removeDiacritics(txt);
 
-export async function handleExport(transaction: Transaction, t: ExportLabels) {
-  const productsList: Product[] = getProducts();
-  const clients = getClients();
+const addTransactionToDoc = (
+  doc: jsPDF,
+  transaction: Transaction,
+  t: ExportLabels,
+  productsList: Product[],
+  clients: Client[],
+  settings: Settings,
+) => {
   const client = clients.find(c => c.id === transaction.clientId);
   const items = transaction.items || [];
   const discountDef: Discount | undefined = transaction.discount;
   const additionalFee = transaction.additionalFee || 0;
-  const settings = getSettings();
 
   const now = new Date(transaction.date);
   const dateStr = now.toLocaleDateString('pl-PL');
   const timeStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-  const fileDateStr = now.toISOString().replace(/[:]/g, '-').slice(0, 16);
-
-  const safeClientName = client?.name?.replace(/\s+/g, '_') || 'Nieznany';
-  const filename = `${fileDateStr}_${safeClientName}.pdf`;
-
-  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-  doc.setFont('Helvetica', 'normal');
 
   doc.text(text(`${t.header} - ${dateStr}, ${timeStr}`), 10, 10);
   if (client) {
@@ -118,7 +115,7 @@ export async function handleExport(transaction: Transaction, t: ExportLabels) {
 
     autoTable(doc, {
       startY: yOffset,
-      head: [['#', text(t.items), text(t.quantity), text(t.unit), text(t.priceUnit), text(t.value)]],
+      head: [["#", text(t.items), text(t.quantity), text(t.unit), text(t.priceUnit), text(t.value)]],
       body: data,
       foot: [
         [
@@ -210,6 +207,37 @@ export async function handleExport(transaction: Transaction, t: ExportLabels) {
     doc.setFontSize(10);
     doc.text(lines, 10, finalY);
   }
+};
 
+export async function handleExport(transaction: Transaction, t: ExportLabels) {
+  const productsList: Product[] = getProducts();
+  const clients = getClients();
+  const settings = getSettings();
+
+  const now = new Date(transaction.date);
+  const fileDateStr = now.toISOString().replace(/[:]/g, '-').slice(0, 16);
+  const client = clients.find(c => c.id === transaction.clientId);
+  const safeClientName = client?.name?.replace(/\s+/g, '_') || 'Nieznany';
+  const filename = `${fileDateStr}_${safeClientName}.pdf`;
+
+  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+  doc.setFont('Helvetica', 'normal');
+  addTransactionToDoc(doc, transaction, t, productsList, clients, settings);
+  doc.save(filename);
+}
+
+export async function handleExportRange(transactions: Transaction[], t: ExportLabels, from: string, to: string) {
+  if (transactions.length === 0) return;
+  const productsList: Product[] = getProducts();
+  const clients = getClients();
+  const settings = getSettings();
+
+  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+  doc.setFont('Helvetica', 'normal');
+  transactions.forEach((tx, idx) => {
+    if (idx > 0) doc.addPage();
+    addTransactionToDoc(doc, tx, t, productsList, clients, settings);
+  });
+  const filename = `transactions_${from}_to_${to}.pdf`;
   doc.save(filename);
 }
