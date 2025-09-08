@@ -235,7 +235,9 @@
     "save": "Save",
     "cancel": "Cancel",
     "travelNote": "⚠️ Enter round-trip kilometers (both ways)",
-    "priceChanged": "⚠️ Product price has changed (currently: {price} zł)"
+    "priceChanged": "⚠️ Product price has changed (currently: {price} zł)",
+    "date": "Date",
+    "time": "Time"
   },
   "clientModal": {
     "title": "Add client"
