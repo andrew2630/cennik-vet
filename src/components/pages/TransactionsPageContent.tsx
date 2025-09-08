@@ -8,22 +8,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import TransactionList from '@/components/TransactionList';
 import { useTranslations } from 'next-intl';
-import { DatePicker } from '@/components/ui/date-picker';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { handleExportRange } from '@/utils/pdfExport';
 import { getTransactions } from '@/utils/transactionStorage';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import { Calendar } from '@/components/ui/calendar';
+import { DateRange } from 'react-day-picker';
 
 export default function TransactionsPage() {
   const refresh = useDataUpdate();
   const t = useTranslations('transactions');
   const pdfT = useTranslations('pdfLabels');
   const router = useRouter();
-  const [expFrom, setExpFrom] = useState('');
-  const [expTo, setExpTo] = useState('');
-  const [repFrom, setRepFrom] = useState('');
-  const [repTo, setRepTo] = useState('');
+  const [expRange, setExpRange] = useState<DateRange | undefined>();
+  const [repRange, setRepRange] = useState<DateRange | undefined>();
 
   const exportLabels = {
     header: pdfT('header'),
@@ -51,66 +50,90 @@ export default function TransactionsPage() {
       <div className='max-w-2xl mx-auto'>
         <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/10 dark:to-slate-900/20 shadow-2xl p-4'>
           <CardContent className='p-2 space-y-6'>
-            <div className='flex items-center justify-between mb-6'>
+            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6'>
               <h1 className='text-3xl font-bold flex items-center gap-3'>
                 <ReceiptText className='w-8 h-8 text-green-600 dark:text-green-300' />
                 {t('title')}
               </h1>
-              <div className='flex items-center gap-2'>
+              <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto'>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant='outline' className='flex items-center gap-2'>
+                    <Button variant='outline' className='flex items-center gap-2 w-full sm:w-auto justify-center'>
                       <FileDown className='w-4 h-4' />
                       {t('exportRange')}
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className='sm:max-w-md'>
                     <DialogHeader>
                       <DialogTitle>{t('exportRange')}</DialogTitle>
                     </DialogHeader>
-                    <div className='flex flex-col gap-4 py-2'>
-                      <DatePicker value={expFrom} onChange={setExpFrom} placeholder={t('from')} />
-                      <DatePicker value={expTo} onChange={setExpTo} placeholder={t('to')} />
+                    <div className='py-2'>
+                      <Calendar
+                        mode='range'
+                        selected={expRange}
+                        onSelect={setExpRange}
+                        numberOfMonths={1}
+                        className='rounded-md border'
+                      />
                     </div>
                     <DialogFooter>
-                      <Button onClick={() => {
-                        const txs = getTransactions().filter(tx => {
-                          const d = dayjs(tx.date);
-                          return (!expFrom || d.isAfter(dayjs(expFrom).subtract(1, 'day')))
-                            && (!expTo || d.isBefore(dayjs(expTo).add(1, 'day')));
-                        }).sort((a, b) => a.date.localeCompare(b.date));
-                        handleExportRange(txs, exportLabels, expFrom || 'start', expTo || 'end');
-                      }}>{t('generate')}</Button>
+                      <Button
+                        onClick={() => {
+                          const from = expRange?.from ? dayjs(expRange.from).format('YYYY-MM-DD') : '';
+                          const to = expRange?.to ? dayjs(expRange.to).format('YYYY-MM-DD') : '';
+                          const txs = getTransactions()
+                            .filter(tx => {
+                              const d = dayjs(tx.date);
+                              return (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
+                                && (!to || d.isBefore(dayjs(to).add(1, 'day')));
+                            })
+                            .sort((a, b) => a.date.localeCompare(b.date));
+                          handleExportRange(txs, exportLabels, from || 'start', to || 'end');
+                        }}
+                      >
+                        {t('generate')}
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant='outline' className='flex items-center gap-2'>
+                    <Button variant='outline' className='flex items-center gap-2 w-full sm:w-auto justify-center'>
                       <MapPin className='w-4 h-4' />
                       {t('travelReport')}
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className='sm:max-w-md'>
                     <DialogHeader>
                       <DialogTitle>{t('travelReport')}</DialogTitle>
                     </DialogHeader>
-                    <div className='flex flex-col gap-4 py-2'>
-                      <DatePicker value={repFrom} onChange={setRepFrom} placeholder={t('from')} />
-                      <DatePicker value={repTo} onChange={setRepTo} placeholder={t('to')} />
+                    <div className='py-2'>
+                      <Calendar
+                        mode='range'
+                        selected={repRange}
+                        onSelect={setRepRange}
+                        numberOfMonths={1}
+                        className='rounded-md border'
+                      />
                     </div>
                     <DialogFooter>
-                      <Button onClick={() => {
-                        const params = new URLSearchParams();
-                        if (repFrom) params.set('from', repFrom);
-                        if (repTo) params.set('to', repTo);
-                        router.push(`/transactions/travel-report?${params.toString()}`);
-                      }}>{t('generate')}</Button>
+                      <Button
+                        onClick={() => {
+                          const from = repRange?.from ? dayjs(repRange.from).format('YYYY-MM-DD') : '';
+                          const to = repRange?.to ? dayjs(repRange.to).format('YYYY-MM-DD') : '';
+                          const params = new URLSearchParams();
+                          if (from) params.set('from', from);
+                          if (to) params.set('to', to);
+                          router.push(`/transactions/travel-report?${params.toString()}`);
+                        }}
+                      >
+                        {t('generate')}
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                <Link href='/transactions/new'>
-                  <Button variant='default' className='flex items-center gap-2'>
+                <Link href='/transactions/new' className='w-full sm:w-auto'>
+                  <Button variant='default' className='flex items-center gap-2 w-full justify-center'>
                     <PlusCircle className='w-4 h-4' />
                     {t('addButton')}
                   </Button>
