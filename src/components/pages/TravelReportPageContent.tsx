@@ -103,7 +103,7 @@ export default function TravelReportPageContent() {
                 {t('totalDistance')}
               </p>
               <p className='text-2xl font-bold text-blue-600 dark:text-blue-300'>
-                {totalDistance.toFixed(2)} {distanceUnit}
+                {totalDistance} {distanceUnit}
               </p>
             </div>
             <div className='bg-green-100 dark:bg-green-900/30 p-4 rounded-lg text-center shadow'>
@@ -156,10 +156,10 @@ export default function TravelReportPageContent() {
                     >
                       <TableCell className='font-medium'>{r.date}</TableCell>
                       <TableCell className='font-medium'>{r.client}</TableCell>
-                      <TableCell className='text-green-700 dark:text-green-300'>
-                        {r.distance.toFixed(2)}
-                      </TableCell>
                       <TableCell className='text-indigo-700 dark:text-indigo-300'>
+                        {r.distance} {distanceUnit}
+                      </TableCell>
+                      <TableCell className='text-green-700 dark:text-green-300'>
                         {r.value.toFixed(2)} {currency}
                       </TableCell>
                     </TableRow>
