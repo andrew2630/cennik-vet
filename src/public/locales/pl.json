@@ -237,7 +237,9 @@
     "travelNote": "⚠️ Podaj liczbę kilometrów tam i z powrotem (łącznie w dwie strony)",
     "priceChanged": "⚠️ Cena produktu uległa zmianie (obecnie: {price} {currency})",
     "date": "Data",
-    "time": "Godzina"
+    "time": "Godzina",
+    "selectDate": "Wybierz datę",
+    "selectTime": "Wybierz godzinę"
   },
   "clientModal": {
     "title": "Dodaj klienta"
