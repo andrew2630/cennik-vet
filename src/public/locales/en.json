@@ -237,7 +237,9 @@
     "travelNote": "⚠️ Enter round-trip kilometers (both ways)",
     "priceChanged": "⚠️ Product price has changed (currently: {price} zł)",
     "date": "Date",
-    "time": "Time"
+    "time": "Time",
+    "selectDate": "Select date",
+    "selectTime": "Select time"
   },
   "clientModal": {
     "title": "Add client"

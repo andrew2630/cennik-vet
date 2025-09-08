@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import { useDebouncedCallback } from 'use-debounce';
 import { ComboboxGeneric } from '@/components/ComboboxGeneric';
 import { Trash } from 'lucide-react';
@@ -284,22 +286,20 @@ export default function TransactionForm({
         <div className='flex flex-col sm:flex-row gap-4'>
           <div className='flex-1'>
             <Label className='py-2'>{t('date')}</Label>
-            <Input
-              type='date'
+            <DatePicker
               value={transactionDate}
-              onChange={e => setTransactionDate(e.target.value)}
+              onChange={setTransactionDate}
+              placeholder={t('selectDate')}
               disabled={readOnly}
-              className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
             />
           </div>
           <div className='flex-1'>
             <Label className='py-2'>{t('time')}</Label>
-            <Input
-              type='time'
+            <TimePicker
               value={transactionTime}
-              onChange={e => setTransactionTime(e.target.value)}
+              onChange={setTransactionTime}
+              placeholder={t('selectTime')}
               disabled={readOnly}
-              className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
             />
           </div>
         </div>
