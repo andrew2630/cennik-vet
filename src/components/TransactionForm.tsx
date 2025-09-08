@@ -45,7 +45,14 @@ export default function TransactionForm({
   const [description, setDescription] = useState('');
   const [isClientModalOpen, setClientModalOpen] = useState(false);
   const [openItemIndex, setOpenItemIndex] = useState<number | null>(null);
+  const [transactionDate, setTransactionDate] = useState('');
+  const [transactionTime, setTransactionTime] = useState('');
   const { currency } = getSettings();
+
+  const combineDateTime = (date: string, time: string) => {
+    const timePart = time || '00:00';
+    return new Date(`${date}T${timePart}`).toISOString();
+  };
 
   useEffect(() => {
     setLocalQuantities(items.map(i => i.quantity.toString()));
@@ -88,6 +95,14 @@ export default function TransactionForm({
       setStatus(editingTransaction.status);
       setId(editingTransaction.id);
       setDescription(editingTransaction.description || '');
+      const d = new Date(editingTransaction.date);
+      setTransactionDate(d.toISOString().slice(0, 10));
+      setTransactionTime(d.toISOString().slice(11, 16));
+    }
+    if (!editingTransaction) {
+      const now = new Date();
+      setTransactionDate(now.toISOString().slice(0, 10));
+      setTransactionTime(now.toISOString().slice(11, 16));
     }
   }, [editingTransaction]);
 
@@ -128,7 +143,7 @@ export default function TransactionForm({
       discount,
       additionalFee,
       totalPrice: total,
-      date: new Date().toISOString(),
+      date: combineDateTime(transactionDate, transactionTime),
       status,
       description,
     };
@@ -139,7 +154,7 @@ export default function TransactionForm({
 
   useEffect(() => {
     if (status === 'draft' && !readOnly) debouncedSave();
-  }, [clientId, items, discount, additionalFee, debouncedSave, readOnly, status]);
+  }, [clientId, items, discount, additionalFee, transactionDate, transactionTime, debouncedSave, readOnly, status]);
 
   const calculateDiscountAmount = () => {
     if (discount.type === 'value') {
@@ -227,7 +242,7 @@ export default function TransactionForm({
       discount,
       additionalFee,
       totalPrice: calculateTotal(),
-      date: new Date().toISOString(),
+      date: combineDateTime(transactionDate, transactionTime),
       status: 'finalised',
       description,
     };
@@ -248,7 +263,7 @@ export default function TransactionForm({
       discount,
       additionalFee,
       totalPrice: total,
-      date: editingTransaction?.date || new Date().toISOString(),
+      date: combineDateTime(transactionDate, transactionTime),
       status,
       description,
     };
@@ -265,6 +280,29 @@ export default function TransactionForm({
         className='space-y-6 max-w-2xl mx-auto bg-white/70 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-xl px-6 py-8 border border-gray-200 dark:border-white/10'
       >
         <h1 className='text-2xl font-bold'>{t('title')}</h1>
+
+        <div className='flex flex-col sm:flex-row gap-4'>
+          <div className='flex-1'>
+            <Label className='py-2'>{t('date')}</Label>
+            <Input
+              type='date'
+              value={transactionDate}
+              onChange={e => setTransactionDate(e.target.value)}
+              disabled={readOnly}
+              className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
+            />
+          </div>
+          <div className='flex-1'>
+            <Label className='py-2'>{t('time')}</Label>
+            <Input
+              type='time'
+              value={transactionTime}
+              onChange={e => setTransactionTime(e.target.value)}
+              disabled={readOnly}
+              className={`${readOnly ? 'bg-transparent text-foreground opacity-100 border-none' : ''}`}
+            />
+          </div>
+        </div>
 
         <div>
           <Label className='py-2'>{t('client')}</Label>
