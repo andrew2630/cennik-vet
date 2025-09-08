@@ -87,7 +87,12 @@
   "transactions": {
     "title": "Transactions",
     "addButton": "Add",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "exportRange": "Export PDF",
+    "travelReport": "Travel report",
+    "from": "From",
+    "to": "To",
+    "generate": "Generate"
   },
   "transactionNew": {
     "title": "New Transaction",
@@ -207,6 +212,16 @@
     "deleteMessage": "Are you sure you want to delete the transaction for {client} on {date}?",
     "cancel": "Cancel",
     "delete": "Delete"
+  },
+  "travelReport": {
+    "title": "Travel report",
+    "totalDistance": "Total distance",
+    "totalValue": "Total value",
+    "date": "Date",
+    "client": "Client",
+    "distance": "Distance",
+    "value": "Value",
+    "noData": "No data."
   },
   "transactionForm": {
     "title": "Transaction",

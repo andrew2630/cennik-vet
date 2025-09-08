@@ -87,7 +87,12 @@
   "transactions": {
     "title": "Rozliczenia",
     "addButton": "Dodaj",
-    "loading": "Wczytywanie..."
+    "loading": "Wczytywanie...",
+    "exportRange": "Eksportuj PDF",
+    "travelReport": "Raport dojazdów",
+    "from": "Od",
+    "to": "Do",
+    "generate": "Generuj"
   },
   "transactionNew": {
     "title": "Nowe rozliczenie",
@@ -207,6 +212,16 @@
     "deleteMessage": "Czy na pewno chcesz usunąć rozliczenie dla {client} z dnia {date}?",
     "cancel": "Anuluj",
     "delete": "Usuń"
+  },
+  "travelReport": {
+    "title": "Raport dojazdów",
+    "totalDistance": "Łączna odległość",
+    "totalValue": "Łączna wartość",
+    "date": "Data",
+    "client": "Klient",
+    "distance": "Dystans",
+    "value": "Wartość",
+    "noData": "Brak danych."
   },
   "transactionForm": {
     "title": "Rozliczenie",
