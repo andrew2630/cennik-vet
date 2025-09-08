@@ -12,6 +12,7 @@ import { getProducts } from '@/utils/productStorage';
 import { getClients } from '@/utils/clientStorage';
 import { MapPin } from 'lucide-react';
 import { getSettings } from '@/utils/settingsStorage';
+import { toast } from 'sonner';
 
 interface TravelRow {
   date: string;
@@ -43,12 +44,14 @@ export default function TravelReportPageContent() {
     });
     const data: TravelRow[] = [];
     filtered.forEach(tx => {
-      const clientName = clients.find(c => c.id === tx.clientId)?.name || listT('unknownClient');
+      const clientName =
+        clients.find(c => c.id === tx.clientId)?.name || listT('unknownClient');
       tx.items.forEach(item => {
         const prod = products.find(p => p.id === item.productId);
         if (prod && prod.name.toLowerCase() === itemTypeT('travel').toLowerCase()) {
           const value = item.quantity * prod.pricePerUnit;
-          const distance = distanceUnit === 'mi' ? item.quantity * 0.621371 : item.quantity;
+          const distance =
+            distanceUnit === 'mi' ? item.quantity * 0.621371 : item.quantity;
           data.push({
             date: dayjs(tx.date).format('YYYY-MM-DD'),
             client: clientName,
@@ -59,7 +62,10 @@ export default function TravelReportPageContent() {
       });
     });
     setRows(data);
-  }, [from, to, listT, itemTypeT, distanceUnit]);
+    if (data.length === 0) {
+      toast.error(t('noData'));
+    }
+  }, [from, to, listT, itemTypeT, distanceUnit, t]);
 
   const totalDistance = rows.reduce((sum, r) => sum + r.distance, 0);
   const totalValue = rows.reduce((sum, r) => sum + r.value, 0);
@@ -82,13 +88,23 @@ export default function TravelReportPageContent() {
               {t('title')}
             </h1>
           </div>
-          <div className='flex flex-wrap gap-4'>
-            <span>
-              {t('totalDistance')}: {totalDistance.toFixed(2)} {distanceUnit}
-            </span>
-            <span>
-              {t('totalValue')}: {totalValue.toFixed(2)}
-            </span>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+            <div className='bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg text-center shadow'>
+              <p className='text-sm font-medium text-blue-800 dark:text-blue-200'>
+                {t('totalDistance')}
+              </p>
+              <p className='text-2xl font-bold text-blue-600 dark:text-blue-300'>
+                {totalDistance.toFixed(2)} {distanceUnit}
+              </p>
+            </div>
+            <div className='bg-green-100 dark:bg-green-900/30 p-4 rounded-lg text-center shadow'>
+              <p className='text-sm font-medium text-green-800 dark:text-green-200'>
+                {t('totalValue')}
+              </p>
+              <p className='text-2xl font-bold text-green-600 dark:text-green-300'>
+                {totalValue.toFixed(2)}
+              </p>
+            </div>
           </div>
           <ResponsiveContainer width='100%' height={300}>
             <BarChart data={chartData}>
@@ -100,30 +116,41 @@ export default function TravelReportPageContent() {
           </ResponsiveContainer>
           <div className='overflow-x-auto'>
             <Table>
-              <TableHeader>
+              <TableHeader className='bg-indigo-50 dark:bg-slate-800'>
                 <TableRow>
-                  <TableHead>{t('date')}</TableHead>
-                  <TableHead>{t('client')}</TableHead>
-                  <TableHead>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>
+                    {t('date')}
+                  </TableHead>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>
+                    {t('client')}
+                  </TableHead>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>
                     {t('distance')} ({distanceUnit})
                   </TableHead>
-                  <TableHead>{t('value')}</TableHead>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>
+                    {t('value')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className='text-center'>
+                    <TableCell colSpan={4} className='text-center font-semibold'>
                       {t('noData')}
                     </TableCell>
                   </TableRow>
                 ) : (
                   rows.map((r, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{r.date}</TableCell>
-                      <TableCell>{r.client}</TableCell>
+                    <TableRow
+                      key={idx}
+                      className='odd:bg-white even:bg-indigo-50 dark:odd:bg-slate-800 dark:even:bg-slate-700'
+                    >
+                      <TableCell className='font-medium'>{r.date}</TableCell>
+                      <TableCell className='font-medium'>{r.client}</TableCell>
                       <TableCell>{r.distance.toFixed(2)}</TableCell>
-                      <TableCell>{r.value.toFixed(2)}</TableCell>
+                      <TableCell className='text-indigo-700 dark:text-indigo-300'>
+                        {r.value.toFixed(2)}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}

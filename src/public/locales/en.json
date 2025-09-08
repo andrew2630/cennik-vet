@@ -92,7 +92,9 @@
     "travelReport": "Travel report",
     "from": "From",
     "to": "To",
-    "generate": "Generate"
+    "generate": "Generate",
+    "noTransactionsError": "\u274c No transactions found for selected range.",
+    "noTravelError": "\u274c No travel entries found for selected range."
   },
   "transactionNew": {
     "title": "New Transaction",
