@@ -42,7 +42,10 @@ export async function includeOfflineData(userId: string) {
 
   const mergedProducts = mergeById(userProducts, localProducts).map(normalizeProduct)
   const mergedClients = mergeById(userClients, localClients)
-  const mergedTransactions = mergeById(userTransactions, localTransactions)
+  const mergedTransactions = mergeById(userTransactions, localTransactions).map(t => ({
+    ...t,
+    paymentMethod: t.paymentMethod ?? 'cash',
+  }))
 
   localStorage.setItem(storageKey('vet_products'), JSON.stringify(mergedProducts))
   localStorage.setItem(storageKey('vet_clients'), JSON.stringify(mergedClients))

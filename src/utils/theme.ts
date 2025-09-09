@@ -1,4 +1,4 @@
-export type Theme = 'light' | 'dark' | 'system';
+import type { Theme } from '@/types';
 
 export function applyTheme(theme: Theme) {
   const root = document.documentElement;

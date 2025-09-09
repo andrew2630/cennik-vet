@@ -8,7 +8,9 @@ export function exportAllDataToJSON() {
   const data = {
     products: JSON.parse(localStorage.getItem(storageKey('vet_products')) || '[]'),
     clients: JSON.parse(localStorage.getItem(storageKey('vet_clients')) || '[]'),
-    transactions: JSON.parse(localStorage.getItem(storageKey('vet_transactions')) || '[]'),
+    transactions: JSON.parse(localStorage.getItem(storageKey('vet_transactions')) || '[]').map(
+      (t: any) => ({ ...t, paymentMethod: t.paymentMethod ?? 'cash' }),
+    ),
     exportedAt: new Date().toISOString(),
     settings,
   };

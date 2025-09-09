@@ -50,6 +50,7 @@ export function importAllDataFromJSON(
       if (parsed.transactions) {
         const transactionsWithDates = (parsed.transactions as Transaction[]).map(t => ({
           ...t,
+          paymentMethod: t.paymentMethod ?? 'cash',
           updatedAt: t.updatedAt || new Date().toISOString(),
         }))
         localStorage.setItem(storageKey('vet_transactions'), JSON.stringify(transactionsWithDates))

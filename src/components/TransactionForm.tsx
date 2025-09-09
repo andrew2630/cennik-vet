@@ -5,7 +5,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { getClients } from '@/utils/clientStorage';
 import { getProducts } from '@/utils/productStorage';
 import { updateTransaction } from '@/utils/transactionStorage';
-import { Client, Product, TransactionItem, Transaction, TransactionStatus, Discount, DiscountScope } from '@/types';
+import {
+  Client,
+  Product,
+  TransactionItem,
+  Transaction,
+  TransactionStatus,
+  Discount,
+  DiscountScope,
+  PaymentMethod,
+} from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -14,7 +23,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { TimePicker } from '@/components/ui/time-picker';
 import { useDebouncedCallback } from 'use-debounce';
 import { ComboboxGeneric } from '@/components/ComboboxGeneric';
-import { Trash } from 'lucide-react';
+import { Trash, Banknote, CreditCard } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ClientModal from '@/components/ClientModal';
 import { getSettings } from '@/utils/settingsStorage';
@@ -53,6 +62,7 @@ export default function TransactionForm({
   const [openItemIndex, setOpenItemIndex] = useState<number | null>(null);
   const [transactionDate, setTransactionDate] = useState('');
   const [transactionTime, setTransactionTime] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const { currency } = getSettings();
 
   const combineDateTime = (date: string, time: string) => {
@@ -104,11 +114,13 @@ export default function TransactionForm({
       const [datePart, timePart = ''] = editingTransaction.date.split('T');
       setTransactionDate(datePart);
       setTransactionTime(timePart.slice(0, 5));
+      setPaymentMethod(editingTransaction.paymentMethod ?? 'cash');
     }
     if (!editingTransaction) {
       const now = new Date();
       setTransactionDate(formatDate(now));
       setTransactionTime(formatTime(now));
+      setPaymentMethod('cash');
     }
   }, [editingTransaction]);
 
@@ -151,6 +163,7 @@ export default function TransactionForm({
       totalPrice: total,
       date: combineDateTime(transactionDate, transactionTime),
       status,
+      paymentMethod,
       description,
     };
 
@@ -160,7 +173,7 @@ export default function TransactionForm({
 
   useEffect(() => {
     if (status === 'draft' && !readOnly) debouncedSave();
-  }, [clientId, items, discount, additionalFee, transactionDate, transactionTime, debouncedSave, readOnly, status]);
+  }, [clientId, items, discount, additionalFee, transactionDate, transactionTime, paymentMethod, debouncedSave, readOnly, status]);
 
   const calculateDiscountAmount = () => {
     if (discount.type === 'value') {
@@ -250,6 +263,7 @@ export default function TransactionForm({
       totalPrice: calculateTotal(),
       date: combineDateTime(transactionDate, transactionTime),
       status: 'finalised',
+      paymentMethod,
       description,
     };
 
@@ -271,6 +285,7 @@ export default function TransactionForm({
       totalPrice: total,
       date: combineDateTime(transactionDate, transactionTime),
       status,
+      paymentMethod,
       description,
     };
     updateTransaction(tx);
@@ -594,6 +609,40 @@ export default function TransactionForm({
             />
 
             <span>{currency}</span>
+          </div>
+        </div>
+
+        <div>
+          <Label className='py-2'>{t('paymentMethod')}</Label>
+          <div className='flex gap-2 mt-1'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => !readOnly && setPaymentMethod('cash')}
+              className={cnjoin(
+                'flex-1 justify-start',
+                paymentMethod === 'cash'
+                  ? 'bg-amber-100 dark:bg-amber-900 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200'
+                  : '',
+              )}
+              disabled={readOnly}
+            >
+              <Banknote className='w-4 h-4 mr-2' /> {t('paymentCash')}
+            </Button>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => !readOnly && setPaymentMethod('transfer')}
+              className={cnjoin(
+                'flex-1 justify-start',
+                paymentMethod === 'transfer'
+                  ? 'bg-violet-100 dark:bg-violet-900 border-violet-200 dark:border-violet-800 text-violet-800 dark:text-violet-200'
+                  : '',
+              )}
+              disabled={readOnly}
+            >
+              <CreditCard className='w-4 h-4 mr-2' /> {t('paymentTransfer')}
+            </Button>
           </div>
         </div>
 

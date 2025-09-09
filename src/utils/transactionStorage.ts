@@ -9,8 +9,9 @@ const STORAGE_KEY = () => storageKey(BASE_KEY)
 
 export function getTransactions(): Transaction[] {
   if (typeof window === 'undefined') return [];
-  const stored = localStorage.getItem(STORAGE_KEY())
-  return stored ? JSON.parse(stored) : [];
+  const stored = localStorage.getItem(STORAGE_KEY());
+  const parsed: Transaction[] = stored ? JSON.parse(stored) : [];
+  return parsed.map(tx => ({ ...tx, paymentMethod: tx.paymentMethod ?? 'cash' }));
 }
 
 export function saveTransaction(tx: Transaction): Transaction {
@@ -18,6 +19,7 @@ export function saveTransaction(tx: Transaction): Transaction {
 
   const transactionToSave: Transaction = {
     ...tx,
+    paymentMethod: tx.paymentMethod ?? 'cash',
     id: tx.id || uuid(),
     date: tx.date || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
