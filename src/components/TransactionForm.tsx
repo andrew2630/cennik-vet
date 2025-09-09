@@ -67,6 +67,9 @@ export default function TransactionForm({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const { currency } = getSettings();
 
+  const isValidPaymentMethod = (m: unknown): m is PaymentMethod => m === 'cash' || m === 'transfer';
+  const paymentStyle = PAYMENT_METHOD_STYLES[paymentMethod] || PAYMENT_METHOD_STYLES.cash;
+
   const combineDateTime = (date: string, time: string) => {
     const timePart = time || initialTime || '00:00';
     return `${date}T${timePart}`;
@@ -118,7 +121,9 @@ export default function TransactionForm({
       const timeValue = timePart.slice(0, 5);
       setTransactionTime(timeValue);
       setInitialTime(timeValue);
-      setPaymentMethod(editingTransaction.paymentMethod ?? 'cash');
+      setPaymentMethod(
+        isValidPaymentMethod(editingTransaction.paymentMethod) ? editingTransaction.paymentMethod : 'cash'
+      );
     }
     if (!editingTransaction) {
       const now = new Date();
@@ -637,7 +642,7 @@ export default function TransactionForm({
             onValueChange={(val: PaymentMethod) => setPaymentMethod(val)}
             disabled={readOnly}
           >
-            <SelectTrigger className={cnjoin('w-full justify-start mt-1', PAYMENT_METHOD_STYLES[paymentMethod].bg)}>
+            <SelectTrigger className={cnjoin('w-full justify-start mt-1', paymentStyle.bg)}>
               <SelectValue placeholder={t('paymentMethod')} />
             </SelectTrigger>
             <SelectContent>

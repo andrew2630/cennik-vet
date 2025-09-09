@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PaymentMethod } from '@/types';
 
 interface TravelRow {
   date: string;
@@ -31,6 +32,7 @@ export default function TravelReportPageContent() {
   const params = useSearchParams();
   const from = params.get('from');
   const to = params.get('to');
+  const method = params.get('method') as PaymentMethod | null;
   const [rows, setRows] = useState<TravelRow[]>([]);
   const { distanceUnit, currency } = getSettings();
 
@@ -40,7 +42,11 @@ export default function TravelReportPageContent() {
     const clients = getClients();
     const filtered = txs.filter(tx => {
       const d = dayjs(tx.date);
-      return (!from || d.isAfter(dayjs(from).subtract(1, 'day'))) && (!to || d.isBefore(dayjs(to).add(1, 'day')));
+      return (
+        (!from || d.isAfter(dayjs(from).subtract(1, 'day'))) &&
+        (!to || d.isBefore(dayjs(to).add(1, 'day'))) &&
+        (!method || tx.paymentMethod === method)
+      );
     });
     const data: TravelRow[] = [];
     filtered.forEach(tx => {
@@ -63,7 +69,7 @@ export default function TravelReportPageContent() {
     if (data.length === 0) {
       toast.error(t('noData'));
     }
-  }, [from, to, listT, itemTypeT, distanceUnit, t]);
+  }, [from, to, method, listT, itemTypeT, distanceUnit, t]);
 
   const totalDistance = rows.reduce((sum, r) => sum + r.distance, 0);
   const totalValue = rows.reduce((sum, r) => sum + r.value, 0);
