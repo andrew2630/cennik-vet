@@ -17,15 +17,21 @@ import { useRouter } from 'next/navigation';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
 import { toast } from 'sonner';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { PaymentMethod } from '@/types';
 
 export default function TransactionsPage() {
   const refresh = useDataUpdate();
   const t = useTranslations('transactions');
   const pdfT = useTranslations('pdfLabels');
   const itemTypeT = useTranslations('itemType');
+  const listT = useTranslations('transactionsList');
+  const formT = useTranslations('transactionForm');
   const router = useRouter();
   const [expRange, setExpRange] = useState<DateRange | undefined>();
   const [repRange, setRepRange] = useState<DateRange | undefined>();
+  const [expMethod, setExpMethod] = useState<'all' | PaymentMethod>('all');
+  const [repMethod, setRepMethod] = useState<'all' | PaymentMethod>('all');
 
   const exportLabels = {
     header: pdfT('header'),
@@ -70,7 +76,7 @@ export default function TransactionsPage() {
                     <DialogHeader>
                       <DialogTitle>{t('exportRange')}</DialogTitle>
                     </DialogHeader>
-                    <div className='py-2'>
+                    <div className='py-2 space-y-2'>
                       <Calendar
                         mode='range'
                         selected={expRange}
@@ -78,6 +84,16 @@ export default function TransactionsPage() {
                         numberOfMonths={1}
                         className='rounded-md border'
                       />
+                      <Select value={expMethod} onValueChange={(val: 'all' | PaymentMethod) => setExpMethod(val)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={formT('paymentMethod')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='all'>{listT('all')}</SelectItem>
+                          <SelectItem value='cash'>{formT('paymentCash')}</SelectItem>
+                          <SelectItem value='transfer'>{formT('paymentTransfer')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <DialogFooter>
                       <Button
@@ -87,9 +103,12 @@ export default function TransactionsPage() {
                           const txs = getTransactions()
                             .filter(tx => {
                               const d = dayjs(tx.date);
-                              return (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
-                                && (!to || d.isBefore(dayjs(to).add(1, 'day')));
+                              return (
+                                (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
+                                && (!to || d.isBefore(dayjs(to).add(1, 'day')))
+                              );
                             })
+                            .filter(tx => expMethod === 'all' || tx.paymentMethod === expMethod)
                             .sort((a, b) => a.date.localeCompare(b.date));
                           if (txs.length === 0) {
                             toast.error(t('noTransactionsError'));
@@ -114,7 +133,7 @@ export default function TransactionsPage() {
                     <DialogHeader>
                       <DialogTitle>{t('travelReport')}</DialogTitle>
                     </DialogHeader>
-                    <div className='py-2'>
+                    <div className='py-2 space-y-2'>
                       <Calendar
                         mode='range'
                         selected={repRange}
@@ -122,17 +141,31 @@ export default function TransactionsPage() {
                         numberOfMonths={1}
                         className='rounded-md border'
                       />
+                      <Select value={repMethod} onValueChange={(val: 'all' | PaymentMethod) => setRepMethod(val)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={formT('paymentMethod')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='all'>{listT('all')}</SelectItem>
+                          <SelectItem value='cash'>{formT('paymentCash')}</SelectItem>
+                          <SelectItem value='transfer'>{formT('paymentTransfer')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <DialogFooter>
                       <Button
                         onClick={() => {
                           const from = repRange?.from ? dayjs(repRange.from).format('YYYY-MM-DD') : '';
                           const to = repRange?.to ? dayjs(repRange.to).format('YYYY-MM-DD') : '';
-                          const txs = getTransactions().filter(tx => {
-                            const d = dayjs(tx.date);
-                            return (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
-                              && (!to || d.isBefore(dayjs(to).add(1, 'day')));
-                          });
+                          const txs = getTransactions()
+                            .filter(tx => {
+                              const d = dayjs(tx.date);
+                              return (
+                                (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
+                                && (!to || d.isBefore(dayjs(to).add(1, 'day')))
+                              );
+                            })
+                            .filter(tx => repMethod === 'all' || tx.paymentMethod === repMethod);
                           const products = getProducts();
                           const hasTravel = txs.some(tx =>
                             tx.items.some(item => {
