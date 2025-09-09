@@ -646,10 +646,10 @@ export default function TransactionForm({
               <SelectValue placeholder={t('paymentMethod')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='cash'>
+              <SelectItem value='cash' textValue={t('paymentCash')}>
                 <Banknote className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.cash.text)} /> {t('paymentCash')}
               </SelectItem>
-              <SelectItem value='transfer'>
+              <SelectItem value='transfer' textValue={t('paymentTransfer')}>
                 <CreditCard className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.transfer.text)} /> {t('paymentTransfer')}
               </SelectItem>
             </SelectContent>
