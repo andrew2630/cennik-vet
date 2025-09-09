@@ -34,7 +34,7 @@ export default function TravelReportPageContent() {
   const to = params.get('to');
   const method = params.get('method') as PaymentMethod | null;
   const [rows, setRows] = useState<TravelRow[]>([]);
-  const { distanceUnit, currency } = getSettings();
+  const { distanceUnit, currency, theme } = getSettings();
 
   useEffect(() => {
     const txs = getTransactions();
@@ -86,81 +86,95 @@ export default function TravelReportPageContent() {
     <div className='max-w-2xl mx-auto'>
       <Card className='rounded-3xl border border-gray-200 dark:border-white/10 bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-white/30 dark:from-indigo-500/30 dark:via-sky-500/10 dark:to-slate-900/20 shadow-2xl p-4'>
         <CardContent className='p-2 space-y-6'>
-            <div className='flex items-center justify-between mb-6'>
-              <h1 className='text-3xl font-bold flex items-center gap-3'>
-                <MapPin className='w-8 h-8 text-indigo-600 dark:text-indigo-300' />
-                {t('title')}
-              </h1>
-              <Link href='/transactions'>
-                <Button variant='ghost' className='flex items-center gap-2 text-sm'>
-                  <ArrowLeft className='w-4 h-4' />
-                  {t('back')}
-                </Button>
-              </Link>
+          <div className='flex items-center justify-between mb-6'>
+            <h1 className='text-3xl font-bold flex items-center gap-3'>
+              <MapPin className='w-8 h-8 text-indigo-600 dark:text-indigo-300' />
+              {t('title')}
+            </h1>
+            <Link href='/transactions'>
+              <Button variant='ghost' className='flex items-center gap-2 text-sm'>
+                <ArrowLeft className='w-4 h-4' />
+                {t('back')}
+              </Button>
+            </Link>
+          </div>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+            <div className='bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg text-center shadow'>
+              <p className='text-sm font-medium text-blue-800 dark:text-blue-200'>{t('totalDistance')}</p>
+              <p className='text-2xl font-bold text-blue-600 dark:text-blue-300'>
+                {totalDistance} {distanceUnit}
+              </p>
             </div>
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-              <div className='bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg text-center shadow'>
-                <p className='text-sm font-medium text-blue-800 dark:text-blue-200'>{t('totalDistance')}</p>
-                <p className='text-2xl font-bold text-blue-600 dark:text-blue-300'>
-                  {totalDistance} {distanceUnit}
-                </p>
-              </div>
-              <div className='bg-green-100 dark:bg-green-900/30 p-4 rounded-lg text-center shadow'>
-                <p className='text-sm font-medium text-green-800 dark:text-green-200'>{t('totalValue')}</p>
-                <p className='text-2xl font-bold text-green-600 dark:text-green-300'>
-                  {totalValue.toFixed(2)} {currency}
-                </p>
-              </div>
+            <div className='bg-green-100 dark:bg-green-900/30 p-4 rounded-lg text-center shadow'>
+              <p className='text-sm font-medium text-green-800 dark:text-green-200'>{t('totalValue')}</p>
+              <p className='text-2xl font-bold text-green-600 dark:text-green-300'>
+                {totalValue.toFixed(2)} {currency}
+              </p>
             </div>
-            <ResponsiveContainer width='100%' height={300}>
-              <BarChart data={chartData}>
-                <XAxis dataKey='date' />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey='distance' fill='#3b82f6' />
-              </BarChart>
-            </ResponsiveContainer>
-            <div className='overflow-x-auto'>
-              <Table>
-                <TableHeader className='bg-indigo-50 dark:bg-slate-800'>
+          </div>
+          <ResponsiveContainer width='100%' height={300}>
+            <BarChart data={chartData}>
+              <XAxis dataKey='date' />
+              <YAxis unit={distanceUnit} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                  color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                  borderRadius: 8,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  fontSize: 12,
+                }}
+                labelStyle={{
+                  fontSize: 12,
+                  color: theme === 'dark' ? '#d1d5db' : '#374151',
+                }}
+                formatter={val => [`${val} ${distanceUnit}`, t('distance')]}
+                cursor={{ fill: theme === 'dark' ? '#334155' : '#f1f5f9', opacity: 0.2 }}
+              />
+              <Bar dataKey='distance' fill='#3b82f6' />
+            </BarChart>
+          </ResponsiveContainer>
+          <div className='overflow-x-auto'>
+            <Table>
+              <TableHeader className='bg-indigo-50 dark:bg-slate-800'>
+                <TableRow>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>{t('date')}</TableHead>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>{t('client')}</TableHead>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>
+                    {t('distance')} ({distanceUnit})
+                  </TableHead>
+                  <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>{t('value')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.length === 0 ? (
                   <TableRow>
-                    <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>{t('date')}</TableHead>
-                    <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>{t('client')}</TableHead>
-                    <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>
-                      {t('distance')} ({distanceUnit})
-                    </TableHead>
-                    <TableHead className='font-bold text-indigo-800 dark:text-indigo-200'>{t('value')}</TableHead>
+                    <TableCell colSpan={4} className='text-center font-semibold'>
+                      {t('noData')}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className='text-center font-semibold'>
-                        {t('noData')}
+                ) : (
+                  rows.map((r, idx) => (
+                    <TableRow
+                      key={idx}
+                      className='odd:bg-white even:bg-indigo-50 dark:odd:bg-slate-800 dark:even:bg-slate-700'
+                    >
+                      <TableCell className='font-medium'>{r.date}</TableCell>
+                      <TableCell className='font-medium'>{r.client}</TableCell>
+                      <TableCell className='text-indigo-700 dark:text-indigo-300'>
+                        {r.distance} {distanceUnit}
+                      </TableCell>
+                      <TableCell className='text-green-700 dark:text-green-300'>
+                        {r.value.toFixed(2)} {currency}
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    rows.map((r, idx) => (
-                      <TableRow
-                        key={idx}
-                        className='odd:bg-white even:bg-indigo-50 dark:odd:bg-slate-800 dark:even:bg-slate-700'
-                      >
-                        <TableCell className='font-medium'>{r.date}</TableCell>
-                        <TableCell className='font-medium'>{r.client}</TableCell>
-                        <TableCell className='text-indigo-700 dark:text-indigo-300'>
-                          {r.distance} {distanceUnit}
-                        </TableCell>
-                        <TableCell className='text-green-700 dark:text-green-300'>
-                          {r.value.toFixed(2)} {currency}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
