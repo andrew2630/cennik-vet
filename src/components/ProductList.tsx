@@ -11,6 +11,7 @@ import { Pencil, Trash } from 'lucide-react';
 import { getProducts, deleteProduct } from '@/utils/productStorage';
 import { Product, ItemType, Unit } from '@/types';
 import { useTranslations } from 'next-intl';
+import { translateUnit } from '@/utils/unit';
 
 export default function ProductList({ refresh }: { refresh: number }) {
   const t = useTranslations('productList');
@@ -134,7 +135,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
                     <span className='font-medium text-foreground'>{t('type')}:</span> {itemTypeT(p.type)}
                   </div>
                   <div>
-                    <span className='font-medium text-foreground'>{t('unit')}:</span> {unitT(p.unit)}
+                    <span className='font-medium text-foreground'>{t('unit')}:</span> {translateUnit(p.unit, unitT)}
                   </div>
                   <div>
                     <span className='font-medium text-foreground'>{t('price')}:</span> {p.pricePerUnit.toFixed(2)} zł
