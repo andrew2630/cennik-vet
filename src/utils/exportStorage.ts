@@ -2,6 +2,7 @@ import { saveAs } from 'file-saver'
 import pl from '@/public/locales/pl.json'
 import en from '@/public/locales/en.json'
 import { storageKey } from './userStorage'
+import { Transaction } from '@/types'
 
 export function exportAllDataToJSON() {
   const settings = JSON.parse(localStorage.getItem(storageKey('vet_settings')) || '{}')
@@ -9,7 +10,7 @@ export function exportAllDataToJSON() {
     products: JSON.parse(localStorage.getItem(storageKey('vet_products')) || '[]'),
     clients: JSON.parse(localStorage.getItem(storageKey('vet_clients')) || '[]'),
     transactions: JSON.parse(localStorage.getItem(storageKey('vet_transactions')) || '[]').map(
-      (t: any) => ({ ...t, paymentMethod: t.paymentMethod ?? 'cash' }),
+      (t: Transaction) => ({ ...t, paymentMethod: t.paymentMethod ?? 'cash' }),
     ),
     exportedAt: new Date().toISOString(),
     settings,

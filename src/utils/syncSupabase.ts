@@ -182,7 +182,7 @@ export async function downloadUserData(userId: string) {
     const transactions = (transactionsRes.data || []).map(r => {
       const { updated_at, ...rest } = r as Record<string, unknown>
       const tx = { ...(camelCaseKeys(rest) as Transaction), updatedAt: updated_at as string }
-      return { ...tx, paymentMethod: (tx as any).paymentMethod ?? 'cash' }
+      return { ...tx, paymentMethod: (tx as Transaction).paymentMethod ?? 'cash' }
     })
 
     const mergedProducts = mergeById(

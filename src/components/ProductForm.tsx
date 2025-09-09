@@ -80,7 +80,7 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
 
       <div className='flex flex-col w-full md:w-1/5'>
         <Label className='mb-1'>{t('type')}</Label>
-        <Select value={type} onValueChange={val => setType(val as ItemType)}>
+        <Select value={type} onValueChange={val => setType((val as ItemType) || type)}>
           <SelectTrigger>
             <SelectValue placeholder={t('chooseType')} />
           </SelectTrigger>
@@ -101,7 +101,7 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
                 setIsCustomUnit(true);
                 setCustomUnit('');
               } else {
-                setUnit(val as Unit);
+                setUnit(val || unit as Unit);
               }
             }}
           >

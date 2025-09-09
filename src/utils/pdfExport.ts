@@ -71,7 +71,7 @@ const addTransactionToDoc = (
           `${index + 1}.`,
           text(product.name),
           item.quantity.toString(),
-          text(product.unit),
+          text(product.unit ?? ''),
           product.pricePerUnit.toFixed(2),
           value.toFixed(2),
         ];

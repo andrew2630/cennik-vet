@@ -36,12 +36,12 @@ export default function ProductList({ refresh }: { refresh: number }) {
     setConfirmId(null);
   };
 
-  const units = Array.from(new Set(products.map(p => p.unit)));
+  const units = Array.from(new Set(products.map(p => p.unit))).filter((u): u is string => typeof u === 'string');
 
   const filtered = products
     .filter(p => {
       const q = search.toLowerCase();
-      return p.name.toLowerCase().includes(q) || p.unit.toLowerCase().includes(q);
+      return p.name.toLowerCase().includes(q) || (p.unit && p.unit.toLowerCase().includes(q));
     })
     .filter(p => typeFilter === 'all' || p.type === typeFilter)
     .filter(p => unitFilter === 'all' || p.unit === unitFilter)
@@ -135,7 +135,7 @@ export default function ProductList({ refresh }: { refresh: number }) {
                     <span className='font-medium text-foreground'>{t('type')}:</span> {itemTypeT(p.type)}
                   </div>
                   <div>
-                    <span className='font-medium text-foreground'>{t('unit')}:</span> {translateUnit(p.unit, unitT)}
+                    <span className='font-medium text-foreground'>{t('unit')}:</span> {translateUnit(p.unit ?? '', unitT)}
                   </div>
                   <div>
                     <span className='font-medium text-foreground'>{t('price')}:</span> {p.pricePerUnit.toFixed(2)} zł

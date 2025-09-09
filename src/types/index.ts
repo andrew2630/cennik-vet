@@ -41,7 +41,7 @@ export interface Product extends Item {
   id: string;
   type: ItemType;
   name: string;
-  unit: Unit;
+  unit?: Unit;
   pricePerUnit: number;
 }
 
@@ -77,7 +77,7 @@ export interface Transaction extends Item {
   additionalFee?: number;
   totalPrice: number;
   status: TransactionStatus;
-  paymentMethod: PaymentMethod;
+  paymentMethod?: PaymentMethod;
   description?: string;
 }
 
