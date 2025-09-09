@@ -64,10 +64,13 @@ export default function TransactionForm({
   const [transactionDate, setTransactionDate] = useState('');
   const [transactionTime, setTransactionTime] = useState('');
   const [initialTime, setInitialTime] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
-  const { currency } = getSettings();
-
   const isValidPaymentMethod = (m: unknown): m is PaymentMethod => m === 'cash' || m === 'transfer';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(() =>
+    editingTransaction && isValidPaymentMethod(editingTransaction.paymentMethod)
+      ? editingTransaction.paymentMethod
+      : 'cash'
+  );
+  const { currency } = getSettings();
   const paymentStyle = PAYMENT_METHOD_STYLES[paymentMethod] || PAYMENT_METHOD_STYLES.cash;
 
   const combineDateTime = (date: string, time: string) => {
