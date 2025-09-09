@@ -16,10 +16,11 @@ import {
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash, FileText } from 'lucide-react';
+import { Pencil, Trash, FileText, Banknote, CreditCard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import PAYMENT_METHOD_STYLES from '@/utils/paymentMethodStyles';
 
 export default function TransactionList({ refresh }: { refresh: number }) {
   const t = useTranslations('transactionsList');
@@ -155,6 +156,11 @@ export default function TransactionList({ refresh }: { refresh: number }) {
                     >
                       {tx.status === 'finalised' ? t('finalised') : t('draft')}
                     </Badge>
+                    {tx.paymentMethod === 'cash' ? (
+                      <Banknote className={`w-4 h-4 ${PAYMENT_METHOD_STYLES.cash.text}`} />
+                    ) : (
+                      <CreditCard className={`w-4 h-4 ${PAYMENT_METHOD_STYLES.transfer.text}`} />
+                    )}
                   </div>
 
                   <div className='flex gap-2' onClick={e => e.stopPropagation()}>

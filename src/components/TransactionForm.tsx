@@ -28,6 +28,7 @@ import { useTranslations } from 'next-intl';
 import ClientModal from '@/components/ClientModal';
 import { getSettings } from '@/utils/settingsStorage';
 import { cnjoin } from '@/lib/utils';
+import PAYMENT_METHOD_STYLES from '@/utils/paymentMethodStyles';
 
 const pad = (n: number) => n.toString().padStart(2, '0');
 const formatDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -614,36 +615,30 @@ export default function TransactionForm({
 
         <div>
           <Label className='py-2'>{t('paymentMethod')}</Label>
-          <div className='flex gap-2 mt-1'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => !readOnly && setPaymentMethod('cash')}
-              className={cnjoin(
-                'flex-1 justify-start',
-                paymentMethod === 'cash'
-                  ? 'bg-amber-100 dark:bg-amber-900 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200'
-                  : '',
-              )}
-              disabled={readOnly}
-            >
-              <Banknote className='w-4 h-4 mr-2' /> {t('paymentCash')}
-            </Button>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => !readOnly && setPaymentMethod('transfer')}
-              className={cnjoin(
-                'flex-1 justify-start',
-                paymentMethod === 'transfer'
-                  ? 'bg-violet-100 dark:bg-violet-900 border-violet-200 dark:border-violet-800 text-violet-800 dark:text-violet-200'
-                  : '',
-              )}
-              disabled={readOnly}
-            >
-              <CreditCard className='w-4 h-4 mr-2' /> {t('paymentTransfer')}
-            </Button>
-          </div>
+          <Select
+            value={paymentMethod}
+            onValueChange={(val: PaymentMethod) => setPaymentMethod(val)}
+            disabled={readOnly}
+          >
+            <SelectTrigger className={cnjoin('w-full justify-start mt-1', PAYMENT_METHOD_STYLES[paymentMethod].bg)}>
+              <div className='flex items-center gap-2'>
+                {paymentMethod === 'cash' ? (
+                  <Banknote className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.cash.text)} />
+                ) : (
+                  <CreditCard className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.transfer.text)} />
+                )}
+                <SelectValue placeholder={t('paymentMethod')} />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='cash'>
+                <Banknote className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.cash.text)} /> {t('paymentCash')}
+              </SelectItem>
+              <SelectItem value='transfer'>
+                <CreditCard className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.transfer.text)} /> {t('paymentTransfer')}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className='text-xl font-semibold text-right text-green-700 dark:text-green-300'>
