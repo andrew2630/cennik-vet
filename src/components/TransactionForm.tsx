@@ -621,14 +621,7 @@ export default function TransactionForm({
             disabled={readOnly}
           >
             <SelectTrigger className={cnjoin('w-full justify-start mt-1', PAYMENT_METHOD_STYLES[paymentMethod].bg)}>
-              <div className='flex items-center gap-2'>
-                {paymentMethod === 'cash' ? (
-                  <Banknote className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.cash.text)} />
-                ) : (
-                  <CreditCard className={cnjoin('w-4 h-4', PAYMENT_METHOD_STYLES.transfer.text)} />
-                )}
-                <SelectValue placeholder={t('paymentMethod')} />
-              </div>
+              <SelectValue placeholder={t('paymentMethod')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='cash'>
