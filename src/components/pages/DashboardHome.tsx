@@ -187,59 +187,6 @@ export default function DashboardHome() {
         </Link>
       </motion.div>
 
-      {/* Summary Cards */}
-      {false /* not needed by the user */ && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className='grid grid-cols-2 md:grid-cols-4 gap-6'
-        >
-          {[
-            {
-              title: t('summary.travel'),
-              value: totalSummary.travel,
-              unit: distanceUnit,
-              icon: <MapPin className='w-5 h-5 text-green-500' />,
-            },
-            {
-              title: t('summary.transactions'),
-              value: totalSummary.transactions,
-              unit: '',
-              icon: <ReceiptText className='w-5 h-5 text-indigo-500' />,
-            },
-            {
-              title: t('summary.totalValue'),
-              value: totalSummary.value.toFixed(2),
-              unit: currency,
-              icon: <ReceiptText className='w-5 h-5 text-blue-500' />,
-            },
-            {
-              title: t('summary.avgPerTransaction'),
-              value: (totalSummary.value / Math.max(1, totalSummary.transactions)).toFixed(2),
-              unit: currency,
-              icon: <CalendarIcon className='w-5 h-5 text-pink-500' />,
-            },
-          ].map((item, idx) => (
-            <motion.div
-              key={idx}
-              className='rounded-2xl p-4 backdrop-blur-xs bg-white/10 dark:bg-slate-800/30 border border-white/10 shadow-xl transition-all'
-            >
-              <div className='flex items-center justify-between mb-2'>
-                <div className='text-sm font-medium text-foreground flex items-center gap-2'>
-                  {item.icon}
-                  {item.title}
-                </div>
-              </div>
-              <div className='text-3xl font-bold text-foreground mt-1'>
-                <CountUp end={parseInt(item.value.toString())} duration={1.4} separator=' ' />
-                {` ${item.unit}`}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
-
       {/* Recent Transactions & Clients */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -366,6 +313,59 @@ export default function DashboardHome() {
         )}
       </motion.div>
 
+      {/* Summary Cards */}
+      {true /* not needed by the user */ && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className='grid grid-cols-2 md:grid-cols-4 gap-6'
+        >
+          {[
+            {
+              title: t('summary.travel'),
+              value: totalSummary.travel,
+              unit: distanceUnit,
+              icon: <MapPin className='w-5 h-5 text-green-500' />,
+            },
+            {
+              title: t('summary.transactions'),
+              value: totalSummary.transactions,
+              unit: '',
+              icon: <ReceiptText className='w-5 h-5 text-indigo-500' />,
+            },
+            {
+              title: t('summary.totalValue'),
+              value: totalSummary.value.toFixed(2),
+              unit: currency,
+              icon: <ReceiptText className='w-5 h-5 text-blue-500' />,
+            },
+            {
+              title: t('summary.avgPerTransaction'),
+              value: (totalSummary.value / Math.max(1, totalSummary.transactions)).toFixed(2),
+              unit: currency,
+              icon: <CalendarIcon className='w-5 h-5 text-pink-500' />,
+            },
+          ].map((item, idx) => (
+            <motion.div
+              key={idx}
+              className='rounded-2xl p-4 backdrop-blur-xs bg-white/10 dark:bg-slate-800/30 border border-white/10 shadow-xl transition-all'
+            >
+              <div className='flex items-center justify-between mb-2'>
+                <div className='text-sm font-medium text-foreground flex items-center gap-2'>
+                  {item.icon}
+                  {item.title}
+                </div>
+              </div>
+              <div className='text-3xl font-bold text-foreground mt-1'>
+                <CountUp end={parseInt(item.value.toString())} duration={1.4} separator=' ' />
+                {` ${item.unit}`}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+
       {/* Chart + Calendar Visualizations */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -373,9 +373,72 @@ export default function DashboardHome() {
         transition={{ delay: 0.2, duration: 0.7 }}
         className='grid grid-cols-1 lg:grid-cols-7 gap-6'
       >
-        {/* ComposedChart: Value vs Travel */}
+        {/* Clients per Day & Calendar Overview */}
+        {/* <div className='col-span-7 lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-6'> */}
         <div className='col-span-7 lg:col-span-3'>
+          {/* BarChart: Daily Clients Count */}
           {false /* not needed by the user */ && (
+            <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
+              <CardHeader>
+                <CardTitle className='text-lg font-semibold'>{t('charts.dailyClients')}</CardTitle>
+              </CardHeader>
+              <CardContent className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <BarChart data={Object.values(dailyData)}>
+                    <XAxis dataKey='date' tick={{ fontSize: 10 }} stroke='#ccc' />
+                    <YAxis stroke='#ccc' width={20} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                        color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                        borderRadius: 8,
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        fontSize: 12,
+                      }}
+                      labelStyle={{
+                        fontSize: 12,
+                        color: theme === 'dark' ? '#d1d5db' : '#374151',
+                      }}
+                      formatter={val => [`${val}`, t('summary.clients')]}
+                      cursor={{ fill: theme === 'dark' ? '#334155' : '#f1f5f9', opacity: 0.2 }}
+                    />
+                    <Bar dataKey='count' fill='#22c55e' radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Calendar Overview */}
+          <motion.div layout whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+            <div className='col-span-7 lg:col-span-3'>
+              <Link href='/transactions/calendar'>
+                <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
+                  <CardHeader>
+                    <CardTitle>{t('charts.calendar')}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Calendar
+                      mode='default'
+                      selected={undefined}
+                      modifiers={calendarModifiers}
+                      modifiersClassNames={{
+                        'calendar-intensity-1': 'bg-green-100',
+                        'calendar-intensity-2': 'bg-green-300',
+                        'calendar-intensity-3': 'bg-green-500 text-white',
+                        'calendar-intensity-4': 'bg-green-700 text-white font-bold',
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ComposedChart: Value vs Travel */}
+        <div className='col-span-7 lg:col-span-4'>
+          {true /* not needed by the user */ && (
             <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
               <CardHeader>
                 <CardTitle className='text-lg font-semibold'>{t('charts.valueVsDistance')}</CardTitle>
@@ -436,67 +499,6 @@ export default function DashboardHome() {
               </CardContent>
             </Card>
           )}
-        </div>
-
-        {/* Clients per Day & Calendar Overview */}
-        {/* <div className='col-span-7 lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-6'> */}
-        <div className='col-span-7 grid grid-cols-1 gap-6'>
-          {/* BarChart: Daily Clients Count */}
-          {false /* not needed by the user */ && (
-            <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
-              <CardHeader>
-                <CardTitle className='text-lg font-semibold'>{t('charts.dailyClients')}</CardTitle>
-              </CardHeader>
-              <CardContent className='h-[300px]'>
-                <ResponsiveContainer width='100%' height='100%'>
-                  <BarChart data={Object.values(dailyData)}>
-                    <XAxis dataKey='date' tick={{ fontSize: 10 }} stroke='#ccc' />
-                    <YAxis stroke='#ccc' width={20} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                        color: theme === 'dark' ? '#f9fafb' : '#1f2937',
-                        borderRadius: 8,
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        fontSize: 12,
-                      }}
-                      labelStyle={{
-                        fontSize: 12,
-                        color: theme === 'dark' ? '#d1d5db' : '#374151',
-                      }}
-                      formatter={val => [`${val}`, t('summary.clients')]}
-                      cursor={{ fill: theme === 'dark' ? '#334155' : '#f1f5f9', opacity: 0.2 }}
-                    />
-                    <Bar dataKey='count' fill='#22c55e' radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Calendar Overview */}
-          <motion.div layout whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-            <Link href='/transactions/calendar'>
-              <Card className='border border-white/10 bg-white/5 dark:bg-slate-800/30 shadow-xl backdrop-blur-xs'>
-                <CardHeader>
-                  <CardTitle>{t('charts.calendar')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Calendar
-                    mode='default'
-                    selected={undefined}
-                    modifiers={calendarModifiers}
-                    modifiersClassNames={{
-                      'calendar-intensity-1': 'bg-green-100',
-                      'calendar-intensity-2': 'bg-green-300',
-                      'calendar-intensity-3': 'bg-green-500 text-white',
-                      'calendar-intensity-4': 'bg-green-700 text-white font-bold',
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            </Link>
-          </motion.div>
         </div>
       </motion.div>
 
