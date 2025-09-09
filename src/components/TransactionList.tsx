@@ -22,7 +22,13 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import PAYMENT_METHOD_STYLES from '@/utils/paymentMethodStyles';
 
-export default function TransactionList({ refresh }: { refresh: number }) {
+interface TransactionListProps {
+  refresh: number;
+  paymentFilter: 'all' | PaymentMethod;
+  onPaymentFilterChange: (val: 'all' | PaymentMethod) => void;
+}
+
+export default function TransactionList({ refresh, paymentFilter, onPaymentFilterChange }: TransactionListProps) {
   const t = useTranslations('transactionsList');
   const tForm = useTranslations('transactionForm');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -30,7 +36,6 @@ export default function TransactionList({ refresh }: { refresh: number }) {
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<'date' | 'client'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [paymentFilter, setPaymentFilter] = useState<'all' | PaymentMethod>('all');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
   const router = useRouter();
 
@@ -75,7 +80,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
           />
 
           <div className='flex flex-row gap-2 md:items-center'>
-            <Select value={paymentFilter} onValueChange={(val: 'all' | PaymentMethod) => setPaymentFilter(val)}>
+            <Select value={paymentFilter} onValueChange={onPaymentFilterChange}>
               <SelectTrigger className='w-[110px] md:w-[110px]'>
                 <SelectValue placeholder={tForm('paymentMethod')} />
               </SelectTrigger>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import useDataUpdate from '@/utils/useDataUpdate';
 import Link from 'next/link';
 import { PlusCircle, ReceiptText, FileDown, MapPin } from 'lucide-react';
@@ -31,8 +31,14 @@ export default function TransactionsPage() {
   const router = useRouter();
   const [expRange, setExpRange] = useState<DateRange | undefined>();
   const [repRange, setRepRange] = useState<DateRange | undefined>();
+  const [paymentFilter, setPaymentFilter] = useState<'all' | PaymentMethod>('all');
   const [expMethod, setExpMethod] = useState<'all' | PaymentMethod>('all');
   const [repMethod, setRepMethod] = useState<'all' | PaymentMethod>('all');
+
+  useEffect(() => {
+    setExpMethod(paymentFilter);
+    setRepMethod(paymentFilter);
+  }, [paymentFilter]);
 
   const exportLabels = {
     header: pdfT('header'),
@@ -187,6 +193,7 @@ export default function TransactionsPage() {
                           const params = new URLSearchParams();
                           if (from) params.set('from', from);
                           if (to) params.set('to', to);
+                          if (repMethod !== 'all') params.set('method', repMethod);
                           router.push(`/transactions/travel-report?${params.toString()}`);
                         }}
                       >
@@ -204,7 +211,11 @@ export default function TransactionsPage() {
               </div>
             </div>
 
-            <TransactionList refresh={refresh} />
+            <TransactionList
+              refresh={refresh}
+              paymentFilter={paymentFilter}
+              onPaymentFilterChange={setPaymentFilter}
+            />
           </CardContent>
         </Card>
       </div>
