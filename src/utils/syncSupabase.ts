@@ -4,7 +4,7 @@ import { supabase } from './supabaseClient'
 import { notifyDataUpdated } from './dataUpdateEvent'
 import { Client, Product, Transaction } from '@/types'
 import { storageKey } from './userStorage'
-import { normalizeProduct } from './productStorage'
+import { normalizeProduct } from './normalizeProduct'
 
 function snakeCaseKeys<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
   return Object.fromEntries(

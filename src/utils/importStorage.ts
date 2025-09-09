@@ -6,7 +6,7 @@ import { supabase } from './supabaseClient'
 import { notifyDataUpdated } from './dataUpdateEvent'
 import { storageKey } from './userStorage'
 import type { Product, Client, Transaction } from '@/types'
-import { normalizeProduct } from './productStorage'
+import { normalizeProduct } from './normalizeProduct'
 
 export function importAllDataFromJSON(
   file: File,
