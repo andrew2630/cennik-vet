@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Transaction, Client } from '@/types';
+import { Transaction, Client, PaymentMethod } from '@/types';
 import { getTransactions, deleteTransaction } from '@/utils/transactionStorage';
 import { getClients } from '@/utils/clientStorage';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -24,11 +24,13 @@ import PAYMENT_METHOD_STYLES from '@/utils/paymentMethodStyles';
 
 export default function TransactionList({ refresh }: { refresh: number }) {
   const t = useTranslations('transactionsList');
+  const tForm = useTranslations('transactionForm');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<'date' | 'client'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [paymentFilter, setPaymentFilter] = useState<'all' | PaymentMethod>('all');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
   const router = useRouter();
 
@@ -44,6 +46,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
       const clientName = getClientName(tx.clientId).toLowerCase();
       return clientName.includes(search.toLowerCase()) || tx.date.includes(search);
     })
+    .filter(tx => paymentFilter === 'all' || tx.paymentMethod === paymentFilter)
     .sort((a, b) => {
       const aValue = sortField === 'client' ? getClientName(a.clientId).toLowerCase() : a.date;
       const bValue = sortField === 'client' ? getClientName(b.clientId).toLowerCase() : b.date;
@@ -72,6 +75,17 @@ export default function TransactionList({ refresh }: { refresh: number }) {
           />
 
           <div className='flex flex-row gap-2 md:items-center'>
+            <Select value={paymentFilter} onValueChange={(val: 'all' | PaymentMethod) => setPaymentFilter(val)}>
+              <SelectTrigger className='w-[140px]'>
+                <SelectValue placeholder={tForm('paymentMethod')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>{t('all')}</SelectItem>
+                <SelectItem value='cash'>{tForm('paymentCash')}</SelectItem>
+                <SelectItem value='transfer'>{tForm('paymentTransfer')}</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Select value={sortField} onValueChange={(val: 'date' | 'client') => setSortField(val)}>
               <SelectTrigger className='w-[120px]'>
                 <SelectValue placeholder={t('sortBy')} />

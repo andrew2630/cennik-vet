@@ -203,6 +203,7 @@
     "client": "Client",
     "asc": "Ascending",
     "desc": "Descending",
+    "all": "All",
     "none": "No transactions to display.",
     "clientLabel": "Client",
     "phone": "phone no.",

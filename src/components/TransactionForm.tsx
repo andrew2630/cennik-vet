@@ -63,11 +63,12 @@ export default function TransactionForm({
   const [openItemIndex, setOpenItemIndex] = useState<number | null>(null);
   const [transactionDate, setTransactionDate] = useState('');
   const [transactionTime, setTransactionTime] = useState('');
+  const [initialTime, setInitialTime] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const { currency } = getSettings();
 
   const combineDateTime = (date: string, time: string) => {
-    const timePart = time || '00:00';
+    const timePart = time || initialTime || '00:00';
     return `${date}T${timePart}`;
   };
 
@@ -114,13 +115,17 @@ export default function TransactionForm({
       setDescription(editingTransaction.description || '');
       const [datePart, timePart = ''] = editingTransaction.date.split('T');
       setTransactionDate(datePart);
-      setTransactionTime(timePart.slice(0, 5));
+      const timeValue = timePart.slice(0, 5);
+      setTransactionTime(timeValue);
+      setInitialTime(timeValue);
       setPaymentMethod(editingTransaction.paymentMethod ?? 'cash');
     }
     if (!editingTransaction) {
       const now = new Date();
+      const timeStr = formatTime(now);
       setTransactionDate(formatDate(now));
-      setTransactionTime(formatTime(now));
+      setTransactionTime(timeStr);
+      setInitialTime(timeStr);
       setPaymentMethod('cash');
     }
   }, [editingTransaction]);
@@ -174,7 +179,19 @@ export default function TransactionForm({
 
   useEffect(() => {
     if (status === 'draft' && !readOnly) debouncedSave();
-  }, [clientId, items, discount, additionalFee, transactionDate, transactionTime, paymentMethod, debouncedSave, readOnly, status]);
+  }, [
+    clientId,
+    items,
+    discount,
+    additionalFee,
+    transactionDate,
+    transactionTime,
+    paymentMethod,
+    initialTime,
+    debouncedSave,
+    readOnly,
+    status,
+  ]);
 
   const calculateDiscountAmount = () => {
     if (discount.type === 'value') {

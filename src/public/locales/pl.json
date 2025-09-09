@@ -203,6 +203,7 @@
     "client": "Klient",
     "asc": "Rosnąco",
     "desc": "Malejąco",
+    "all": "Wszystkie",
     "none": "Brak rozliczeń do wyświetlenia.",
     "clientLabel": "Klient",
     "phone": "tel.",
