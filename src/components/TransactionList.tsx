@@ -66,9 +66,9 @@ export default function TransactionList({ refresh }: { refresh: number }) {
           <CardTitle className='py-2'>{t('title')}</CardTitle>
         </div>
 
-        <div className='flex flex-col sm:flex-row gap-2 w-full md:w-auto'>
+        <div className='flex flex-col md:flex-row gap-2 w-full md:w-auto'>
           <Input
-            className='min-w-[200px] sm:min-w-[300px]'
+            className='min-w-[200px] md:min-w-[230px]'
             placeholder={t('searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -76,7 +76,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
 
           <div className='flex flex-row gap-2 md:items-center'>
             <Select value={paymentFilter} onValueChange={(val: 'all' | PaymentMethod) => setPaymentFilter(val)}>
-              <SelectTrigger className='w-[140px]'>
+              <SelectTrigger className='w-[110px] md:w-[110px]'>
                 <SelectValue placeholder={tForm('paymentMethod')} />
               </SelectTrigger>
               <SelectContent>
@@ -87,7 +87,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
             </Select>
 
             <Select value={sortField} onValueChange={(val: 'date' | 'client') => setSortField(val)}>
-              <SelectTrigger className='w-[120px]'>
+              <SelectTrigger className='w-[110px] md:w-[100px]'>
                 <SelectValue placeholder={t('sortBy')} />
               </SelectTrigger>
               <SelectContent>
@@ -97,7 +97,7 @@ export default function TransactionList({ refresh }: { refresh: number }) {
             </Select>
 
             <Select value={sortOrder} onValueChange={(val: 'asc' | 'desc') => setSortOrder(val)}>
-              <SelectTrigger className='w-[120px]'>
+              <SelectTrigger className='w-[110px] md:w-[110px]'>
                 <SelectValue placeholder={t('order')} />
               </SelectTrigger>
               <SelectContent>

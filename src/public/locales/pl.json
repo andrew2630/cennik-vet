@@ -94,7 +94,8 @@
     "to": "Do",
     "generate": "Generuj",
     "noTransactionsError": "\u274c Brak rozliczeń w wybranym zakresie.",
-    "noTravelError": "\u274c Brak dojazdów w wybranym zakresie."
+    "noTravelError": "\u274c Brak dojazdów w wybranym zakresie.",
+    "paymentMethod": "Forma płatności"
   },
   "transactionNew": {
     "title": "Nowe rozliczenie",

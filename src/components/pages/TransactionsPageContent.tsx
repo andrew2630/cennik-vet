@@ -19,6 +19,7 @@ import { DateRange } from 'react-day-picker';
 import { toast } from 'sonner';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { PaymentMethod } from '@/types';
+import { Label } from '@/components/ui/label';
 
 export default function TransactionsPage() {
   const refresh = useDataUpdate();
@@ -84,16 +85,19 @@ export default function TransactionsPage() {
                         numberOfMonths={1}
                         className='rounded-md border'
                       />
-                      <Select value={expMethod} onValueChange={(val: 'all' | PaymentMethod) => setExpMethod(val)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder={formT('paymentMethod')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value='all'>{listT('all')}</SelectItem>
-                          <SelectItem value='cash'>{formT('paymentCash')}</SelectItem>
-                          <SelectItem value='transfer'>{formT('paymentTransfer')}</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className='flex gap-2'>
+                        <Label className='py-2'>{t('paymentMethod')}:</Label>
+                        <Select value={expMethod} onValueChange={(val: 'all' | PaymentMethod) => setExpMethod(val)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={formT('paymentMethod')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value='all'>{listT('all')}</SelectItem>
+                            <SelectItem value='cash'>{formT('paymentCash')}</SelectItem>
+                            <SelectItem value='transfer'>{formT('paymentTransfer')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <DialogFooter>
                       <Button
@@ -104,8 +108,8 @@ export default function TransactionsPage() {
                             .filter(tx => {
                               const d = dayjs(tx.date);
                               return (
-                                (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
-                                && (!to || d.isBefore(dayjs(to).add(1, 'day')))
+                                (!from || d.isAfter(dayjs(from).subtract(1, 'day'))) &&
+                                (!to || d.isBefore(dayjs(to).add(1, 'day')))
                               );
                             })
                             .filter(tx => expMethod === 'all' || tx.paymentMethod === expMethod)
@@ -141,16 +145,19 @@ export default function TransactionsPage() {
                         numberOfMonths={1}
                         className='rounded-md border'
                       />
-                      <Select value={repMethod} onValueChange={(val: 'all' | PaymentMethod) => setRepMethod(val)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder={formT('paymentMethod')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value='all'>{listT('all')}</SelectItem>
-                          <SelectItem value='cash'>{formT('paymentCash')}</SelectItem>
-                          <SelectItem value='transfer'>{formT('paymentTransfer')}</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className='flex gap-2'>
+                        <Label className='py-2'>{t('paymentMethod')}:</Label>
+                        <Select value={repMethod} onValueChange={(val: 'all' | PaymentMethod) => setRepMethod(val)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={formT('paymentMethod')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value='all'>{listT('all')}</SelectItem>
+                            <SelectItem value='cash'>{formT('paymentCash')}</SelectItem>
+                            <SelectItem value='transfer'>{formT('paymentTransfer')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <DialogFooter>
                       <Button
@@ -161,8 +168,8 @@ export default function TransactionsPage() {
                             .filter(tx => {
                               const d = dayjs(tx.date);
                               return (
-                                (!from || d.isAfter(dayjs(from).subtract(1, 'day')))
-                                && (!to || d.isBefore(dayjs(to).add(1, 'day')))
+                                (!from || d.isAfter(dayjs(from).subtract(1, 'day'))) &&
+                                (!to || d.isBefore(dayjs(to).add(1, 'day')))
                               );
                             })
                             .filter(tx => repMethod === 'all' || tx.paymentMethod === repMethod);
@@ -170,11 +177,7 @@ export default function TransactionsPage() {
                           const hasTravel = txs.some(tx =>
                             tx.items.some(item => {
                               const prod = products.find(p => p.id === item.productId);
-                              return (
-                                prod &&
-                                prod.name.toLowerCase() ===
-                                  itemTypeT('travel').toLowerCase()
-                              );
+                              return prod && prod.name.toLowerCase() === itemTypeT('travel').toLowerCase();
                             })
                           );
                           if (!hasTravel) {
