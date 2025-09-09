@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { getProducts, saveProduct } from '@/utils/productStorage';
 import { Unit, ItemType } from '@/types';
-import { predefinedUnits, mapUnit } from '@/utils/unit';
+import { predefinedUnits, mapUnit, translateUnit } from '@/utils/unit';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
 
@@ -106,7 +106,9 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t('chooseUnit')} />
+              <SelectValue placeholder={t('chooseUnit')}>
+                {translateUnit(unit, unitT)}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {predefinedUnits.map(u => (
