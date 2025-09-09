@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { getProducts, saveProduct } from '@/utils/productStorage';
 import { Unit, ItemType } from '@/types';
+import { predefinedUnits, mapUnit } from '@/utils/unit';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
 
@@ -17,11 +18,6 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
 
   const t = useTranslations('ProductForm');
   const unitT = useTranslations('unit');
-
-  const predefinedUnits: Unit[] = useMemo(() => [
-    'pcs', 'ml', 'g', 'kg', 'pack', 'dose', 'tablet', 'dropper',
-    'ampoule', 'sachet', 'blister', 'tube', 'tubosyringe', 'can', 'km',
-  ], []);
 
   const [name, setName] = useState('');
   const [unit, setUnit] = useState<Unit>('pcs');
@@ -40,9 +36,9 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
     setPrice(prod.pricePerUnit.toString());
     setType(prod.type || 'product');
 
-    const normalizedUnit = prod.unit?.toLowerCase().trim();
-    if (normalizedUnit && predefinedUnits.includes(normalizedUnit as Unit)) {
-      setUnit(normalizedUnit as Unit);
+    const mapped = mapUnit(prod.unit);
+    if (mapped) {
+      setUnit(mapped);
       setIsCustomUnit(false);
       setCustomUnit('');
     } else if (prod.unit) {
@@ -53,7 +49,7 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
       setIsCustomUnit(false);
       setCustomUnit('');
     }
-  }, [productId, predefinedUnits]);
+  }, [productId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
