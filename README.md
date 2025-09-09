@@ -141,6 +141,7 @@ interface Transaction {
   additionalFee?: number;
   totalPrice: number;
   status: 'draft' | 'finalised';
+  paymentMethod: 'cash' | 'transfer';
   description?: string;
 }
 ```
