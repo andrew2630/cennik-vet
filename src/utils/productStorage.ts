@@ -2,10 +2,7 @@ import { Product } from '@/types'
 import { queueOperation } from './syncSupabase'
 import { notifyDataUpdated } from './dataUpdateEvent'
 import { storageKey } from './userStorage'
-
-export function normalizeProduct(p: Product): Product {
-  return { ...p, type: p.type ?? 'product' }
-}
+import { normalizeProduct } from './normalizeProduct'
 
 const BASE_KEY = 'vet_products'
 const STORAGE_KEY = () => storageKey(BASE_KEY)

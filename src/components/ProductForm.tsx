@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { getProducts, saveProduct } from '@/utils/productStorage';
-import { Unit, ItemType, Product } from '@/types';
+import { Unit, ItemType } from '@/types';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useTranslations } from 'next-intl';
 
@@ -23,7 +23,6 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
     'ampoule', 'sachet', 'blister', 'tube', 'tubosyringe', 'can', 'km',
   ], []);
 
-  const [product, setProduct] = useState<Product | null>(null);
   const [name, setName] = useState('');
   const [unit, setUnit] = useState<Unit>('pcs');
   const [customUnit, setCustomUnit] = useState('');
@@ -35,24 +34,26 @@ export default function ProductForm({ onAdd }: { onAdd: () => void }) {
     if (!productId) return;
 
     const prod = getProducts().find(p => p.id === productId);
-    if (prod) setProduct(prod);
-  }, [productId]);
+    if (!prod) return;
 
-  useEffect(() => {
-    if (!product) return;
-    setName(product.name);
-    setPrice(product.pricePerUnit.toString());
-    setType(product.type || 'product');
+    setName(prod.name);
+    setPrice(prod.pricePerUnit.toString());
+    setType(prod.type || 'product');
 
-    if (predefinedUnits.includes(product.unit)) {
-      setUnit(product.unit as Unit);
+    const normalizedUnit = prod.unit?.toLowerCase().trim();
+    if (normalizedUnit && predefinedUnits.includes(normalizedUnit as Unit)) {
+      setUnit(normalizedUnit as Unit);
       setIsCustomUnit(false);
       setCustomUnit('');
-    } else {
+    } else if (prod.unit) {
       setIsCustomUnit(true);
-      setCustomUnit(product.unit);
+      setCustomUnit(prod.unit);
+    } else {
+      setUnit('pcs');
+      setIsCustomUnit(false);
+      setCustomUnit('');
     }
-  }, [product, predefinedUnits]);
+  }, [productId, predefinedUnits]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
