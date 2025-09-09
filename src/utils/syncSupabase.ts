@@ -181,7 +181,8 @@ export async function downloadUserData(userId: string) {
     })
     const transactions = (transactionsRes.data || []).map(r => {
       const { updated_at, ...rest } = r as Record<string, unknown>
-      return { ...(camelCaseKeys(rest) as Transaction), updatedAt: updated_at as string }
+      const tx = { ...(camelCaseKeys(rest) as Transaction), updatedAt: updated_at as string }
+      return { ...tx, paymentMethod: (tx as any).paymentMethod ?? 'cash' }
     })
 
     const mergedProducts = mergeById(
@@ -195,7 +196,7 @@ export async function downloadUserData(userId: string) {
     const mergedTransactions = mergeById(
       JSON.parse(localStorage.getItem(storageKey('vet_transactions')) || '[]'),
       transactions,
-    )
+    ).map(t => ({ ...t, paymentMethod: t.paymentMethod ?? 'cash' }))
 
     localStorage.setItem(storageKey('vet_products'), JSON.stringify(mergedProducts))
     localStorage.setItem(storageKey('vet_clients'), JSON.stringify(mergedClients))

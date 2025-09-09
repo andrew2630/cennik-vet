@@ -31,6 +31,12 @@ export type Language = 'pl' | 'en';
 
 export type TravelUnit = 'km' | 'mi';
 
+export type Theme = 'light' | 'dark' | 'system';
+
+export type Locale = Language;
+
+export type PaymentMethod = 'cash' | 'transfer';
+
 export interface Product extends Item {
   id: string;
   type: ItemType;
@@ -71,11 +77,12 @@ export interface Transaction extends Item {
   additionalFee?: number;
   totalPrice: number;
   status: TransactionStatus;
+  paymentMethod: PaymentMethod;
   description?: string;
 }
 
 export interface ThemeSettings {
-  theme: 'light' | 'dark' | 'system';
+  theme: Theme;
 }
 export interface Settings {
   currency: Currency;
