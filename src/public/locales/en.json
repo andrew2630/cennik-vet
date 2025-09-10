@@ -69,6 +69,10 @@
       "transactions": "Transactions",
       "clients": "Clients",
       "totalValue": "Total Value",
+      "productsValue": "Products Value",
+      "servicesValue": "Services Value",
+      "discounts": "Discounts",
+      "additionalFees": "Additional Fees",
       "avgPerTransaction": "Avg per Transaction"
     },
     "charts": {

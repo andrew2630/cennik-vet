@@ -69,6 +69,10 @@
       "transactions": "Rozliczenia",
       "clients": "Klienci",
       "totalValue": "Łączna wartość",
+      "productsValue": "Wartość produktów",
+      "servicesValue": "Wartość usług",
+      "discounts": "Rabaty",
+      "additionalFees": "Dodatkowe opłaty",
       "avgPerTransaction": "Śr. na rozliczenie"
     },
     "charts": {

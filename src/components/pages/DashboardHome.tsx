@@ -18,6 +18,8 @@ import {
   ReceiptText,
   Settings as SettingsIcon,
   Users,
+  BadgePercent,
+  HandCoins,
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -132,11 +134,68 @@ export default function DashboardHome() {
 
   const lastClients = clients.slice(-3).reverse();
   const lastTransactions = sortedTransactions.slice(-3).reverse();
+  const travelName = itemTypeT('travel').toLowerCase();
+
+  const extraTotals = filteredTransactions.reduce(
+    (acc, tx) => {
+      tx.items.forEach(item => {
+        const product = products.find(p => p.id === item.productId);
+        if (!product) return;
+        const price = item.priceAtTransaction ?? product.pricePerUnit;
+        const value = price * item.quantity;
+        const isTravel = product.name.toLowerCase() === travelName;
+        if (product.type === 'product') acc.products += value;
+        else if (product.type === 'service' && !isTravel) acc.services += value;
+      });
+
+      if (tx.discount) {
+        const { type, value, scope } = tx.discount;
+        if (type === 'value') {
+          acc.discounts += value;
+        } else {
+          let base = 0;
+          tx.items.forEach(item => {
+            const product = products.find(p => p.id === item.productId);
+            if (!product) return;
+            const price = item.priceAtTransaction ?? product.pricePerUnit;
+            const val = price * item.quantity;
+            const isTravel = product.name.toLowerCase() === travelName;
+            switch (scope) {
+              case 'all':
+                base += val;
+                break;
+              case 'no-travel':
+                if (!isTravel) base += val;
+                break;
+              case 'services':
+                if (product.type === 'service' && !isTravel) base += val;
+                break;
+              case 'products':
+                if (product.type === 'product') base += val;
+                break;
+              default:
+                break;
+            }
+          });
+          acc.discounts += (base * value) / 100;
+        }
+      }
+
+      acc.fees += tx.additionalFee ?? 0;
+
+      return acc;
+    },
+    { products: 0, services: 0, discounts: 0, fees: 0 }
+  );
 
   const totalSummary = {
     transactions: filteredTransactions.length,
     value: filteredTransactions.reduce((sum, tx) => sum + tx.totalPrice, 0),
     travel: filteredTransactions.reduce((sum, tx) => sum + getTravelKm(tx), 0),
+    productsValue: extraTotals.products,
+    servicesValue: extraTotals.services,
+    discounts: extraTotals.discounts,
+    additionalFees: extraTotals.fees,
   };
 
   return (
@@ -339,6 +398,30 @@ export default function DashboardHome() {
               value: totalSummary.value.toFixed(2),
               unit: currency,
               icon: <ReceiptText className='w-5 h-5 text-blue-500' />,
+            },
+            {
+              title: t('summary.productsValue'),
+              value: totalSummary.productsValue.toFixed(2),
+              unit: currency,
+              icon: <Package className='w-5 h-5 text-orange-500' />,
+            },
+            {
+              title: t('summary.servicesValue'),
+              value: totalSummary.servicesValue.toFixed(2),
+              unit: currency,
+              icon: <Users className='w-5 h-5 text-teal-500' />,
+            },
+            {
+              title: t('summary.discounts'),
+              value: (-totalSummary.discounts).toFixed(2),
+              unit: currency,
+              icon: <BadgePercent className='w-5 h-5 text-red-500' />,
+            },
+            {
+              title: t('summary.additionalFees'),
+              value: totalSummary.additionalFees.toFixed(2),
+              unit: currency,
+              icon: <HandCoins className='w-5 h-5 text-yellow-500' />,
             },
             {
               title: t('summary.avgPerTransaction'),
