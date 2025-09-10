@@ -382,22 +382,16 @@ export default function DashboardHome() {
         >
           {[
             {
-              title: t('summary.travel'),
-              value: totalSummary.travel,
-              unit: distanceUnit,
-              icon: <MapPin className='w-5 h-5 text-green-500' />,
-            },
-            {
-              title: t('summary.transactions'),
-              value: totalSummary.transactions,
-              unit: '',
-              icon: <ReceiptText className='w-5 h-5 text-indigo-500' />,
-            },
-            {
               title: t('summary.totalValue'),
               value: totalSummary.value.toFixed(2),
               unit: currency,
               icon: <ReceiptText className='w-5 h-5 text-blue-500' />,
+            },
+            {
+              title: t('summary.travel'),
+              value: totalSummary.travel,
+              unit: distanceUnit,
+              icon: <MapPin className='w-5 h-5 text-green-500' />,
             },
             {
               title: t('summary.productsValue'),
@@ -422,6 +416,12 @@ export default function DashboardHome() {
               value: totalSummary.additionalFees.toFixed(2),
               unit: currency,
               icon: <HandCoins className='w-5 h-5 text-yellow-500' />,
+            },
+            {
+              title: t('summary.transactions'),
+              value: totalSummary.transactions,
+              unit: '',
+              icon: <ReceiptText className='w-5 h-5 text-indigo-500' />,
             },
             {
               title: t('summary.avgPerTransaction'),
